@@ -32,6 +32,8 @@ android {
         properties.load(project.rootProject.file("local.properties").inputStream())
         buildConfigField("String", "STORE_URL", "\"${properties.getProperty("STORE_URL")}\"")
         buildConfigField("String", "STORE_ACCESS_TOKEN", "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\"")
+        buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${properties.getProperty("EXCHANGE_RATE_API_KEY")}\"")
+
     }
 
     buildTypes {
@@ -71,6 +73,9 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
+    //retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
