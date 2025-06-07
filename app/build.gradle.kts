@@ -1,8 +1,13 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.apollographql.apollo") version "4.2.0"
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
+
 }
 
 apollo {
@@ -23,6 +28,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "STORE_URL", "\"${properties.getProperty("STORE_URL")}\"")
+        buildConfigField("String", "STORE_ACCESS_TOKEN", "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\"")
     }
 
     buildTypes {
@@ -43,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -58,6 +68,9 @@ dependencies {
     implementation(libs.androidx.material3)
     //Apollo GraphQL
     implementation(libs.apollographql.apollo.runtime)
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -65,4 +78,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+kapt {
+    correctErrorTypes = true
 }
