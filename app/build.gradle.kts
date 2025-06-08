@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -71,6 +73,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
     //retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -82,7 +85,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     //Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.8")
+    implementation(libs.androidx.navigation.compose)
+    //Glide
+    implementation(libs.compose)
 }
 
 kapt {

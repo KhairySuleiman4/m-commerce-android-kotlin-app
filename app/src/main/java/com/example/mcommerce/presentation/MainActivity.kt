@@ -114,14 +114,3 @@ fun BottomNavigationBar(navController: NavHostController) {
         }
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun TestPreview() {
-    Test()
-}
-
-@Composable
-fun Test() {
-    Brands()
-}
