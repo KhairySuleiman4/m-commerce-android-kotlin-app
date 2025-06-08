@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -30,27 +31,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.theme.Primary
 
-
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
-
+fun SignupScreen(modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 64.dp),
+            .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         item {
-            LoginScreenHeader()
+            SignupScreenHeader()
+        }
+
+        item {
+            NameSection()
         }
 
         item {
@@ -58,15 +63,23 @@ fun LoginScreen(modifier: Modifier = Modifier) {
         }
 
         item {
+            PhoneSection()
+        }
+
+        item {
             PasswordSection()
         }
 
         item {
-            LoginButton()
+            ConfirmPasswordSection()
+        }
+
+        item {
+            SignupButton()
         }
 
         item{
-            LoginWithSection()
+            SignupWithSection()
         }
 
         item {
@@ -80,24 +93,32 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LoginScreenHeader(modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(R.string.login),
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp
-    )
+fun SignupScreenHeader(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.create_account),
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp
+        )
 
-    Text(
-        modifier = modifier.padding(top = 8.dp),
-        text = stringResource(R.string.welcome_back),
-        color = Color.Gray,
-        fontSize = 18.sp
-    )
+        Text(
+            modifier = Modifier.padding(top = 8.dp),
+            text = stringResource(R.string.fit_your_information),
+            color = Color.Gray,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
-fun EmailSection(modifier: Modifier = Modifier) {
-    var email by remember { mutableStateOf("") }
+fun NameSection(modifier: Modifier = Modifier) {
+    var name by remember { mutableStateOf("") }
     Column {
         Text(
             modifier = modifier
@@ -106,13 +127,13 @@ fun EmailSection(modifier: Modifier = Modifier) {
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,
-            text = stringResource(R.string.email),
+            text = stringResource(R.string.name),
             fontSize = 18.sp
         )
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = name,
+            onValueChange = { name = it },
             modifier = modifier
                 .padding(
                     top = 8.dp,
@@ -122,7 +143,7 @@ fun EmailSection(modifier: Modifier = Modifier) {
                 .fillMaxWidth(),
             placeholder = {
                 Text(
-                    stringResource(R.string.enter_your_email),
+                    stringResource(R.string.enter_your_name),
                     color = Color.Gray
                 )
             },
@@ -133,7 +154,47 @@ fun EmailSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PasswordSection(modifier: Modifier = Modifier) {
+fun PhoneSection(modifier: Modifier = Modifier) {
+    var phone by remember { mutableStateOf("") }
+    Column {
+        Text(
+            modifier = modifier
+                .padding(
+                    top = 24.dp,
+                    start = 16.dp
+                ),
+            fontWeight = FontWeight.Bold,
+            text = stringResource(R.string.phone),
+            fontSize = 18.sp
+        )
+
+        OutlinedTextField(
+            value = phone,
+            onValueChange = { phone = it },
+            modifier = modifier
+                .padding(
+                    top = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+                .fillMaxWidth(),
+            placeholder = {
+                Text(
+                    stringResource(R.string.enter_your_phone),
+                    color = Color.Gray
+                )
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Phone
+            )
+        )
+    }
+}
+
+@Composable
+fun ConfirmPasswordSection(modifier: Modifier = Modifier) {
     var password by remember { mutableStateOf("") }
     val isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -145,7 +206,7 @@ fun PasswordSection(modifier: Modifier = Modifier) {
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,
-            text = stringResource(R.string.password),
+            text = stringResource(R.string.confirm_password),
             fontSize = 18.sp
         )
 
@@ -161,7 +222,7 @@ fun PasswordSection(modifier: Modifier = Modifier) {
                 .fillMaxWidth(),
             placeholder = {
                 Text(
-                    stringResource(R.string.enter_your_password),
+                    stringResource(R.string.enter_your_password_again),
                     color = Color.Gray
                 )
             },
@@ -173,7 +234,7 @@ fun PasswordSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LoginButton(modifier: Modifier = Modifier) {
+fun SignupButton(modifier: Modifier = Modifier) {
     Button(
         modifier = modifier
             .fillMaxWidth()
@@ -185,12 +246,12 @@ fun LoginButton(modifier: Modifier = Modifier) {
             .height(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Primary),
         onClick = {
-            // login logic
+            // signup logic
         }
     )
     {
         Text(
-            text = stringResource(R.string.login),
+            text = stringResource(R.string.sign_up),
             color = Color.White,
             fontSize = 18.sp
         )
@@ -198,7 +259,7 @@ fun LoginButton(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LoginWithSection(modifier: Modifier = Modifier) {
+fun SignupWithSection(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .padding(
@@ -215,7 +276,7 @@ fun LoginWithSection(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = stringResource(R.string.or_login_with)
+            text = stringResource(R.string.or_sign_up_with)
         )
 
         HorizontalDivider(
@@ -240,47 +301,11 @@ fun LoginWithSection(modifier: Modifier = Modifier) {
     )
 }
 
-@Composable
-fun DontHaveAnAccountSection(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.padding(top = 32.dp)
-    ){
-        Text(
-            text = stringResource(R.string.dont_have_an_accout)
-        )
-
-        Text(
-            modifier = modifier.padding(start = 8.dp),
-            text = stringResource(R.string.sign_up),
-            textDecoration = TextDecoration.Underline,
-            color = Primary
-        )
-    }
-}
-
-@Composable
-fun ContinueAsGuestSection(modifier: Modifier = Modifier) {
-    Row (
-        modifier = modifier.padding(top = 8.dp)
-    ){
-        Text(
-            text = stringResource(R.string.continue_str)
-        )
-
-        Text(
-            modifier = modifier.padding(start = 4.dp),
-            text = stringResource(R.string.as_guest),
-            textDecoration = TextDecoration.Underline,
-            color = Primary
-        )
-    }
-}
-
 @Preview(
     showBackground = true,
     showSystemUi = true
 )
 @Composable
-private fun SignupScreen() {
-    LoginScreen()
+private fun SignupScreenPreview() {
+    SignupScreen()
 }

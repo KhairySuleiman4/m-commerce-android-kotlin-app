@@ -12,4 +12,13 @@
     <string name="sign_up">Sign up</string>
     <string name="continue_str">Continue</string>
     <string name="as_guest">as guest</string>
+    <string name="create_account">Create Account</string>
+    <string name="fit_your_information">Fit your information below or register with your Google account</string>
+    <string name="name">Name</string>
+    <string name="enter_your_name">Enter your name here</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="or_sign_up_with">or sign up with</string>
+    <string name="phone">Phone Number</string>
+    <string name="enter_your_phone">Enter your phone number here</string>
+    <string name="enter_your_password_again">Enter your password here again</string>
 </resources>
