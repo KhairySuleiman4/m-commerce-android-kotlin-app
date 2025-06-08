@@ -33,7 +33,9 @@ import com.example.mcommerce.presentation.favorites.FavoritesScreen
 import com.example.mcommerce.presentation.home.Brands
 import com.example.mcommerce.presentation.home.HomeScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
