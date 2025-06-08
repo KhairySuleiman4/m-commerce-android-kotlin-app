@@ -67,7 +67,7 @@ object ApisManager {
     @Singleton
     fun provideApolloClient() = ApolloClient.Builder()
             .serverUrl(BuildConfig.STORE_URL)
-            .addHttpHeader("X-Shopify-Access-Token", BuildConfig.STORE_ACCESS_TOKEN)
+            .addHttpHeader("X-Shopify-Storefront-Access-Token", BuildConfig.STORE_ACCESS_TOKEN)
             .addHttpHeader("Content-Type", "application/json")
             .build()
 
