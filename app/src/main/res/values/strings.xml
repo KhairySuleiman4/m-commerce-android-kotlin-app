@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">MCommerce</string>
+    <string name="login">Login</string>
+    <string name="welcome_back">Hi Welcome back, you\'ve been missed</string>
+    <string name="email">Email</string>
+    <string name="enter_your_email">Enter your email here</string>
+    <string name="password">Password</string>
+    <string name="enter_your_password">Enter your password here</string>
+    <string name="or_login_with">or login with</string>
+    <string name="google_icon">google icon</string>
+    <string name="dont_have_an_accout">Don\'t have an account?</string>
+    <string name="sign_up">Sign up</string>
+    <string name="continue_str">Continue</string>
+    <string name="as_guest">as guest</string>
 </resources>
