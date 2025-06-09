@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,16 +22,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.CollectionsEntity
+import com.example.mcommerce.presentation.navigation.Screens
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
     LaunchedEffect(Unit) {
         viewModel.getBrands()
     }
-    Brands(state = viewModel.states.value)
+
+    val event = viewModel.events.value
+    LaunchedEffect(event) {
+        when(event){
+            HomeContract.Events.Idle -> {}
+            is HomeContract.Events.NavigateToBrandDetails -> {
+                navController.navigate(Screens.Products(event.brandId))
+                viewModel.resetEvent()
+            }
+        }
+    }
+
+    Brands(
+        state = viewModel.states.value,
+        onBrandClick = { brandId ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(brandId))
+        }
+    )
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -61,26 +84,37 @@ fun BrandsCard(
 }
 
 @Composable
-fun Brands(modifier: Modifier = Modifier,state: HomeContract.States){
+fun Brands(
+    modifier: Modifier = Modifier,
+    state: HomeContract.States,
+    onBrandClick: (String) -> Unit
+    ){
     when(state){
         is HomeContract.States.Failure -> {
 
         }
         HomeContract.States.Idle -> { }
         HomeContract.States.Loading -> {
-            Box(modifier = modifier.fillMaxSize(), Alignment.Center) {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
         is HomeContract.States.Success -> {
-            BrandList(brandsList = state.brandsList)
+            BrandList(
+                brandsList = state.brandsList,
+                onBrandClick = onBrandClick
+                )
         }
     }
 
 }
 
 @Composable
-fun BrandList(modifier: Modifier = Modifier, brandsList: List<CollectionsEntity>) {
+fun BrandList(
+    modifier: Modifier = Modifier,
+    brandsList: List<CollectionsEntity>,
+    onBrandClick: (String) -> Unit
+    ) {
     Column {
         Text(
             "Top Brands",
@@ -99,7 +133,10 @@ fun BrandList(modifier: Modifier = Modifier, brandsList: List<CollectionsEntity>
             items(brandsList) { brand ->
                 BrandsCard(
                     imageUrl = brand.imageUrl,
-                    title = brand.title
+                    title = brand.title,
+                    modifier = modifier.clickable {
+                        onBrandClick(brand.id)
+                    }
                 )
             }
         }

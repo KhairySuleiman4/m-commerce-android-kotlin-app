@@ -1,36 +1,34 @@
-package com.example.mcommerce.presentation
+package com.example.mcommerce.presentation.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class BottomNavItem(
     val icon: ImageVector,
-    val route:String,
+    val route:Screens,
 )
 
 object Constants{
     val BottomNavItems = listOf(
         BottomNavItem(
             icon = Icons.Filled.Home,
-            route = "home"
+            route = Screens.Home
         ),
         BottomNavItem(
             icon = Icons.Filled.Menu,
-            route = "categories"
+            route = Screens.Categories
         ),
         BottomNavItem(
             icon = Icons.Filled.Favorite,
-            route = "favorite"
+            route = Screens.Favorite
         ),
         BottomNavItem(
             icon = Icons.Filled.Person,
-            route = "profile"
+            route = Screens.Profile
         )
     )
 }

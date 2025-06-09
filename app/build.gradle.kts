@@ -7,6 +7,7 @@ plugins {
     id("com.apollographql.apollo") version "4.2.0"
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "1.9.23"
 
 }
 
@@ -88,6 +89,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     //Glide
     implementation(libs.compose)
+    //serializable
+    implementation(libs.kotlinx.serialization.json)
 }
 
 kapt {
