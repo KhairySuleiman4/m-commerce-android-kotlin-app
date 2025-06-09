@@ -1,0 +1,11 @@
+package com.example.mcommerce.data.repoimp
+
+import com.example.mcommerce.data.remote.products.ProductsRemoteDataSource
+import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.domain.repoi.ProductsRepo
+import kotlinx.coroutines.flow.Flow
+
+class ProductsRepoImpl(private val productsRemoteDataSource: ProductsRemoteDataSource): ProductsRepo {
+    override suspend fun fetchProductsByBrand(id: String): Flow<ApiResult<List<ProductsEntity>>> = productsRemoteDataSource.getProducts(id)
+}

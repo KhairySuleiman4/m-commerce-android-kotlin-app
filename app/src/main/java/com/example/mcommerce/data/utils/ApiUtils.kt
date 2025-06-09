@@ -4,7 +4,7 @@ import com.example.mcommerce.domain.ApiResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-suspend fun <T> executeAPI(api: suspend () -> T): Flow<ApiResult<T>> = flow {
+fun <T> executeAPI(api: suspend () -> T): Flow<ApiResult<T>> = flow {
     try {
         emit(ApiResult.Loading())
         val response = api.invoke()

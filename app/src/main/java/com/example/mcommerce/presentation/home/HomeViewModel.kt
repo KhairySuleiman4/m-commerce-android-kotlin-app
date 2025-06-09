@@ -14,8 +14,12 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val brandsUseCase: GetBrandsUseCase
 ): ViewModel(), HomeContract.HomeViewModel {
+
     private val _states = mutableStateOf<HomeContract.States>(HomeContract.States.Idle)
     private val _events = mutableStateOf<HomeContract.Events>(HomeContract.Events.Idle)
+
+    override val states: State<HomeContract.States> get() = _states
+    override val events: State<HomeContract.Events> get() = _events
 
     fun getBrands(){
         viewModelScope.launch {
@@ -38,16 +42,17 @@ class HomeViewModel @Inject constructor(
     override fun invokeActions(action: HomeContract.Action) {
         when(action){
             is HomeContract.Action.ClickOnBrand -> {
-
+                _events.value = HomeContract.Events.NavigateToBrandDetails(action.brandId)
             }
             HomeContract.Action.ClickOnCart -> {
-
+                //navigate to cart and don't forget to switch branches
             }
         }
     }
 
-    override val states: State<HomeContract.States>
-        get() = _states
-    override val events: State<HomeContract.Events>
-        get() = _events
+    fun resetEvent() {
+        _events.value = HomeContract.Events.Idle
+    }
+
+
 }
