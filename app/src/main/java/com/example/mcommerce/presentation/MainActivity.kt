@@ -77,7 +77,7 @@ fun NavHostContainer(
             }
             composable<Screens.Products>{ backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
-                ProductsScreen(brandId = value.brandId)
+                ProductsScreen(brandId = value.brandId, brandName = value.brandName)
             }
         }
     )
