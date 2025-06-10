@@ -4,6 +4,6 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import kotlinx.coroutines.flow.Flow
 
-interface AppRepo {
+interface BrandsRepo {
     suspend fun fetchBrands(): Flow<ApiResult<List<CollectionsEntity>>>
 }

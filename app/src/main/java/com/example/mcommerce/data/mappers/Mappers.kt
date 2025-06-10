@@ -2,8 +2,10 @@ package com.example.mcommerce.data.mappers
 
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ExchangeResponse
+import com.example.mcommerce.data.models.ProductsModel
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
+import com.example.mcommerce.domain.entities.ProductsEntity
 
 fun CollectionsModel.toEntity(): CollectionsEntity{
     return CollectionsEntity(
@@ -24,3 +26,21 @@ fun CollectionsEntity.toModel(): CollectionsModel{
 fun ExchangeResponse.toEntity(): ExchangeRateEntity = ExchangeRateEntity(rates)
 
 fun ExchangeRateEntity.toModel(): ExchangeResponse = ExchangeResponse(rates)
+
+fun ProductsModel.toEntity(): ProductsEntity{
+    return ProductsEntity(
+        id = this.id,
+        title = this.title,
+        imageUrl = this.imageUrl,
+        productType = this.productType
+    )
+}
+
+fun ProductsEntity.toModel(): ProductsModel{
+    return ProductsModel(
+        id = this.id,
+        title = this.title,
+        imageUrl = this.imageUrl,
+        productType = this.productType
+    )
+}
