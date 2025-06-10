@@ -23,57 +23,72 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.mcommerce.presentation.home.HomeContract
 import com.example.mcommerce.presentation.navigation.Screens
 
 @Composable
 fun ProductsScreen(
-    //navController: NavController,
+    navController: NavController,
     viewModel: ProductsViewModel = hiltViewModel(),
     brandId: String,
     brandName: String,
 ) {
+    val event = viewModel.events.value
+    val state = viewModel.states.value
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(Unit) {
         viewModel.getProducts(brandId)
     }
 
-    val event = viewModel.events.value
     LaunchedEffect(event) {
         when(event){
             ProductsContract.Events.Idle -> {}
             is ProductsContract.Events.NavigateToProductDetails -> {
-                //Navigate to product details
+                navController.navigate(Screens.ProductDetails(event.productId))
                 viewModel.resetEvent()
             }
             is ProductsContract.Events.ShowSnackbar -> {
-                Log.i("TAG", "ProductsScreen: ")
+                val result = snackbarHostState.showSnackbar(
+                    message = event.message,
+                    actionLabel = "Undo"
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    // undo adding or removing from wishlist or cart
+                    Log.d("snackbar", "undo clicked")
+                }
+                viewModel.resetEvent()
             }
         }
     }
 
    Products(
-       state = viewModel.states.value,
+       state = state,
        brandName = brandName,
        onProductClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnProduct(productId))
@@ -83,7 +98,8 @@ fun ProductsScreen(
        },
        onAddToCartClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(productId))
-       }
+       },
+       snackbarHostState = snackbarHostState
    )
 
 }
@@ -95,7 +111,8 @@ fun Products(
     brandName: String,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit
+    onAddToCartClick: (String) -> Unit,
+    snackbarHostState: SnackbarHostState
     ) {
     when(state){
         is ProductsContract.States.Failure -> {
@@ -113,7 +130,8 @@ fun Products(
                 brandName = brandName,
                 onProductClick =onProductClick,
                 onFavoriteClick = onFavoriteClick,
-                onAddToCartClick = onAddToCartClick
+                onAddToCartClick = onAddToCartClick,
+                snackbarHostState = snackbarHostState
             )
         }
     }
@@ -125,25 +143,34 @@ fun ProductsList(
     brandName: String,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit
+    onAddToCartClick: (String) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
 
-        items(productsList) { product ->
-            ProductCard(
-                product = product,
-                brandName = brandName,
-                onFavoriteClick = onFavoriteClick,
-                onAddToCartClick = onAddToCartClick,
-                onProductClick = onProductClick
-            )
+    Box{
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+
+            items(productsList) { product ->
+                ProductCard(
+                    product = product,
+                    brandName = brandName,
+                    onFavoriteClick = onFavoriteClick,
+                    onAddToCartClick = onAddToCartClick,
+                    onProductClick = onProductClick
+                )
+            }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
+
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -220,7 +247,7 @@ fun ProductCard(
                         .size(40.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ShoppingCart,
+                        imageVector = if(product.isInCart) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
                         contentDescription = "cart",
                         tint = Color.White
                     )
