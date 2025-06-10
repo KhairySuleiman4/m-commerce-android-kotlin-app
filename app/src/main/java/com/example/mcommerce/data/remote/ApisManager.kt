@@ -22,46 +22,35 @@ object ApisManager {
 
     @Provides
     @Singleton
-    fun provideGsonConverter() : GsonConverterFactory{
-        return GsonConverterFactory.create()
-    }
+    fun provideGsonConverter() : GsonConverterFactory = GsonConverterFactory.create()
 
     @Provides
     @Singleton
-    fun provideApiKeyInterceptor() : Interceptor{
-        return ApiKeyInterceptor()
-    }
+    fun provideApiKeyInterceptor() : Interceptor = ApiKeyInterceptor()
 
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        apiKeyInterceptor: Interceptor,
-    ): OkHttpClient{
-        return OkHttpClient.Builder()
+        apiKeyInterceptor: Interceptor): OkHttpClient = OkHttpClient.Builder()
             .addInterceptor(apiKeyInterceptor)
             .build()
-    }
 
     @Provides
     @Singleton
     fun provideRetrofit(
         factory: GsonConverterFactory,
         client: OkHttpClient
-    ): Retrofit{
-        return Retrofit.Builder()
+    ): Retrofit = Retrofit.Builder()
             .baseUrl("https://v6.exchangerate-api.com/v6/")
             .addConverterFactory(factory)
             .client(client)
             .build()
-    }
+
 
     @Provides
     @Singleton
     fun getExchangeRateService(
-        retrofit: Retrofit
-    ): ExchangeService{
-        return retrofit.create(ExchangeService::class.java)
-    }
+        retrofit: Retrofit): ExchangeService = retrofit.create(ExchangeService::class.java)
 
     @Provides
     @Singleton
@@ -73,7 +62,6 @@ object ApisManager {
 
     @Provides
     @Singleton
-    fun getGraphQLService(apolloClient: ApolloClient): GraphQLService {
-        return GraphQLServiceImp(apolloClient)
-    }
+    fun getGraphQLService(
+        apolloClient: ApolloClient): GraphQLService = GraphQLServiceImp(apolloClient)
 }
