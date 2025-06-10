@@ -21,4 +21,8 @@
     <string name="phone">Phone Number</string>
     <string name="enter_your_phone">Enter your phone number here</string>
     <string name="enter_your_password_again">Enter your password here again</string>
+    <string name="details">Details</string>
+    <string name="description">Description</string>
+    <string name="reviews">Reviews</string>
+    <string name="favorite_icon">Favorite Icon</string>
 </resources>
