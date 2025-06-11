@@ -22,6 +22,7 @@ fun GetProductsByBrandQuery.Data.toModel(): List<ProductsModel>{
             title = it.node.title,
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
+            price = it.node.priceRange.maxVariantPrice.amount.toString()
         )
     } ?: listOf()
 }

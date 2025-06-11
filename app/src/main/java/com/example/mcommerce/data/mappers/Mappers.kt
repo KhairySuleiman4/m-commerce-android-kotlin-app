@@ -26,7 +26,8 @@ fun ProductsModel.toEntity(): ProductsEntity{
         id = this.id,
         title = this.title,
         imageUrl = this.imageUrl,
-        productType = this.productType
+        productType = this.productType,
+        price = this.price
     )
 }
 
@@ -35,6 +36,7 @@ fun ProductsEntity.toModel(): ProductsModel{
         id = this.id,
         title = this.title,
         imageUrl = this.imageUrl,
-        productType = this.productType
+        productType = this.productType,
+        price = this.price
     )
 }
