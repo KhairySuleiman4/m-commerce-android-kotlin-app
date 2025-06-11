@@ -1,18 +1,28 @@
 package com.example.mcommerce.data.di
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import com.example.mcommerce.data.datastore.ExchangeDataStore
+import com.example.mcommerce.data.datastore.ExchangeDataStoreImp
 import com.example.mcommerce.data.remote.brands.BrandsRemoteDataSource
 import com.example.mcommerce.data.remote.brands.BrandsRemoteDataSourceImpl
+import com.example.mcommerce.data.remote.currency.CurrencyRemoteDataSource
+import com.example.mcommerce.data.remote.currency.CurrencyRemoteDataSourceImp
+import com.example.mcommerce.data.remote.exchangerateapi.ExchangeService
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLService
 import com.example.mcommerce.data.remote.products.ProductsRemoteDataSource
 import com.example.mcommerce.data.remote.products.ProductsRemoteDataSourceImpl
 import com.example.mcommerce.data.repoimp.BrandsRepoImpl
+import com.example.mcommerce.data.repoimp.CurrencyRepoImp
 import com.example.mcommerce.data.repoimp.ProductsRepoImpl
 import com.example.mcommerce.domain.repoi.BrandsRepo
+import com.example.mcommerce.domain.repoi.CurrencyRepo
 import com.example.mcommerce.domain.repoi.ProductsRepo
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
 import javax.inject.Singleton
 
 @Module
@@ -41,4 +51,21 @@ object RepositoriesModule{
     fun provideProductsDataSource(graphQLService: GraphQLService): ProductsRemoteDataSource{
         return ProductsRemoteDataSourceImpl(graphQLService)
     }
+
+    @Provides
+    @Singleton
+    fun provideExchangeDataStore(
+        preferences: DataStore<Preferences>): ExchangeDataStore = ExchangeDataStoreImp(preferences)
+
+    @Provides
+    @Singleton
+    fun provideCurrencyRemoteDataSource(
+        retrofitService: ExchangeService): CurrencyRemoteDataSource = CurrencyRemoteDataSourceImp(retrofitService)
+
+    @Provides
+    @Singleton
+    fun provideCurrencyRepository(
+        local: ExchangeDataStore,
+        remote: CurrencyRemoteDataSource
+    ): CurrencyRepo = CurrencyRepoImp(local,remote)
 }

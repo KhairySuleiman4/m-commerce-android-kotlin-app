@@ -18,7 +18,7 @@ class ExchangeDataStoreImp(
 
     override suspend fun getCurrency(): String {
         val currency : String = CURRENCY_VALUE ?: dataStore.data.map { preferences ->
-                preferences[CURRENCY] ?: ""
+                preferences[CURRENCY] ?: "EGP"
             }.first()
         CURRENCY_VALUE = currency
         return currency
@@ -35,12 +35,14 @@ class ExchangeDataStoreImp(
     override suspend fun setCurrency(value: String) {
         dataStore.edit { preferences ->
             preferences[CURRENCY] = value
+            CURRENCY_VALUE = value
         }
     }
 
     override suspend fun setExchange(value: Double) {
         dataStore.edit { preferences ->
             preferences[EXCHANGERATE] = value
+            EXCHANGERATE_VALUE = value
         }
     }
 }

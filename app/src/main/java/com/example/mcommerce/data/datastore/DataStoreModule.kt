@@ -14,18 +14,16 @@ import javax.inject.Singleton
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "ecommerce-dataStore")
 
+@Module
+@InstallIn(SingletonComponent::class)
 object DataStoreModule {
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object DataStoreModule {
 
-        @Provides
-        @Singleton
-        fun provideDataStorePreferences(
-            @ApplicationContext context: Context
-        ): DataStore<Preferences> {
-            return context.dataStore
-        }
-
+    @Provides
+    @Singleton
+    fun provideDataStorePreferences(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences> {
+        return context.dataStore
     }
+
 }

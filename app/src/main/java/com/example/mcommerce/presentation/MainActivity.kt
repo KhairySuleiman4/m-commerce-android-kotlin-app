@@ -30,6 +30,7 @@ import com.example.mcommerce.presentation.navigation.Constants
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.products.ProductsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
+import com.example.mcommerce.presentation.settings.view.SettingsScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -73,7 +74,10 @@ fun NavHostContainer(
                 FavoritesScreen()
             }
             composable<Screens.Profile> {
-                ProfileScreen()
+                ProfileScreen(navController = navController)
+            }
+            composable<Screens.Settings> {
+                SettingsScreen()
             }
             composable<Screens.Products>{ backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
