@@ -49,7 +49,7 @@ fun ProfileScreen(
         modifier = modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
             UserInfo(email = "example@gmail.com", name = "Full Name")
@@ -84,8 +84,8 @@ fun ProfileTabInfo(
             contentDescription = text,
             colorFilter = ColorFilter.tint(color = Primary),
             modifier = Modifier
-                .width(75.dp)
-                .height(50.dp)
+                .width(25.dp)
+                .height(25.dp)
         )
 
         Text(
@@ -106,7 +106,7 @@ fun ProfileTab(
         modifier = modifier
             .background(color = Background)
             .clip(RoundedCornerShape(4.dp))
-            .fillMaxWidth(0.9f)
+            .fillMaxWidth()
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

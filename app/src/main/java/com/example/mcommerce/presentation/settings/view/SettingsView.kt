@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -107,6 +108,7 @@ fun SettingsPage(
     )
     Column(
         modifier = modifier
+            .padding(8.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -211,14 +213,14 @@ fun SettingTabInfo(
     Row(
         modifier= modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Image(
             painter = painterResource(image),
             contentDescription = text,
             modifier = Modifier
-                .width(75.dp)
-                .height(50.dp)
+                .width(25.dp)
+                .height(25.dp)
         )
 
         Text(
@@ -244,6 +246,7 @@ fun CountryTabInfo(
         Image(
             painter = painterResource(image),
             contentDescription = text,
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .clip(RoundedCornerShape(50))
                 .width(50.dp)
@@ -270,7 +273,7 @@ fun CurrencyDisplay(
     ) {
         Text(
             text,
-            color = Color(0,0,0,127),
+            color = Color(0, 0, 0, 77),
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
