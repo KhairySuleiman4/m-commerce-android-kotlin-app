@@ -69,13 +69,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    //Apollo GraphQL
+    // Apollo GraphQL
     implementation(libs.apollographql.apollo.runtime)
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    //Retrofit
+    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     // Preferences DataStore
@@ -87,12 +87,14 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    //Navigation
+    // Navigation
     implementation(libs.androidx.navigation.compose)
-    //Glide
+    // Glide
     implementation(libs.compose)
-    //serializable
+    // Serializable
     implementation(libs.kotlinx.serialization.json)
+    // Constraint Layout
+    implementation(libs.androidx.constraintlayout.compose)
 }
 
 kapt {

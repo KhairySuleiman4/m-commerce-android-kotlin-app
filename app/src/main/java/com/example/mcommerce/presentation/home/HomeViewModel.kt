@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
     override fun invokeActions(action: HomeContract.Action) {
         when(action){
             is HomeContract.Action.ClickOnBrand -> {
-                _events.value = HomeContract.Events.NavigateToBrandDetails(action.brandId)
+                _events.value = HomeContract.Events.NavigateToBrandDetails(action.brandId, action.brandName)
             }
             HomeContract.Action.ClickOnCart -> {
                 //navigate to cart and don't forget to switch branches
@@ -53,6 +53,5 @@ class HomeViewModel @Inject constructor(
     fun resetEvent() {
         _events.value = HomeContract.Events.Idle
     }
-
 
 }

@@ -12,7 +12,7 @@ interface HomeContract {
 
     sealed interface Action{
         data object ClickOnCart: Action
-        data class ClickOnBrand(val brandId: String): Action
+        data class ClickOnBrand(val brandId: String, val brandName: String): Action
     }
 
     sealed interface States{
@@ -23,7 +23,7 @@ interface HomeContract {
     }
 
     sealed interface Events{
-        data class NavigateToBrandDetails(val brandId: String): Events
+        data class NavigateToBrandDetails(val brandId: String, val brandName: String): Events
         data object Idle: Events
     }
 }
