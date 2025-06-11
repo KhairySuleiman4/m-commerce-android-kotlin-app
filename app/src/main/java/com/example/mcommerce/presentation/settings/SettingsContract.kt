@@ -1,7 +1,6 @@
 package com.example.mcommerce.presentation.settings
 
 import androidx.compose.runtime.State
-import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
 
 interface SettingsContract {

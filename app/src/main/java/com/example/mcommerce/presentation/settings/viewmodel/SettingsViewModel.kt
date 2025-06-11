@@ -10,7 +10,6 @@ import com.example.mcommerce.domain.usecases.SaveCurrencyUseCase
 import com.example.mcommerce.presentation.settings.SettingsContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.Currency
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,6 +49,7 @@ class SettingsViewModel @Inject constructor(private val useCase: SaveCurrencyUse
             viewModelScope.launch {
                 useCase.saveCurrency(currency)
                 _rates?.rates?.get(currency)?.let { useCase.saveExchangeRate(it) }
+                _events.value =SettingsContract.Events.SaveCurrency(currency)
             }
         }
         else{
