@@ -15,18 +15,8 @@ import com.example.mcommerce.type.CustomerCreateInput
 class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
 
     override suspend fun getBrands(): ApolloResponse<GetBrandsQuery.Data> = client.query(GetBrandsQuery()).execute()
-    override suspend fun getProducts(id: String): ApolloResponse<GetProductsByBrandQuery.Data> = client.query(GetProductsByBrandQuery(
-        Optional.present(id))).execute()
+    override suspend fun getProducts(id: String): ApolloResponse<GetProductsByBrandQuery.Data> = client.query(GetProductsByBrandQuery(Optional.present(id))).execute()
     override suspend fun getCategories(): ApolloResponse<GetCategoriesQuery.Data> = client.query(GetCategoriesQuery()).execute()
-    override suspend fun getBrands(): ApolloResponse<GetBrandsQuery.Data> =
-        client.query(GetBrandsQuery()).execute()
-
-    override suspend fun getProducts(id: String): ApolloResponse<GetProductsByBrandQuery.Data> =
-        client.query(
-            GetProductsByBrandQuery(
-                Optional.present(id)
-            )
-        ).execute()
 
     override suspend fun createCustomer(customer: CustomerEntity): ApolloResponse<CustomerCreateMutation.Data> =
         client.mutation(

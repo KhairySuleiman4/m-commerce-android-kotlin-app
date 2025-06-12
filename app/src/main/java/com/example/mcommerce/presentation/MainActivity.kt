@@ -14,9 +14,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -129,7 +126,6 @@ fun BottomNavigationBar(
     NavigationBar(
         modifier = Modifier.padding(8.dp)
     ) {
-        val currentDestination = remember { mutableIntStateOf(0) }
 
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
             val isSelected = when (currentRoute) {
