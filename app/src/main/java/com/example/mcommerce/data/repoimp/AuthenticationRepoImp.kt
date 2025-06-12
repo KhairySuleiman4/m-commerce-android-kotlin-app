@@ -22,4 +22,7 @@ class AuthenticationRepoImp(
 
     override suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>> =
         firebase.login(email, password)
+
+    override suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>> =
+        firebase.isMeLoggedIn()
 }

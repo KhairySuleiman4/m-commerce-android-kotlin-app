@@ -8,6 +8,7 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 import com.example.mcommerce.domain.usecases.CreateNewAccountOnFirebaseUseCase
 import com.example.mcommerce.domain.usecases.CreateNewCustomerOnShopifyUseCase
+import com.example.mcommerce.domain.usecases.KeepMeLoggedInUseCase
 import com.example.mcommerce.presentation.auth.AuthContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
@@ -17,11 +18,39 @@ import javax.inject.Inject
 @HiltViewModel
 class SignupViewModel @Inject constructor (
     private val shopifyUseCase: CreateNewCustomerOnShopifyUseCase,
-    private val firebaseUseCase: CreateNewAccountOnFirebaseUseCase
+    private val firebaseUseCase: CreateNewAccountOnFirebaseUseCase,
+    private val keepMeLoggedInUseCase: KeepMeLoggedInUseCase
 ): ViewModel(), AuthContract.SignupViewModel {
 
     private val _events = mutableStateOf<AuthContract.Events>(AuthContract.Events.Idle)
     override val events: State<AuthContract.Events> get() = _events
+
+    init {
+        keepMeLoggedIn()
+    }
+
+    private fun keepMeLoggedIn(){
+        viewModelScope.launch {
+            _events.value = AuthContract.Events.ShowLoading
+            keepMeLoggedInUseCase().collect{
+                when(it){
+                    is ApiResult.Failure -> {
+                        _events.value = AuthContract.Events.ShowSnackbar(it.error.message!!)
+                    }
+                    is ApiResult.Loading -> {
+                        _events.value = AuthContract.Events.ShowLoading
+                    }
+                    is ApiResult.Success -> {
+                        if(it.data) {
+                            _events.value = AuthContract.Events.NavigateToHome
+                        } else{
+                            resetEvent()
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     override fun invokeActions(action: AuthContract.SignupAction) {
         when(action){
@@ -94,7 +123,7 @@ class SignupViewModel @Inject constructor (
         }
     }
 
-    private suspend fun checkShopifyResult(shopifyResult:  ApiResult<String>, credentials: UserCredentialsEntity){
+    private suspend fun checkShopifyResult(shopifyResult: ApiResult<String>, credentials: UserCredentialsEntity){
         when (shopifyResult) {
             is ApiResult.Loading -> {
                 return

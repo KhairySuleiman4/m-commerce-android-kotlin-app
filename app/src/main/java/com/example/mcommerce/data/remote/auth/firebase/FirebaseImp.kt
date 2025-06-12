@@ -36,4 +36,8 @@ class FirebaseImp(
             true
         }
 
+    override suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>> =
+        executeAPI {
+            auth.currentUser != null
+        }
 }
