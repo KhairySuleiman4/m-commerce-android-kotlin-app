@@ -2,6 +2,7 @@
 agp = "8.7.0"
 apolloRuntimeVersion = "4.2.0"
 compose = "1.0.0-beta01"
+firebaseBom = "33.15.0"
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 kotlin = "2.0.0"
@@ -15,6 +16,7 @@ activityCompose = "1.10.1"
 composeBom = "2024.04.01"
 navigationCompose = "2.9.0"
 retrofit = "3.0.0"
+firebaseAuthKtx = "23.2.1"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose" }
@@ -24,6 +26,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 apollographql-apollo-runtime = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apolloRuntimeVersion" }
 compose = { module = "com.github.bumptech.glide:compose", version.ref = "compose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -41,6 +44,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

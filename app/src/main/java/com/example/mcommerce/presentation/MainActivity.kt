@@ -13,6 +13,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,8 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.mcommerce.presentation.auth.signup.SignupScreen
 import com.example.mcommerce.presentation.categories.CategoriesScreen
 import com.example.mcommerce.presentation.favorites.FavoritesScreen
 import com.example.mcommerce.presentation.home.HomeScreen
@@ -38,10 +41,19 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+
+            val screensWithoutBottomBar = setOf(
+                "com.example.mcommerce.presentation.navigation.Screens.Signup",
+                "com.example.mcommerce.presentation.navigation.Screens.Login"
+            )
 
             Scaffold(
                 bottomBar = {
-                    BottomNavigationBar(navController = navController)
+                    if (currentRoute !in screensWithoutBottomBar) {
+                        BottomNavigationBar(navController = navController)
+                    }
                 },
                 content = { padding ->
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -60,9 +72,12 @@ fun NavHostContainer(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screens.Home,
+        startDestination = Screens.Signup,
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
+            composable<Screens.Signup> {
+                SignupScreen(navController = navController)
+            }
             composable<Screens.Home> {
                 HomeScreen(navController = navController)
             }

@@ -1,7 +1,9 @@
-package com.example.mcommerce.presentation.auth.view
+package com.example.mcommerce.presentation.auth.signup
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,14 +18,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,11 +44,83 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.mcommerce.R
+import com.example.mcommerce.domain.entities.UserCredentialsEntity
+import com.example.mcommerce.presentation.auth.login.ContinueAsGuestSection
+import com.example.mcommerce.presentation.auth.login.DontHaveAnAccountSection
+import com.example.mcommerce.presentation.auth.login.EmailSection
+import com.example.mcommerce.presentation.auth.login.PasswordSection
+import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
-fun SignupScreen(modifier: Modifier = Modifier) {
+fun SignupScreen(
+    navController: NavController,
+    viewModel: SignupViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
+) {
+    val event = viewModel.events.value
+    val snackbarHostState = remember { SnackbarHostState() }
+    val isLoading = remember { mutableStateOf(false) }
+
+    LaunchedEffect(event) {
+        when(event){
+            is SignupContract.Events.Idle -> {}
+            is SignupContract.Events.NavigateToHome -> {
+                navController.navigate(Screens.Home)
+                viewModel.resetEvent()
+            }
+            is SignupContract.Events.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(message = event.message)
+                viewModel.resetEvent()
+            }
+
+            is SignupContract.Events.ShowLoading -> {
+                isLoading.value = true
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = modifier
+    ) { paddingValues ->
+        if (isLoading.value) {
+            Box(
+                modifier = Modifier
+                    .background(Color.White)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else{
+            SignupComposable(
+                onSignUpClicked = { credentials, confirm ->
+                    viewModel.invokeActions(SignupContract.Action.ClickOnSignup(credentials, confirm))
+                },
+                snackbarHostState = snackbarHostState,
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
+    }
+}
+
+@Composable
+fun SignupComposable(
+    onSignUpClicked: (UserCredentialsEntity, String) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier
+) {
+
+    val name = remember { mutableStateOf("") }
+    val email = remember { mutableStateOf("") }
+    val phone = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+    val confirmPassword = remember { mutableStateOf("") }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -55,27 +133,50 @@ fun SignupScreen(modifier: Modifier = Modifier) {
         }
 
         item {
-            NameSection()
+            NameSection(name = name.value){
+                name.value = it
+            }
         }
 
         item {
-            EmailSection()
+            EmailSection(email = email.value){
+                email.value = it
+            }
         }
 
         item {
-            PhoneSection()
+            PhoneSection(phone = phone.value){
+                phone.value = it
+            }
         }
 
         item {
-            PasswordSection()
+            PasswordSection(password = password.value){
+                password.value = it
+            }
         }
 
         item {
-            ConfirmPasswordSection()
+            ConfirmPasswordSection(password = confirmPassword.value){
+                confirmPassword.value = it
+            }
         }
 
         item {
-            SignupButton()
+            SignupButton(
+                onSignupClicked = { credentials, confirm ->
+                    onSignUpClicked(credentials, confirm)
+                },
+                credentials = UserCredentialsEntity(
+                    name = name.value,
+                    mail = email.value,
+                    phoneNumber = phone.value,
+                    password = password.value,
+                    isVerified = false,
+                    accessToken = ""
+                ),
+                confirmPassword = confirmPassword.value
+            )
         }
 
         item{
@@ -117,8 +218,8 @@ fun SignupScreenHeader(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun NameSection(modifier: Modifier = Modifier) {
-    var name by remember { mutableStateOf("") }
+fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (String) -> Unit) {
+
     Column {
         Text(
             modifier = modifier
@@ -133,7 +234,7 @@ fun NameSection(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = onNameChanged,
             modifier = modifier
                 .padding(
                     top = 8.dp,
@@ -154,8 +255,7 @@ fun NameSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PhoneSection(modifier: Modifier = Modifier) {
-    var phone by remember { mutableStateOf("") }
+fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (String) -> Unit) {
     Column {
         Text(
             modifier = modifier
@@ -170,7 +270,7 @@ fun PhoneSection(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = phone,
-            onValueChange = { phone = it },
+            onValueChange = onPhoneChanged,
             modifier = modifier
                 .padding(
                     top = 8.dp,
@@ -194,8 +294,7 @@ fun PhoneSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ConfirmPasswordSection(modifier: Modifier = Modifier) {
-    var password by remember { mutableStateOf("") }
+fun ConfirmPasswordSection(modifier: Modifier = Modifier, password: String, onPasswordChanged: (String) -> Unit) {
     val isPasswordVisible by remember { mutableStateOf(false) }
 
     Column {
@@ -212,7 +311,7 @@ fun ConfirmPasswordSection(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = onPasswordChanged,
             modifier = modifier
                 .padding(
                     top = 8.dp,
@@ -234,7 +333,12 @@ fun ConfirmPasswordSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SignupButton(modifier: Modifier = Modifier) {
+fun SignupButton(
+    onSignupClicked: (UserCredentialsEntity, String) -> Unit,
+    credentials: UserCredentialsEntity,
+    confirmPassword: String,
+    modifier: Modifier = Modifier
+) {
     Button(
         modifier = modifier
             .fillMaxWidth()
@@ -246,7 +350,7 @@ fun SignupButton(modifier: Modifier = Modifier) {
             .height(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Primary),
         onClick = {
-            // signup logic
+            onSignupClicked(credentials, confirmPassword)
         }
     )
     {
@@ -263,7 +367,7 @@ fun SignupWithSection(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .padding(
-                top = 32.dp
+                top = 24.dp
             )
     ) {
         HorizontalDivider(
@@ -291,7 +395,7 @@ fun SignupWithSection(modifier: Modifier = Modifier) {
 
     Image(
         modifier = modifier
-            .padding(top = 32.dp)
+            .padding(top = 24.dp)
             .size(32.dp)
             .clip(CircleShape)
             .border(0.5.dp, Color.Gray, CircleShape)
@@ -299,13 +403,4 @@ fun SignupWithSection(modifier: Modifier = Modifier) {
         painter = painterResource(R.drawable.google),
         contentDescription = stringResource(R.string.google_icon)
     )
-}
-
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-private fun SignupScreenPreview() {
-    SignupScreen()
 }

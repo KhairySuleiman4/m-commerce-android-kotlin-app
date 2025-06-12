@@ -76,4 +76,6 @@ object ApisManager {
     fun getGraphQLService(apolloClient: ApolloClient): GraphQLService {
         return GraphQLServiceImp(apolloClient)
     }
+
+
 }

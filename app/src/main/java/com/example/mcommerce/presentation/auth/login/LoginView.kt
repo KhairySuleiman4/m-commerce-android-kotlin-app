@@ -1,4 +1,4 @@
-package com.example.mcommerce.presentation.auth.view
+package com.example.mcommerce.presentation.auth.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -54,11 +54,11 @@ fun LoginScreen(modifier: Modifier = Modifier) {
         }
 
         item {
-            EmailSection()
+            //EmailSection()
         }
 
         item {
-            PasswordSection()
+            //PasswordSection()
         }
 
         item {
@@ -96,8 +96,7 @@ fun LoginScreenHeader(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EmailSection(modifier: Modifier = Modifier) {
-    var email by remember { mutableStateOf("") }
+fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (String) -> Unit) {
     Column {
         Text(
             modifier = modifier
@@ -112,7 +111,7 @@ fun EmailSection(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = onMailChanged,
             modifier = modifier
                 .padding(
                     top = 8.dp,
@@ -133,8 +132,7 @@ fun EmailSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PasswordSection(modifier: Modifier = Modifier) {
-    var password by remember { mutableStateOf("") }
+fun PasswordSection(modifier: Modifier = Modifier, password: String, onPasswordChanged: (String) -> Unit) {
     val isPasswordVisible by remember { mutableStateOf(false) }
 
     Column {
@@ -151,7 +149,7 @@ fun PasswordSection(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = onPasswordChanged,
             modifier = modifier
                 .padding(
                     top = 8.dp,

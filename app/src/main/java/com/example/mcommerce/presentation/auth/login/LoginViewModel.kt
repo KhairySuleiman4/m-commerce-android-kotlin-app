@@ -1,4 +1,4 @@
-package com.example.mcommerce.presentation.auth.viewmodel
+package com.example.mcommerce.presentation.auth.login
 
 import androidx.lifecycle.ViewModel
 
