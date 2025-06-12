@@ -6,6 +6,7 @@ import com.apollographql.apollo.api.Optional
 import com.example.mcommerce.CustomerAccessTokenCreateMutation
 import com.example.mcommerce.CustomerCreateMutation
 import com.example.mcommerce.GetBrandsQuery
+import com.example.mcommerce.GetCategoriesQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.type.CustomerAccessTokenCreateInput
@@ -13,6 +14,10 @@ import com.example.mcommerce.type.CustomerCreateInput
 
 class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
 
+    override suspend fun getBrands(): ApolloResponse<GetBrandsQuery.Data> = client.query(GetBrandsQuery()).execute()
+    override suspend fun getProducts(id: String): ApolloResponse<GetProductsByBrandQuery.Data> = client.query(GetProductsByBrandQuery(
+        Optional.present(id))).execute()
+    override suspend fun getCategories(): ApolloResponse<GetCategoriesQuery.Data> = client.query(GetCategoriesQuery()).execute()
     override suspend fun getBrands(): ApolloResponse<GetBrandsQuery.Data> =
         client.query(GetBrandsQuery()).execute()
 

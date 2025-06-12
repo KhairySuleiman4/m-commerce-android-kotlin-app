@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +42,8 @@ fun HomeScreen(
     LaunchedEffect(event) {
         when(event){
             HomeContract.Events.Idle -> {}
-            is HomeContract.Events.NavigateToBrandDetails -> {
-                navController.navigate(Screens.Products(event.brandId))
+            is HomeContract.Events.NavigateToBrandProducts -> {
+                navController.navigate(Screens.Products(event.brandId, event.brandName))
                 viewModel.resetEvent()
             }
         }
@@ -50,48 +51,21 @@ fun HomeScreen(
 
     Brands(
         state = viewModel.states.value,
-        onBrandClick = { brandId ->
-            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(brandId))
+        onBrandClick = { brandId, brandName ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(brandId, brandName))
         }
     )
-}
-
-@OptIn(ExperimentalGlideComposeApi::class)
-@Composable
-fun BrandsCard(
-    imageUrl: String,
-    title: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
-    ) {
-        GlideImage(
-            model = imageUrl,
-            contentDescription = title,
-            modifier = modifier
-                .size(70.dp)
-        )
-        Text(
-            text = title,
-            fontSize = 14.sp,
-            color = Color.Black,
-            fontWeight = FontWeight.Medium
-        )
-    }
 }
 
 @Composable
 fun Brands(
     modifier: Modifier = Modifier,
     state: HomeContract.States,
-    onBrandClick: (String) -> Unit
+    onBrandClick: (String, String) -> Unit
     ){
     when(state){
         is HomeContract.States.Failure -> {
-
+            //show alert
         }
         HomeContract.States.Idle -> { }
         HomeContract.States.Loading -> {
@@ -113,7 +87,7 @@ fun Brands(
 fun BrandList(
     modifier: Modifier = Modifier,
     brandsList: List<CollectionsEntity>,
-    onBrandClick: (String) -> Unit
+    onBrandClick: (String, String) -> Unit
     ) {
     Column {
         Text(
@@ -135,10 +109,38 @@ fun BrandList(
                     imageUrl = brand.imageUrl,
                     title = brand.title,
                     modifier = modifier.clickable {
-                        onBrandClick(brand.id)
+                        onBrandClick(brand.id, brand.title)
                     }
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun BrandsCard(
+    imageUrl: String,
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier
+    ) {
+        GlideImage(
+            model = imageUrl,
+            contentDescription = title,
+            modifier = modifier
+                .size(70.dp)
+        )
+    }
+}
+
+@Composable
+fun CouponsCard(modifier: Modifier = Modifier) {
+    Card {
+
     }
 }

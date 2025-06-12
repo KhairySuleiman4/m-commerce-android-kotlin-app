@@ -17,5 +17,9 @@ sealed class Screens {
     @Serializable
     data object Profile : Screens()
     @Serializable
-    data class Products(val brandId: String) : Screens()
+    data object Settings : Screens()
+    @Serializable
+    data class Products(val brandId: String, val brandName: String = "") : Screens()
+    @Serializable
+    data class ProductDetails(val productId: String): Screens()
 }
