@@ -12,6 +12,9 @@ sealed class Screens {
     data object Favorite : Screens()
     @Serializable
     data object Profile : Screens()
+    @Serializable
+    data object Settings : Screens()
+
 
     @Serializable
     data class Products(val brandId: String, val brandName: String) : Screens()
