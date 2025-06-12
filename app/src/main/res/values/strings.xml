@@ -25,4 +25,5 @@
     <string name="description">Description</string>
     <string name="reviews">Reviews</string>
     <string name="favorite_icon">Favorite Icon</string>
+    <string name="do_have_an_accout">Do you have an account?</string>
 </resources>

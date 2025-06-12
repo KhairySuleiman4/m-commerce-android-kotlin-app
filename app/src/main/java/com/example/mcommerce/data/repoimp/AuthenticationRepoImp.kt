@@ -14,11 +14,12 @@ class AuthenticationRepoImp(
     private val firebase: Firebase,
     private val remote: CustomerRemoteDataSource
 ): AuthenticationRepo {
-    override suspend fun createAccountOnShopify(credentials: UserCredentialsEntity): Flow<ApiResult<String>> {
-        return remote.createCustomer(customer = credentials.toCustomerEntity())
-    }
+    override suspend fun createAccountOnShopify(credentials: UserCredentialsEntity): Flow<ApiResult<String>> =
+        remote.createCustomer(customer = credentials.toCustomerEntity())
 
-    override suspend fun createAccountOnFirebase(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>>{
-        return firebase.createNewAccount(credentials)
-    }
+    override suspend fun createAccountOnFirebase(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>> =
+        firebase.createNewAccount(credentials)
+
+    override suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>> =
+        firebase.login(email, password)
 }

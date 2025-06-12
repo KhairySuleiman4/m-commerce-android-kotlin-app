@@ -1,6 +1,5 @@
 package com.example.mcommerce.presentation.auth.signup
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -9,6 +8,7 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 import com.example.mcommerce.domain.usecases.CreateNewAccountOnFirebaseUseCase
 import com.example.mcommerce.domain.usecases.CreateNewCustomerOnShopifyUseCase
+import com.example.mcommerce.presentation.auth.AuthContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -18,33 +18,46 @@ import javax.inject.Inject
 class SignupViewModel @Inject constructor (
     private val shopifyUseCase: CreateNewCustomerOnShopifyUseCase,
     private val firebaseUseCase: CreateNewAccountOnFirebaseUseCase
-): ViewModel(), SignupContract.SignupViewModel {
+): ViewModel(), AuthContract.SignupViewModel {
 
-    private val _events = mutableStateOf<SignupContract.Events>(SignupContract.Events.Idle)
+    private val _events = mutableStateOf<AuthContract.Events>(AuthContract.Events.Idle)
+    override val events: State<AuthContract.Events> get() = _events
 
-    override val events: State<SignupContract.Events> get() = _events
+    override fun invokeActions(action: AuthContract.SignupAction) {
+        when(action){
+            is AuthContract.SignupAction.ClickOnNavigateToLogin -> {
+                _events.value = AuthContract.Events.NavigateToLogin
+            }
+            is AuthContract.SignupAction.ClickOnSignupButton -> {
+                changeEventBasedOnCredentials(action.credentials, action.confirmPassword)
+            }
 
-    override fun invokeActions(action: SignupContract.Action.ClickOnSignup) {
+            is AuthContract.SignupAction.ClickOnContinueAsGuest -> {
+                _events.value = AuthContract.Events.NavigateToHome
+            }
+        }
+    }
 
-        val msg = checkCredentials(action.credentials, action.confirmPassword)
+    private fun changeEventBasedOnCredentials(credentials: UserCredentialsEntity, confirmPassword: String){
+        val msg = checkCredentials(credentials, confirmPassword)
         when(msg){
             "Success" -> {
-                createNewAccount(action.credentials)
+                createNewAccount(credentials)
             }
             "Complete" -> {
-                _events.value = SignupContract.Events.ShowSnackbar("Please, fill all fields")
+                _events.value = AuthContract.Events.ShowSnackbar("Please, fill all fields")
             }
             "Email" -> {
-                _events.value = SignupContract.Events.ShowSnackbar("Please, enter a valid email")
+                _events.value = AuthContract.Events.ShowSnackbar("Please, enter a valid email")
             }
             "Phone" -> {
-                _events.value = SignupContract.Events.ShowSnackbar("Please, enter a valid phone number")
+                _events.value = AuthContract.Events.ShowSnackbar("Please, enter a valid phone number")
             }
             "Password" -> {
-                _events.value = SignupContract.Events.ShowSnackbar("Password should be 6 characters at least")
+                _events.value = AuthContract.Events.ShowSnackbar("Password should be 6 characters at least")
             }
             "Confirm" -> {
-                _events.value = SignupContract.Events.ShowSnackbar("The two passwords should be exactly the same")
+                _events.value = AuthContract.Events.ShowSnackbar("The two passwords should be exactly the same")
             }
         }
     }
@@ -66,7 +79,7 @@ class SignupViewModel @Inject constructor (
 
     private fun createNewAccount(credentials: UserCredentialsEntity) {
         viewModelScope.launch {
-            _events.value = SignupContract.Events.ShowLoading
+            _events.value = AuthContract.Events.ShowLoading
 
             try {
                 val shopifyResult = shopifyUseCase(credentials)
@@ -74,7 +87,7 @@ class SignupViewModel @Inject constructor (
 
                 checkShopifyResult(shopifyResult, credentials)
             } catch (e: Exception) {
-                _events.value = SignupContract.Events.ShowSnackbar(
+                _events.value = AuthContract.Events.ShowSnackbar(
                     "Account creation failed: ${e.message}"
                 )
             }
@@ -87,7 +100,7 @@ class SignupViewModel @Inject constructor (
                 return
             }
             is ApiResult.Failure -> {
-                _events.value = SignupContract.Events.ShowSnackbar(
+                _events.value = AuthContract.Events.ShowSnackbar(
                     "Shopify account creation failed: ${shopifyResult.error.message}"
                 )
                 return
@@ -109,18 +122,18 @@ class SignupViewModel @Inject constructor (
         }
     }
 
-    private fun checkFirebaseResult(firebaseResult: ApiResult<Boolean>, ){
+    private fun checkFirebaseResult(firebaseResult: ApiResult<Boolean>){
         when (firebaseResult) {
             is ApiResult.Loading -> {
                 return
             }
             is ApiResult.Failure -> {
-                _events.value = SignupContract.Events.ShowSnackbar(
+                _events.value = AuthContract.Events.ShowSnackbar(
                     "Firebase account creation failed: ${firebaseResult.error.message}"
                 )
             }
             is ApiResult.Success -> {
-                _events.value = SignupContract.Events.NavigateToHome
+                _events.value = AuthContract.Events.NavigateToHome
             }
         }
     }
@@ -132,6 +145,6 @@ class SignupViewModel @Inject constructor (
     private fun isNotValidPassword(password: String): Boolean = password.length < 6
 
     fun resetEvent(){
-        _events.value = SignupContract.Events.Idle
+        _events.value = AuthContract.Events.Idle
     }
 }

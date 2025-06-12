@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.mcommerce.presentation.auth.login.LoginScreen
 import com.example.mcommerce.presentation.auth.signup.SignupScreen
 import com.example.mcommerce.presentation.categories.CategoriesScreen
 import com.example.mcommerce.presentation.favorites.FavoritesScreen
@@ -76,7 +77,10 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable<Screens.Signup> {
-                SignupScreen(navController = navController)
+                SignupScreen(navController)
+            }
+            composable<Screens.Login> {
+                LoginScreen(navController)
             }
             composable<Screens.Home> {
                 HomeScreen(navController = navController)

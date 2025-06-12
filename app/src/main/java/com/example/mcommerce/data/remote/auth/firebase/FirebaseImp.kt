@@ -29,4 +29,11 @@ class FirebaseImp(
             true
         }
 
+    override suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>> =
+        executeAPI {
+            auth.signInWithEmailAndPassword(email, password).await()
+
+            true
+        }
+
 }

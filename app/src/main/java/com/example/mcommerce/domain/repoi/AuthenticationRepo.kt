@@ -7,4 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface AuthenticationRepo {
     suspend fun createAccountOnShopify(credentials: UserCredentialsEntity): Flow<ApiResult<String>>
     suspend fun createAccountOnFirebase(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>>
+    suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>>
 }
