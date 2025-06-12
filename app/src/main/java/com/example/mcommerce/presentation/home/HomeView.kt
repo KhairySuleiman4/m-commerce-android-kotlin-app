@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +42,7 @@ fun HomeScreen(
     LaunchedEffect(event) {
         when(event){
             HomeContract.Events.Idle -> {}
-            is HomeContract.Events.NavigateToBrandDetails -> {
+            is HomeContract.Events.NavigateToBrandProducts -> {
                 navController.navigate(Screens.Products(event.brandId, event.brandName))
                 viewModel.resetEvent()
             }
@@ -134,5 +135,12 @@ fun BrandsCard(
             modifier = modifier
                 .size(70.dp)
         )
+    }
+}
+
+@Composable
+fun CouponsCard(modifier: Modifier = Modifier) {
+    Card {
+
     }
 }

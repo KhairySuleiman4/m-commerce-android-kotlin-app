@@ -68,7 +68,7 @@ fun NavHostContainer(
                 HomeScreen(navController = navController)
             }
             composable<Screens.Categories> {
-                CategoriesScreen()
+                CategoriesScreen(navController = navController)
             }
             composable<Screens.Favorite> {
                 FavoritesScreen()
