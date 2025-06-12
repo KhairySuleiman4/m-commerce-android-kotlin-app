@@ -52,6 +52,7 @@ fun CategoriesScreen(
             CategoriesContract.Events.Idle -> {}
             is CategoriesContract.Events.NavigateToCategoryProducts -> {
                 navController.navigate(Screens.Products(event.categoryId))
+                viewModel.resetEvent()
             }
         }
     }
@@ -120,7 +121,7 @@ fun CategoriesCard(
         colors = CardDefaults.cardColors(Color(0xFFd1b9b1)),
         modifier = modifier
             .padding(8.dp)
-            .height(200.dp)
+            .height(180.dp)
             .clickable { onCategoryClick(category.id) },
         elevation = CardDefaults.cardElevation(3.dp)
     ){
