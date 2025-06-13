@@ -43,6 +43,7 @@ fun ProfileScreen(
         ProfileItem(R.drawable.credit_icon,"Payment method", Screens.Profile),
         ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
         ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
+        ProfileItem(R.drawable.logout_icon,"Logout", Screens.Profile),
     )
 
     LazyColumn(
