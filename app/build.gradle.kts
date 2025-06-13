@@ -8,7 +8,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "1.9.23"
-
+    id("com.google.gms.google-services")
 }
 
 apollo {
@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.apollographql.apollo.runtime)
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.firebase.auth.ktx)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     // Retrofit
@@ -95,6 +96,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // Constraint Layout
     implementation(libs.androidx.constraintlayout.compose)
+    // Firebase
+    implementation(platform(libs.firebase.bom))
 }
 
 kapt {

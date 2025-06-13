@@ -139,6 +139,7 @@ fun Products(
 
 @Composable
 fun ProductsList(
+    modifier: Modifier = Modifier,
     productsList: List<ProductsContract.ProductUIModel>,
     brandName: String,
     onProductClick: (String) -> Unit,
@@ -152,7 +153,8 @@ fun ProductsList(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = modifier.fillMaxSize()
         ) {
 
             items(productsList) { product ->

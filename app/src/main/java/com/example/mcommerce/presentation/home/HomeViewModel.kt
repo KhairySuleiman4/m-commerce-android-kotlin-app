@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
     override fun invokeActions(action: HomeContract.Action) {
         when(action){
             is HomeContract.Action.ClickOnBrand -> {
-                _events.value = HomeContract.Events.NavigateToBrandDetails(action.brandId, action.brandName)
+                _events.value = HomeContract.Events.NavigateToBrandProducts(action.brandId, action.brandName)
             }
             HomeContract.Action.ClickOnCart -> {
                 //navigate to cart and don't forget to switch branches

@@ -13,16 +13,18 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.mcommerce.presentation.auth.login.LoginScreen
+import com.example.mcommerce.presentation.auth.signup.SignupScreen
 import com.example.mcommerce.presentation.categories.CategoriesScreen
 import com.example.mcommerce.presentation.favorites.FavoritesScreen
 import com.example.mcommerce.presentation.home.HomeScreen
@@ -40,10 +42,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+
+            val bottomBarRoutes = setOf(
+                "com.example.mcommerce.presentation.navigation.Screens.Home",
+                "com.example.mcommerce.presentation.navigation.Screens.Categories",
+                "com.example.mcommerce.presentation.navigation.Screens.Favorite",
+                "com.example.mcommerce.presentation.navigation.Screens.Profile"
+            )
+
+            val showBottomBar = currentRoute in bottomBarRoutes
 
             Scaffold(
                 bottomBar = {
-                    BottomNavigationBar(navController = navController)
+                    if (showBottomBar) {
+                        BottomNavigationBar(navController = navController, currentRoute = currentRoute)
+                    }
                 },
                 content = { padding ->
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -62,14 +77,20 @@ fun NavHostContainer(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screens.Home,
+        startDestination = Screens.Signup,
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
+            composable<Screens.Signup> {
+                SignupScreen(navController)
+            }
+            composable<Screens.Login> {
+                LoginScreen(navController)
+            }
             composable<Screens.Home> {
                 HomeScreen(navController = navController)
             }
             composable<Screens.Categories> {
-                CategoriesScreen()
+                CategoriesScreen(navController = navController)
             }
             composable<Screens.Favorite> {
                 FavoritesScreen()
@@ -97,25 +118,38 @@ fun NavHostContainer(
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    currentRoute: String?
+    ) {
 
     NavigationBar(
         modifier = Modifier.padding(8.dp)
     ) {
-        val currentDestination = remember { mutableIntStateOf(0) }
 
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
-            val isSelected = currentDestination.intValue == index
+            val isSelected = when (currentRoute) {
+                "com.example.mcommerce.presentation.navigation.Screens.Home" -> index == 0
+                "com.example.mcommerce.presentation.navigation.Screens.Categories" -> index == 1
+                "com.example.mcommerce.presentation.navigation.Screens.Favorite" -> index == 2
+                "com.example.mcommerce.presentation.navigation.Screens.Profile" -> index == 3
+                else -> false
+            }
 
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-                    currentDestination.intValue = index
-                    navController.navigate(navItem.route)
+                    navController.navigate(navItem.route){
+                        popUpTo(navController.graph.startDestinationId){
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 alwaysShowLabel = true,
                 icon = {
-                    Icon(imageVector = navItem.icon, "Navigation Icon")
+                    Icon(imageVector = navItem.icon, contentDescription = "Navigation Icon")
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,

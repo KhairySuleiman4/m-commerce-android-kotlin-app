@@ -1,0 +1,14 @@
+query getCategories{
+    collections(first: 4,after:"eyJsYXN0X2lkIjo2MzMwNjYxNjA0MDEsImxhc3RfdmFsdWUiOjYzMzA2NjE2MDQwMX0=") {
+        edges {
+            node {
+                id
+                description
+                title
+                image{
+                    url
+                }
+            }
+        }
+    }
+}

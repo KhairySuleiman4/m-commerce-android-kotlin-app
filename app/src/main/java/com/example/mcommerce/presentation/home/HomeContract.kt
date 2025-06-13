@@ -23,7 +23,7 @@ interface HomeContract {
     }
 
     sealed interface Events{
-        data class NavigateToBrandDetails(val brandId: String, val brandName: String): Events
+        data class NavigateToBrandProducts(val brandId: String, val brandName: String): Events
         data object Idle: Events
     }
 }

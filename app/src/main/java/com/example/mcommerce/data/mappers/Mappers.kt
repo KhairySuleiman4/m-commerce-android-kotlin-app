@@ -1,11 +1,15 @@
 package com.example.mcommerce.data.mappers
 
+import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ExchangeResponse
 import com.example.mcommerce.data.models.ProductsModel
+import com.example.mcommerce.domain.entities.CategoriesEntity
 import com.example.mcommerce.domain.entities.CollectionsEntity
+import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.domain.entities.UserCredentialsEntity
 
 fun CollectionsModel.toEntity(): CollectionsEntity{
     return CollectionsEntity(
@@ -44,5 +48,37 @@ fun ProductsEntity.toModel(): ProductsModel{
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price
+    )
+}
+
+fun CategoriesModel.toEntity(): CategoriesEntity{
+    return CategoriesEntity(
+        id = this.id,
+        title = this.title,
+        description = this.description,
+        imageUrl = this.imageUrl,
+    )
+}
+
+fun CategoriesEntity.toModel(): CategoriesModel{
+    return CategoriesModel(
+        id = this.id,
+        title = this.title,
+        description = this.description,
+        imageUrl = this.imageUrl,
+    )
+}
+
+
+fun UserCredentialsEntity.toUrlField(): String {
+    return """{ "token": "${this.accessToken}", "phone": "${this.phoneNumber}" }"""
+}
+
+fun UserCredentialsEntity.toCustomerEntity(): CustomerEntity {
+    return CustomerEntity(
+        name = this.name,
+        email = this.mail,
+        phone = this.phoneNumber,
+        password = this.password,
     )
 }
