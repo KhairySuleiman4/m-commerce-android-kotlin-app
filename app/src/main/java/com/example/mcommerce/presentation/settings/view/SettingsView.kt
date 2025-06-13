@@ -46,7 +46,6 @@ fun SettingsScreen(
     ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        viewModel.getRates()
         viewModel.showCurrency()
     }
     val event = viewModel.events.value
