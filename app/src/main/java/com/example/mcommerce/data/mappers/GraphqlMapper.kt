@@ -2,10 +2,13 @@ package com.example.mcommerce.data.mappers
 
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCategoriesQuery
+import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ProductsModel
+import com.example.mcommerce.domain.entities.ProductInfoEntity
+import com.example.mcommerce.domain.entities.ProductVariantEntity
 
 fun GetBrandsQuery.Data.toModel(): List<CollectionsModel>{
     return this.collections.edges.map {
@@ -38,4 +41,43 @@ fun GetCategoriesQuery.Data.toModel(): List<CategoriesModel>{
             imageUrl = it.node.image?.url.toString(),
         )
     }
+}
+
+fun GetProductByIdQuery.Data.toModel(): ProductInfoEntity{
+    val id = this.current?.id ?: ""
+    val images = this.current?.images?.nodes?.map { it.url.toString() } ?: listOf()
+    val title = this.current?.title ?: ""
+    val price = this.current?.priceRange?.maxVariantPrice?.amount.toString()
+    val priceUnit = this.current?.priceRange?.maxVariantPrice?.currencyCode.toString()
+    val productType = this.current?.productType ?: "Unknown Type"
+    val vendor = this.current?.vendor ?: "Vendor N/A"
+    val description = this.current?.description ?: "No Description"
+    val variants: List<ProductVariantEntity> = this.current?.variants?.toListOfVariantEntity() ?: listOf()
+
+    return ProductInfoEntity(
+        id = id,
+        images = images,
+        title = title,
+        price = price,
+        priceUnit = priceUnit,
+        productType = productType,
+        vendor = vendor,
+        description = description,
+        variants = variants,
+    )
+}
+
+fun GetProductByIdQuery.Variants.toListOfVariantEntity(): List<ProductVariantEntity>{
+    return this.edges.map{
+            it.node.toVariantEntity()
+        }
+}
+
+fun GetProductByIdQuery.Node1.toVariantEntity(): ProductVariantEntity{
+    return ProductVariantEntity(
+        id = this.id,
+        imageUrl = this.image?.url.toString(),
+        title = this.title,
+        price = this.price.amount.toString(),
+    )
 }
