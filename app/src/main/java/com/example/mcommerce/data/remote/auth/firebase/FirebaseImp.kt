@@ -52,4 +52,9 @@ class FirebaseImp(
         executeAPI {
             auth.currentUser?.photoUrl.toString()
         }
+
+    override fun isGuestMode(): Flow<ApiResult<Boolean>> =
+        executeAPI {
+            auth.currentUser == null
+        }
 }

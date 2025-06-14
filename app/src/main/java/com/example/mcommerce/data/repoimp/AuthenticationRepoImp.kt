@@ -34,4 +34,7 @@ class AuthenticationRepoImp(
 
     override fun getCustomerAccessToken(): Flow<ApiResult<String>> =
         firebase.getCustomerAccessToken()
+
+    override fun isGuestMode(): Flow<ApiResult<Boolean>> =
+        firebase.isGuestMode()
 }

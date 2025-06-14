@@ -11,4 +11,5 @@ interface Firebase {
     fun logout()
     fun isUserVerified(): Flow<ApiResult<Boolean>>
     fun getCustomerAccessToken(): Flow<ApiResult<String>>
+    fun isGuestMode(): Flow<ApiResult<Boolean>>
 }
