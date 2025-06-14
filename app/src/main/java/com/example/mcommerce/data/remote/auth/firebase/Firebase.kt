@@ -8,4 +8,5 @@ interface Firebase {
     suspend fun createNewAccount(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>>
     suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>>
     suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>>
+    fun logout()
 }

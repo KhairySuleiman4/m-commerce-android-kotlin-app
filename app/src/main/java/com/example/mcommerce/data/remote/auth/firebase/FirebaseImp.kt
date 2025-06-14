@@ -40,4 +40,7 @@ class FirebaseImp(
         executeAPI {
             auth.currentUser != null
         }
+
+    override fun logout() =
+        auth.signOut()
 }

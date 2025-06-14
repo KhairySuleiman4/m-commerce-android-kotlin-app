@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.auth.login
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.LoginUseCase
 import com.example.mcommerce.presentation.auth.AuthContract
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -18,6 +20,10 @@ class LoginViewModel @Inject constructor(
 ): ViewModel(), AuthContract.LoginViewModel {
     private val _events = mutableStateOf<AuthContract.Events>(AuthContract.Events.Idle)
     override val events: State<AuthContract.Events> get() = _events
+
+    init {
+        Log.i("TAG", "LoginViewModel: ${FirebaseAuth.getInstance().currentUser}")
+    }
 
     override fun invokeActions(action: AuthContract.LoginAction) {
         when(action){
@@ -64,7 +70,7 @@ class LoginViewModel @Inject constructor(
                     }
                     is ApiResult.Failure -> {
                         _events.value = AuthContract.Events.ShowSnackbar(
-                            "Firebase account creation failed: ${loginResult.error.message}"
+                            "Logging in failed: ${loginResult.error.message}"
                         )
                     }
                     is ApiResult.Success -> {

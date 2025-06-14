@@ -25,4 +25,7 @@ class AuthenticationRepoImp(
 
     override suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>> =
         firebase.isMeLoggedIn()
+
+    override fun logout() =
+        firebase.logout()
 }
