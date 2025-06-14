@@ -43,4 +43,9 @@ class FirebaseImp(
 
     override fun logout() =
         auth.signOut()
+
+    override fun isUserVerified(): Flow<ApiResult<Boolean>> =
+        executeAPI {
+            auth.currentUser?.isEmailVerified ?: false
+        }
 }

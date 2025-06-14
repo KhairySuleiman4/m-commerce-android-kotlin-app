@@ -28,4 +28,7 @@ class AuthenticationRepoImp(
 
     override fun logout() =
         firebase.logout()
+
+    override fun isUserVerified(): Flow<ApiResult<Boolean>> =
+        firebase.isUserVerified()
 }

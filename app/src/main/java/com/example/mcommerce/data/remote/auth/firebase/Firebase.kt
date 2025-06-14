@@ -9,4 +9,5 @@ interface Firebase {
     suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>>
     suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>>
     fun logout()
+    fun isUserVerified(): Flow<ApiResult<Boolean>>
 }
