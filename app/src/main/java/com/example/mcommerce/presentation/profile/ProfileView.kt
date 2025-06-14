@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.navigation.Screens
@@ -33,9 +35,22 @@ import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
 fun ProfileScreen(
+    viewModel: ProfileViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     navController: NavHostController
 ) {
+
+    val event = viewModel.events.value
+
+    LaunchedEffect(event) {
+        when(event){
+            is ProfileContract.Event.Idle -> {}
+            is ProfileContract.Event.Logout -> {
+                viewModel.resetEvent()
+            }
+        }
+    }
+
     val tabItems = listOf(
         ProfileItem(R.drawable.profile_icon,"Personal Information", Screens.Profile),
         ProfileItem(R.drawable.favourites_icon,"Favourites", Screens.Profile),
@@ -43,7 +58,7 @@ fun ProfileScreen(
         ProfileItem(R.drawable.credit_icon,"Payment method", Screens.Profile),
         ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
         ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
-        ProfileItem(R.drawable.logout_icon,"Logout", Screens.Profile),
+        ProfileItem(R.drawable.logout_icon,"Logout", Screens.Login),
     )
 
     LazyColumn(
@@ -59,6 +74,9 @@ fun ProfileScreen(
         items(tabItems.size){
             ProfileTab(
                 modifier = Modifier.clickable {
+                    if(tabItems[it].text == "Logout"){
+                        viewModel.invokeActions(ProfileContract.Action.ClickOnLogout)
+                    }
                     navController.navigate(tabItems[it].route)
                 },
                 image = tabItems[it].image,

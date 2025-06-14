@@ -9,4 +9,8 @@ interface AuthenticationRepo {
     suspend fun createAccountOnFirebase(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>>
     suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>>
     suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>>
+    fun logout()
+    fun isUserVerified(): Flow<ApiResult<Boolean>>
+    fun getCustomerAccessToken(): Flow<ApiResult<String>>
+    fun isGuestMode(): Flow<ApiResult<Boolean>>
 }
