@@ -53,11 +53,11 @@ class SettingsViewModel @Inject constructor(private val useCase: SaveCurrencyUse
             }
         }
         else{
-            getRates()
+            getRates(currency)
         }
     }
 
-    fun getRates(){
+    private fun getRates(currency: String){
         viewModelScope.launch {
             useCase.getRates().collect{
                 when(it){
@@ -71,6 +71,14 @@ class SettingsViewModel @Inject constructor(private val useCase: SaveCurrencyUse
                         val data=it.data ?: ExchangeRateEntity(rates = mapOf())
                         _states.value = SettingsContract.States.Success(data)
                         _rates= if(data.rates.isNotEmpty()) data else null
+                        if (_rates != null) {
+                            useCase.saveCurrency(currency)
+                            _rates?.rates?.get(currency)?.let { useCase.saveExchangeRate(it) }
+                            _events.value = SettingsContract.Events.SaveCurrency(currency)
+                        }
+                        else{
+
+                        }
                     }
                 }
             }

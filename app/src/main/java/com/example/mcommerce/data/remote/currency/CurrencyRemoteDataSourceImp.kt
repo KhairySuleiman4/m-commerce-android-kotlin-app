@@ -9,8 +9,5 @@ import kotlinx.coroutines.flow.Flow
 
 class CurrencyRemoteDataSourceImp(private val service:ExchangeService): CurrencyRemoteDataSource {
     override suspend fun getCurrency(): Flow<ApiResult<ExchangeRateEntity?>>
-    = executeAPI {
-        val x=service.getEGPExchangeRate()
-        x.body()?.toEntity()
-    }
+    = executeAPI { service.getEGPExchangeRate().body()?.toEntity() }
 }
