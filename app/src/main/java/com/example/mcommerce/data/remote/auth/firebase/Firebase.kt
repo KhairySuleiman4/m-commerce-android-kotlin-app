@@ -10,4 +10,5 @@ interface Firebase {
     suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>>
     fun logout()
     fun isUserVerified(): Flow<ApiResult<Boolean>>
+    fun getCustomerAccessToken(): Flow<ApiResult<String>>
 }

@@ -1,7 +1,6 @@
 package com.example.mcommerce.data.remote.auth.firebase
 
 import android.net.Uri
-import com.example.mcommerce.data.mappers.toUrlField
 import com.example.mcommerce.data.utils.executeAPI
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
@@ -20,7 +19,7 @@ class FirebaseImp(
             auth.currentUser?.updateProfile(
                 UserProfileChangeRequest.Builder()
                     .setDisplayName(credentials.name)
-                    .setPhotoUri(Uri.parse(credentials.toUrlField()))
+                    .setPhotoUri(Uri.parse(credentials.accessToken))
                     .build()
             )?.await()
 
@@ -47,5 +46,10 @@ class FirebaseImp(
     override fun isUserVerified(): Flow<ApiResult<Boolean>> =
         executeAPI {
             auth.currentUser?.isEmailVerified ?: false
+        }
+
+    override fun getCustomerAccessToken(): Flow<ApiResult<String>> =
+        executeAPI {
+            auth.currentUser?.photoUrl.toString()
         }
 }

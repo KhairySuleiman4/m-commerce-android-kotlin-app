@@ -31,4 +31,7 @@ class AuthenticationRepoImp(
 
     override fun isUserVerified(): Flow<ApiResult<Boolean>> =
         firebase.isUserVerified()
+
+    override fun getCustomerAccessToken(): Flow<ApiResult<String>> =
+        firebase.getCustomerAccessToken()
 }
