@@ -352,7 +352,7 @@ fun CouponsCard(
                 painter = painterResource(id = coupon.imageRes),
                 contentDescription = coupon.title,
                 modifier = Modifier
-                    .size(140.dp)
+                    .size(120.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
@@ -368,7 +368,7 @@ private fun CouponsCardPreview() {
             id = "1",
             title = "Summer Collection",
             description = "Discover the latest trends in summer fashion with exclusive discounts",
-            imageRes = R.drawable.product_1_image1
+            imageRes = R.drawable.ad_placeholder
         )
     )
 }
