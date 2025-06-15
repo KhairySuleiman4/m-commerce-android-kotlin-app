@@ -25,9 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.mcommerce.R
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.profile.models.ProfileItem
 import com.example.mcommerce.presentation.theme.Background
@@ -37,7 +36,7 @@ import com.example.mcommerce.presentation.theme.Primary
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navigationTo: (Screens)-> Unit
 ) {
 
     val event = viewModel.events.value
@@ -57,8 +56,8 @@ fun ProfileScreen(
         ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.Profile),
         ProfileItem(R.drawable.credit_icon,"Payment method", Screens.Profile),
         ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
-        ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
-        ProfileItem(R.drawable.logout_icon,"Logout", Screens.Login),
+        ProfileItem(R.drawable.info_icon,"About us", Screens.Maps),
+        ProfileItem(R.drawable.logout_icon,"Logout", Screens.Profile),
     )
 
     LazyColumn(
@@ -77,7 +76,7 @@ fun ProfileScreen(
                     if(tabItems[it].text == "Logout"){
                         viewModel.invokeActions(ProfileContract.Action.ClickOnLogout)
                     }
-                    navController.navigate(tabItems[it].route)
+                    navigationTo(tabItems[it].route)
                 },
                 image = tabItems[it].image,
                 text = tabItems[it].text

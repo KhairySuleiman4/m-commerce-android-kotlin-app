@@ -14,10 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MCommerce"
         tools:targetApi="31">
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key"/>
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MCommerce">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

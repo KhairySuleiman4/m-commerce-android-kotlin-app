@@ -1,9 +1,12 @@
 package com.example.mcommerce.data.mappers
 
+import android.location.Address
+import com.example.mcommerce.data.models.AddressModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ExchangeResponse
 import com.example.mcommerce.data.models.ProductsModel
+import com.example.mcommerce.domain.entities.AddressEntity
 import com.example.mcommerce.domain.entities.CategoriesEntity
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CustomerEntity
@@ -75,5 +78,25 @@ fun UserCredentialsEntity.toCustomerEntity(): CustomerEntity {
         email = this.mail,
         phone = this.phoneNumber,
         password = this.password,
+    )
+}
+
+fun Address.toModel(): AddressModel{
+    return AddressModel(
+        name = this.getAddressLine(0),
+        country = this.countryName,
+        zip = this.postalCode,
+        latitude = this.latitude,
+        longitude = this.longitude
+    )
+}
+
+fun AddressModel.toEntity(): AddressEntity{
+    return AddressEntity(
+        name = this.name,
+        country = this.country,
+        zip = this.zip,
+        latitude = this.latitude,
+        longitude = this.longitude
     )
 }

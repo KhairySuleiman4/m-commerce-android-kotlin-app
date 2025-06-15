@@ -38,7 +38,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 import com.example.mcommerce.presentation.auth.AuthContract
@@ -50,9 +49,10 @@ import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
 fun SignupScreen(
-    navController: NavController,
+    modifier: Modifier = Modifier,
     viewModel: SignupViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    navigateToLogin: (Screens) -> Unit,
+    navigateToHome: (Screens)->Unit,
 ) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
@@ -62,7 +62,7 @@ fun SignupScreen(
         when(event){
             is AuthContract.Events.Idle -> {}
             is AuthContract.Events.NavigateToHome -> {
-                navController.navigate(Screens.Home)
+                navigateToHome(Screens.Home)
                 viewModel.resetEvent()
             }
             is AuthContract.Events.ShowSnackbar -> {
@@ -74,7 +74,7 @@ fun SignupScreen(
                 isLoading.value = true
             }
             is AuthContract.Events.NavigateToLogin -> {
-                navController.navigate(Screens.Login)
+                navigateToLogin(Screens.Login)
                 viewModel.resetEvent()
             }
             is AuthContract.Events.NavigateToSignup -> {}
