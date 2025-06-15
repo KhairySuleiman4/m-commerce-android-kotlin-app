@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.mcommerce.data.utils.imagesMapper
 import com.example.mcommerce.domain.entities.CategoriesEntity
 import com.example.mcommerce.presentation.navigation.Screens
 
@@ -120,31 +121,31 @@ fun CategoriesCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(Color(0xFFd1b9b1)),
         modifier = modifier
-            .padding(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(180.dp)
             .clickable { onCategoryClick(category.id) },
         elevation = CardDefaults.cardElevation(3.dp)
     ){
         Row(
-            modifier = modifier.fillMaxSize()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+            modifier.fillMaxSize()
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = category.description,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 20.sp,
-                color = Color.White
+                color = Color.White,
+                modifier = modifier.align(Alignment.CenterVertically)
             )
             GlideImage(
-                model = category.imageUrl,
+                model = imagesMapper(category.imageUrl),
                 contentDescription = category.title,
                 modifier = modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
+                    .height(172.dp)
                     .width(150.dp)
-                    .clip(RoundedCornerShape(12.dp)),
+                    .align(Alignment.Bottom),
                 contentScale = ContentScale.Crop
             )
         }
