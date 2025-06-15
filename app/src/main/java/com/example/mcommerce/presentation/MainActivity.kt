@@ -14,6 +14,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,7 @@ import com.example.mcommerce.presentation.auth.signup.SignupScreen
 import com.example.mcommerce.presentation.categories.CategoriesScreen
 import com.example.mcommerce.presentation.favorites.FavoritesScreen
 import com.example.mcommerce.presentation.home.HomeScreen
+import com.example.mcommerce.presentation.map.view.MapScreen
 import com.example.mcommerce.presentation.navigation.Constants
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.productdetails.ProductInfoScreen
@@ -44,7 +47,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
-
+            val navDest = remember { mutableStateOf(0) }
             val bottomBarRoutes = setOf(
                 "com.example.mcommerce.presentation.navigation.Screens.Home",
                 "com.example.mcommerce.presentation.navigation.Screens.Categories",
@@ -53,16 +56,23 @@ class MainActivity : ComponentActivity() {
             )
 
             val showBottomBar = currentRoute in bottomBarRoutes
-
             Scaffold(
                 bottomBar = {
                     if (showBottomBar) {
-                        BottomNavigationBar(navController = navController, currentRoute = currentRoute)
+                        BottomNavigationBar(
+                            navController = navController,
+                            currentRoute = navDest.value,
+                        )
                     }
                 },
                 content = { padding ->
                     Box(modifier = Modifier.fillMaxSize()) {
-                        NavHostContainer(navController = navController, padding = padding)
+                        NavHostContainer(
+                            navController = navController,
+                            padding = padding,
+                            ){
+                            navDest.value = it
+                        }
                     }
                 }
             )
@@ -74,6 +84,7 @@ class MainActivity : ComponentActivity() {
 fun NavHostContainer(
     navController: NavHostController,
     padding: PaddingValues,
+    changeRoute: (Int) -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -81,33 +92,62 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable<Screens.Signup> {
-                SignupScreen(navController)
+                SignupScreen(navigateToLogin = {
+                    navController.navigate(it)
+                }){
+                    navController.navigate(it){
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             }
             composable<Screens.Login> {
-                LoginScreen(navController)
+                LoginScreen(navigateToSignup = {
+                    navController.navigate(it)
+                }
+                ){
+                    navController.navigate(it){
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             }
             composable<Screens.Home> {
-                HomeScreen(navController = navController)
+                changeRoute(0)
+                HomeScreen{
+                    navController.navigate(it)
+                }
             }
             composable<Screens.Categories> {
-                CategoriesScreen(navController = navController)
+                changeRoute(1)
+                CategoriesScreen{
+                    navController.navigate(it)
+                }
             }
             composable<Screens.Favorite> {
+                changeRoute(2)
                 FavoritesScreen()
             }
             composable<Screens.Profile> {
-                ProfileScreen(navController = navController)
+                changeRoute(3)
+                ProfileScreen{
+                    navController.navigate(it)
+                }
             }
             composable<Screens.Settings> {
+                changeRoute(3)
                 SettingsScreen()
+            }
+            composable<Screens.Maps> {
+                changeRoute(3)
+                MapScreen()
             }
             composable<Screens.Products>{ backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
                 ProductsScreen(
-                    navController = navController,
                     brandId = value.brandId,
                     brandName = value.brandName
-                )
+                ){
+                    navController.navigate(it)
+                }
             }
             composable<Screens.ProductDetails> { backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.ProductDetails>()
@@ -120,7 +160,7 @@ fun NavHostContainer(
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
-    currentRoute: String?
+    currentRoute: Int,
     ) {
 
     NavigationBar(
@@ -128,23 +168,13 @@ fun BottomNavigationBar(
     ) {
 
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
-            val isSelected = when (currentRoute) {
-                "com.example.mcommerce.presentation.navigation.Screens.Home" -> index == 0
-                "com.example.mcommerce.presentation.navigation.Screens.Categories" -> index == 1
-                "com.example.mcommerce.presentation.navigation.Screens.Favorite" -> index == 2
-                "com.example.mcommerce.presentation.navigation.Screens.Profile" -> index == 3
-                else -> false
-            }
 
             NavigationBarItem(
-                selected = isSelected,
+                selected = index==currentRoute,
                 onClick = {
+                    if (index != currentRoute)
                     navController.navigate(navItem.route){
-                        popUpTo(navController.graph.startDestinationId){
-                            saveState = true
-                        }
                         launchSingleTop = true
-                        restoreState = true
                     }
                 },
                 alwaysShowLabel = true,

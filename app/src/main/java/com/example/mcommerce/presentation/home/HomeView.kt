@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.CollectionsEntity
@@ -31,8 +30,8 @@ import com.example.mcommerce.presentation.navigation.Screens
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    navigateTo: (Screens) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.getBrands()
@@ -43,7 +42,7 @@ fun HomeScreen(
         when(event){
             HomeContract.Events.Idle -> {}
             is HomeContract.Events.NavigateToBrandProducts -> {
-                navController.navigate(Screens.Products(event.brandId, event.brandName))
+                navigateTo(Screens.Products(event.brandId, event.brandName))
                 viewModel.resetEvent()
             }
         }

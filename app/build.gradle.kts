@@ -34,6 +34,8 @@ android {
         buildConfigField("String", "STORE_URL", "\"${properties.getProperty("STORE_URL")}\"")
         buildConfigField("String", "STORE_ACCESS_TOKEN", "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\"")
         buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${properties.getProperty("EXCHANGE_RATE_API_KEY")}\"")
+        buildConfigField("String", "MAP_API_KEY", "\"${properties.getProperty("MAP_API_KEY")}\"")
+        resValue("string", "google_maps_key","\"${properties.getProperty("MAP_API_KEY")}\"")
 
     }
 
@@ -73,7 +75,6 @@ dependencies {
     implementation(libs.apollographql.apollo.runtime)
     // Hilt
     implementation(libs.hilt.android)
-    implementation(libs.firebase.auth.ktx)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     // Retrofit
@@ -88,6 +89,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    // Google Maps
+    implementation(libs.maps.compose)
     // Navigation
     implementation(libs.androidx.navigation.compose)
     // Glide
@@ -98,6 +101,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     // Firebase
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
 }
 
 kapt {

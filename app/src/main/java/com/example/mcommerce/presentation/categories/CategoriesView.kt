@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.CategoriesEntity
@@ -37,8 +36,8 @@ import com.example.mcommerce.presentation.navigation.Screens
 
 @Composable
 fun CategoriesScreen(
-    navController: NavController,
     viewModel: CategoriesViewModel = hiltViewModel(),
+    navigateTo: (Screens) -> Unit
     ) {
     val event = viewModel.events.value
     val state = viewModel.states.value
@@ -51,7 +50,7 @@ fun CategoriesScreen(
         when(event){
             CategoriesContract.Events.Idle -> {}
             is CategoriesContract.Events.NavigateToCategoryProducts -> {
-                navController.navigate(Screens.Products(event.categoryId))
+                navigateTo(Screens.Products(event.categoryId))
                 viewModel.resetEvent()
             }
         }
