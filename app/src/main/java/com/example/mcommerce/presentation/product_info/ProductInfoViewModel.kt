@@ -34,7 +34,11 @@ class ProductInfoViewModel @Inject constructor(
                         _states.value = ProductInfoContract.States.Loading
                     }
                     is ApiResult.Success -> {
-                        _states.value = ProductInfoContract.States.Success(result.data)
+                        if(result.data == null){
+                            _states.value = ProductInfoContract.States.Failure("Product Not Found")
+                        } else{
+                            _states.value = ProductInfoContract.States.Success(result.data)
+                        }
                     }
                 }
             }

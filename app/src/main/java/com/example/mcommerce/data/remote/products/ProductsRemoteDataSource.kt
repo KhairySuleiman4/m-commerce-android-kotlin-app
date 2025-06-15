@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductsRemoteDataSource {
     suspend fun getProducts(id: String): Flow<ApiResult<List<ProductsEntity>>>
-    suspend fun getProductById(id: String): Flow<ApiResult<ProductInfoEntity>>
+    suspend fun getProductById(id: String): Flow<ApiResult<ProductInfoEntity?>>
 }

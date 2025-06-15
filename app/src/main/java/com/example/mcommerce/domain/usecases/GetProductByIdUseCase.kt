@@ -9,5 +9,5 @@ import javax.inject.Inject
 class GetProductByIdUseCase @Inject constructor(
     private val repo: ProductsRepo
 ) {
-    suspend operator fun invoke(id: String): Flow<ApiResult<ProductInfoEntity>> = repo.fetchProductById(id)
+    suspend operator fun invoke(id: String): Flow<ApiResult<ProductInfoEntity?>> = repo.fetchProductById(id)
 }

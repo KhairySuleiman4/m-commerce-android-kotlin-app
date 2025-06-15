@@ -9,5 +9,5 @@ import kotlinx.coroutines.flow.Flow
 
 class ProductsRepoImpl(private val productsRemoteDataSource: ProductsRemoteDataSource): ProductsRepo {
     override suspend fun fetchProductsByBrand(id: String): Flow<ApiResult<List<ProductsEntity>>> = productsRemoteDataSource.getProducts(id)
-    override suspend fun fetchProductById(id: String): Flow<ApiResult<ProductInfoEntity>> = productsRemoteDataSource.getProductById(id)
+    override suspend fun fetchProductById(id: String): Flow<ApiResult<ProductInfoEntity?>> = productsRemoteDataSource.getProductById(id)
 }

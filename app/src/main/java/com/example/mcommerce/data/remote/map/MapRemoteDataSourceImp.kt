@@ -2,7 +2,6 @@ package com.example.mcommerce.data.remote.map
 
 import android.location.Geocoder
 import com.example.mcommerce.data.mappers.toEntity
-import com.example.mcommerce.data.mappers.toModel
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.AddressEntity
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +16,7 @@ class MapRemoteDataSourceImp(private val geocoder: Geocoder): MapRemoteDataSourc
         try {
             val value = withContext(Dispatchers.IO) {
                 val x=geocoder.getFromLocationName(place, 5)
-                    x?.map { it.toModel() }
+                    x?.map { it.toEntity() }
                     ?.map { it.toEntity() }
             }
             emit(ApiResult.Success(value))
@@ -34,7 +33,7 @@ class MapRemoteDataSourceImp(private val geocoder: Geocoder): MapRemoteDataSourc
         try {
             val value = withContext(Dispatchers.IO) {
                 geocoder.getFromLocation(latitude, longitude, 1)
-                    ?.map { it.toModel() }
+                    ?.map { it.toEntity() }
                     ?.map { it.toEntity() }
             }
             emit(ApiResult.Success(value?.get(0)))
