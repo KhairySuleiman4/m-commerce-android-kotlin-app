@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,7 +48,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToSignup: (Screens) -> Unit,
     navigateToHome: (Screens)->Unit,
-    ) {
+) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
     val isLoading = remember { mutableStateOf(false) }
@@ -112,7 +113,7 @@ fun LoginComposable(
     onGuestClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val email = remember { mutableStateOf("") }
+    val email = rememberSaveable { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
     LazyColumn(
@@ -179,7 +180,7 @@ fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (S
         Text(
             modifier = modifier
                 .padding(
-                    top = 24.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,
@@ -217,7 +218,7 @@ fun PasswordSection(modifier: Modifier = Modifier, password: String, onPasswordC
         Text(
             modifier = modifier
                 .padding(
-                    top = 24.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,

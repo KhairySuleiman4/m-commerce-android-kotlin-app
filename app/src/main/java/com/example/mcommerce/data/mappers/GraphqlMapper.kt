@@ -58,7 +58,7 @@ fun GetProductByIdQuery.Data.toModel(): ProductInfoEntity{
         id = id,
         images = images,
         title = title,
-        price = price,
+        price = price.toDouble(),
         priceUnit = priceUnit,
         productType = productType,
         vendor = vendor,

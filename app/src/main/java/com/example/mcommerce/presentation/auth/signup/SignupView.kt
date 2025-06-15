@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -119,16 +120,16 @@ fun SignupComposable(
     modifier: Modifier = Modifier
 ) {
 
-    val name = remember { mutableStateOf("") }
-    val email = remember { mutableStateOf("") }
-    val phone = remember { mutableStateOf("") }
+    val name = rememberSaveable { mutableStateOf("") }
+    val email = rememberSaveable { mutableStateOf("") }
+    val phone = rememberSaveable { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val confirmPassword = remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 16.dp),
+        /*.padding(top = 16.dp)*/,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -197,7 +198,7 @@ fun SignupComposable(
 fun SignupScreenHeader(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .padding(16.dp)
+            .padding(8.dp)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -224,7 +225,7 @@ fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (Str
         Text(
             modifier = modifier
                 .padding(
-                    top = 24.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,
@@ -260,7 +261,7 @@ fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (
         Text(
             modifier = modifier
                 .padding(
-                    top = 24.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,
@@ -301,7 +302,7 @@ fun ConfirmPasswordSection(modifier: Modifier = Modifier, password: String, onPa
         Text(
             modifier = modifier
                 .padding(
-                    top = 24.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,
@@ -343,7 +344,7 @@ fun SignupButton(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                top = 32.dp,
+                top = 24.dp,
                 start = 16.dp,
                 end = 16.dp
             )
@@ -368,7 +369,7 @@ fun DoHaveAnAccountSection(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.padding(top = 32.dp)
+        modifier = modifier.padding(top = 24.dp)
     ){
         Text(
             text = stringResource(R.string.do_have_an_accout)

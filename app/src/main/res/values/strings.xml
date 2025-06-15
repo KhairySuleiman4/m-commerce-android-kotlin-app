@@ -13,7 +13,7 @@
     <string name="continue_str">Continue</string>
     <string name="as_guest">as guest</string>
     <string name="create_account">Create Account</string>
-    <string name="fit_your_information">Fit your information below or register with your Google account</string>
+    <string name="fit_your_information">Fit your information below</string>
     <string name="name">Name</string>
     <string name="enter_your_name">Enter your name here</string>
     <string name="confirm_password">Confirm Password</string>
