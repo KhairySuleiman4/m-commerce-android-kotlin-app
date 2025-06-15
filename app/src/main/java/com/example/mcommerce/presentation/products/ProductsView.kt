@@ -52,10 +52,10 @@ import com.example.mcommerce.presentation.navigation.Screens
 
 @Composable
 fun ProductsScreen(
-    navController: NavController,
     viewModel: ProductsViewModel = hiltViewModel(),
     brandId: String,
     brandName: String,
+    navigationTo: (Screens)-> Unit,
 ) {
     val event = viewModel.events.value
     val state = viewModel.states.value
@@ -70,7 +70,7 @@ fun ProductsScreen(
         when(event){
             ProductsContract.Events.Idle -> {}
             is ProductsContract.Events.NavigateToProductDetails -> {
-                navController.navigate(Screens.ProductDetails(event.productId))
+                navigationTo(Screens.ProductDetails(event.productId))
                 viewModel.resetEvent()
             }
             is ProductsContract.Events.ShowSnackbar -> {
