@@ -60,19 +60,28 @@ class MainActivity : ComponentActivity() {
                 "com.example.mcommerce.presentation.navigation.Screens.Favorite",
                 "com.example.mcommerce.presentation.navigation.Screens.Profile"
             )
+            val topBarRoutes = setOf(
+                "com.example.mcommerce.presentation.navigation.Screens.Home",
+                "com.example.mcommerce.presentation.navigation.Screens.Categories",
+                "com.example.mcommerce.presentation.navigation.Screens.Favorite",
+                "com.example.mcommerce.presentation.navigation.Screens.Profile"
+            )
 
             val showBottomBar = currentRoute in bottomBarRoutes
+            val showTopBar = currentRoute in topBarRoutes
 
             Scaffold(
                 topBar = {
-                    MyAppBar(
-                        onSearchClick = {
-                            //navController.navigate(Screens.SearchScreen)
-                        },
-                        onCartClick = {
-                            //navController.navigate(Screens.CartScreen)
-                        }
-                    )
+                    if(showTopBar){
+                        MyAppBar(
+                            onSearchClick = {
+                                //navController.navigate(Screens.SearchScreen)
+                            },
+                            onCartClick = {
+                                //navController.navigate(Screens.CartScreen)
+                            }
+                        )
+                    }
                 },
                 bottomBar = {
                     if (showBottomBar) {
