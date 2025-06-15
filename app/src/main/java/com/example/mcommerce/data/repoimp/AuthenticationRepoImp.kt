@@ -25,4 +25,16 @@ class AuthenticationRepoImp(
 
     override suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>> =
         firebase.isMeLoggedIn()
+
+    override fun logout() =
+        firebase.logout()
+
+    override fun isUserVerified(): Flow<ApiResult<Boolean>> =
+        firebase.isUserVerified()
+
+    override fun getCustomerAccessToken(): Flow<ApiResult<String>> =
+        firebase.getCustomerAccessToken()
+
+    override fun isGuestMode(): Flow<ApiResult<Boolean>> =
+        firebase.isGuestMode()
 }

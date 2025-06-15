@@ -1,6 +1,5 @@
 package com.example.mcommerce.data.remote.auth.shopify
 
-import android.util.Log
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLService
 import com.example.mcommerce.data.utils.executeAPI
 import com.example.mcommerce.domain.ApiResult
@@ -19,16 +18,13 @@ class CustomerRemoteDataSourceImp(private val graphQLService: GraphQLService) : 
                 var token: String? = null
                 getAccessToken(editedCustomer).collect { result ->
                     when (result) {
-                        is ApiResult.Loading -> {
-                            Log.i("TAG", "createCustomer: $result")
-                        }
+                        is ApiResult.Loading -> {}
                         is ApiResult.Success -> token = result.data
                         is ApiResult.Failure -> throw result.error
                     }
                 }
                 token ?: throw Exception("Access token was not retrieved")
             } else {
-                Log.i("TAG", "createCustomer: ${response.errors?.get(0)?.message}")
                 throw Exception("Failed to create the customer on Shopify")
             }
         }

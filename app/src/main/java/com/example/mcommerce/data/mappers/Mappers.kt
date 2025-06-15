@@ -72,11 +72,6 @@ fun CategoriesEntity.toModel(): CategoriesModel{
     )
 }
 
-
-fun UserCredentialsEntity.toUrlField(): String {
-    return """{ "token": "${this.accessToken}", "phone": "${this.phoneNumber}" }"""
-}
-
 fun UserCredentialsEntity.toCustomerEntity(): CustomerEntity {
     return CustomerEntity(
         name = this.name,

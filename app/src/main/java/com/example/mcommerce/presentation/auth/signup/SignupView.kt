@@ -67,6 +67,7 @@ fun SignupScreen(
             }
             is AuthContract.Events.ShowSnackbar -> {
                 snackbarHostState.showSnackbar(message = event.message)
+                isLoading.value = false
                 viewModel.resetEvent()
             }
             is AuthContract.Events.ShowLoading -> {
