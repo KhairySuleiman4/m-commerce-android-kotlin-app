@@ -32,12 +32,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.mcommerce.R
+import com.example.mcommerce.presentation.auth.login.LoginScreen
+import com.example.mcommerce.presentation.auth.signup.SignupScreen
 import com.example.mcommerce.presentation.categories.CategoriesScreen
 import com.example.mcommerce.presentation.favorites.FavoritesScreen
 import com.example.mcommerce.presentation.home.HomeScreen
 import com.example.mcommerce.presentation.navigation.Constants
 import com.example.mcommerce.presentation.navigation.Screens
-import com.example.mcommerce.presentation.productdetails.ProductInfoScreen
+import com.example.mcommerce.presentation.product_info.ProductInfoScreen
 import com.example.mcommerce.presentation.products.ProductsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
 import com.example.mcommerce.presentation.settings.view.SettingsScreen
@@ -94,9 +96,15 @@ fun NavHostContainer(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screens.Home,
+        startDestination = Screens.Signup,
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
+            composable<Screens.Signup> {
+                SignupScreen(navController)
+            }
+            composable<Screens.Login> {
+                LoginScreen(navController)
+            }
             composable<Screens.Home> {
                 HomeScreen(navController = navController)
             }
@@ -137,6 +145,7 @@ fun BottomNavigationBar(
     NavigationBar(
         modifier = Modifier.padding(8.dp)
     ) {
+
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
             val isSelected = when (currentRoute) {
                 "com.example.mcommerce.presentation.navigation.Screens.Home" -> index == 0

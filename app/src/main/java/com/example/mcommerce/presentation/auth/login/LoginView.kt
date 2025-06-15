@@ -1,47 +1,119 @@
-package com.example.mcommerce.presentation.auth.view
+package com.example.mcommerce.presentation.auth.login
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.mcommerce.R
+import com.example.mcommerce.presentation.auth.AuthContract
+import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
 
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
+) {
+    val event = viewModel.events.value
+    val snackbarHostState = remember { SnackbarHostState() }
+    val isLoading = remember { mutableStateOf(false) }
+
+    LaunchedEffect(event) {
+        when(event){
+            is AuthContract.Events.Idle -> {}
+            is AuthContract.Events.NavigateToHome -> {
+                navController.navigate(Screens.Home)
+                viewModel.resetEvent()
+            }
+            is AuthContract.Events.NavigateToLogin -> {}
+            is AuthContract.Events.NavigateToSignup -> {
+                navController.navigate(Screens.Signup)
+                viewModel.resetEvent()
+            }
+            is AuthContract.Events.ShowLoading -> {
+                isLoading.value = true
+            }
+            is AuthContract.Events.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(message = event.message)
+                isLoading.value = false
+                viewModel.resetEvent()
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = modifier
+    ) { paddingValues ->
+        if (isLoading.value) {
+            Box(
+                modifier = Modifier
+                    .background(Color.White)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else{
+            LoginComposable(
+                onLoginClicked = { email, password ->
+                    viewModel.invokeActions(AuthContract.LoginAction.ClickOnLoginButton(email, password))
+                },
+                onSignupClicked = {
+                    viewModel.invokeActions(AuthContract.LoginAction.ClickOnNavigateToSignup)
+                },
+                onGuestClicked = {
+                    viewModel.invokeActions(AuthContract.LoginAction.ClickOnContinueAsGuest)
+                },
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
+    }
+}
+
+@Composable
+fun LoginComposable(
+    onLoginClicked: (String, String) -> Unit,
+    onSignupClicked: () -> Unit,
+    onGuestClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = modifier
@@ -54,27 +126,33 @@ fun LoginScreen(modifier: Modifier = Modifier) {
         }
 
         item {
-            EmailSection()
+            EmailSection(email = email.value){
+                email.value = it
+            }
         }
 
         item {
-            PasswordSection()
+            PasswordSection(password = password.value){
+                password.value = it
+            }
         }
 
         item {
-            LoginButton()
-        }
-
-        item{
-            LoginWithSection()
+            LoginButton(
+                onLoginClicked = { email, password ->
+                    onLoginClicked(email, password)
+                },
+                email = email.value,
+                password = password.value
+            )
         }
 
         item {
-            DontHaveAnAccountSection()
+            DontHaveAnAccountSection(onSignupClicked)
         }
 
         item {
-            ContinueAsGuestSection()
+            ContinueAsGuestSection(onGuestClicked)
         }
     }
 }
@@ -96,8 +174,7 @@ fun LoginScreenHeader(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EmailSection(modifier: Modifier = Modifier) {
-    var email by remember { mutableStateOf("") }
+fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (String) -> Unit) {
     Column {
         Text(
             modifier = modifier
@@ -112,7 +189,7 @@ fun EmailSection(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = onMailChanged,
             modifier = modifier
                 .padding(
                     top = 8.dp,
@@ -133,8 +210,7 @@ fun EmailSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PasswordSection(modifier: Modifier = Modifier) {
-    var password by remember { mutableStateOf("") }
+fun PasswordSection(modifier: Modifier = Modifier, password: String, onPasswordChanged: (String) -> Unit) {
     val isPasswordVisible by remember { mutableStateOf(false) }
 
     Column {
@@ -151,7 +227,7 @@ fun PasswordSection(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = onPasswordChanged,
             modifier = modifier
                 .padding(
                     top = 8.dp,
@@ -173,7 +249,12 @@ fun PasswordSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LoginButton(modifier: Modifier = Modifier) {
+fun LoginButton(
+    onLoginClicked: (String, String) -> Unit,
+    email: String,
+    password: String,
+    modifier: Modifier = Modifier
+) {
     Button(
         modifier = modifier
             .fillMaxWidth()
@@ -185,7 +266,7 @@ fun LoginButton(modifier: Modifier = Modifier) {
             .height(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Primary),
         onClick = {
-            // login logic
+            onLoginClicked(email, password)
         }
     )
     {
@@ -198,50 +279,10 @@ fun LoginButton(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LoginWithSection(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .padding(
-                top = 32.dp
-            )
-    ) {
-        HorizontalDivider(
-            modifier = modifier
-                .padding(8.dp)
-                .width(64.dp)
-                .align(Alignment.CenterVertically),
-            color = Color.Black,
-            thickness = 1.dp
-        )
-
-        Text(
-            text = stringResource(R.string.or_login_with)
-        )
-
-        HorizontalDivider(
-            modifier = modifier
-                .padding(8.dp)
-                .width(64.dp)
-                .align(Alignment.CenterVertically),
-            color = Color.Black,
-            thickness = 1.dp
-        )
-    }
-
-    Image(
-        modifier = modifier
-            .padding(top = 32.dp)
-            .size(32.dp)
-            .clip(CircleShape)
-            .border(0.5.dp, Color.Gray, CircleShape)
-            .padding(8.dp),
-        painter = painterResource(R.drawable.google),
-        contentDescription = stringResource(R.string.google_icon)
-    )
-}
-
-@Composable
-fun DontHaveAnAccountSection(modifier: Modifier = Modifier) {
+fun DontHaveAnAccountSection(
+    onSignupClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier.padding(top = 32.dp)
     ){
@@ -250,7 +291,11 @@ fun DontHaveAnAccountSection(modifier: Modifier = Modifier) {
         )
 
         Text(
-            modifier = modifier.padding(start = 8.dp),
+            modifier = modifier
+                .padding(start = 4.dp)
+                .clickable {
+                    onSignupClicked()
+                },
             text = stringResource(R.string.sign_up),
             textDecoration = TextDecoration.Underline,
             color = Primary
@@ -259,7 +304,10 @@ fun DontHaveAnAccountSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ContinueAsGuestSection(modifier: Modifier = Modifier) {
+fun ContinueAsGuestSection(
+    onGuestClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row (
         modifier = modifier.padding(top = 8.dp)
     ){
@@ -268,19 +316,15 @@ fun ContinueAsGuestSection(modifier: Modifier = Modifier) {
         )
 
         Text(
-            modifier = modifier.padding(start = 4.dp),
+            modifier = modifier
+                .padding(start = 4.dp)
+                .clickable {
+                    onGuestClicked()
+                }
+            ,
             text = stringResource(R.string.as_guest),
             textDecoration = TextDecoration.Underline,
             color = Primary
         )
     }
-}
-
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-private fun SignupScreen() {
-    LoginScreen()
 }
