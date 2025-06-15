@@ -129,7 +129,7 @@ fun SignupComposable(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            /*.padding(top = 16.dp)*/,
+        /*.padding(top = 16.dp)*/,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 

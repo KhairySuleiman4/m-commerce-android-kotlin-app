@@ -22,7 +22,7 @@ fun CollectionsModel.toEntity(): CollectionsEntity{
     )
 }
 
-fun CollectionsEntity.toEntity(): CollectionsModel{
+fun CollectionsEntity.toModel(): CollectionsModel{
     return CollectionsModel(
         id = this.id,
         title = this.title,
@@ -32,7 +32,7 @@ fun CollectionsEntity.toEntity(): CollectionsModel{
 
 fun ExchangeResponse.toEntity(): ExchangeRateEntity = ExchangeRateEntity(rates)
 
-fun ExchangeRateEntity.toEntity(): ExchangeResponse = ExchangeResponse(rates)
+fun ExchangeRateEntity.toModel(): ExchangeResponse = ExchangeResponse(rates)
 
 fun ProductsModel.toEntity(): ProductsEntity{
     return ProductsEntity(
@@ -44,7 +44,7 @@ fun ProductsModel.toEntity(): ProductsEntity{
     )
 }
 
-fun ProductsEntity.toEntity(): ProductsModel{
+fun ProductsEntity.toModel(): ProductsModel{
     return ProductsModel(
         id = this.id,
         title = this.title,
@@ -63,7 +63,7 @@ fun CategoriesModel.toEntity(): CategoriesEntity{
     )
 }
 
-fun CategoriesEntity.toEntity(): CategoriesModel{
+fun CategoriesEntity.toModel(): CategoriesModel{
     return CategoriesModel(
         id = this.id,
         title = this.title,
@@ -81,7 +81,7 @@ fun UserCredentialsEntity.toCustomerEntity(): CustomerEntity {
     )
 }
 
-fun Address.toEntity(): AddressModel{
+fun Address.toModel(): AddressModel{
     return AddressModel(
         name = this.getAddressLine(0),
         country = this.countryName,

@@ -10,7 +10,7 @@ import com.example.mcommerce.data.models.ProductsModel
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
 
-fun GetBrandsQuery.Data.toEntity(): List<CollectionsModel>{
+fun GetBrandsQuery.Data.toModel(): List<CollectionsModel>{
     return this.collections.edges.map {
         CollectionsModel(
             id = it.node.id,
@@ -20,7 +20,7 @@ fun GetBrandsQuery.Data.toEntity(): List<CollectionsModel>{
     }
 }
 
-fun GetProductsByBrandQuery.Data.toEntity(): List<ProductsModel>{
+fun GetProductsByBrandQuery.Data.toModel(): List<ProductsModel>{
     return this.collection?.products?.edges?.map {
         ProductsModel(
             id = it.node.id,
@@ -32,7 +32,7 @@ fun GetProductsByBrandQuery.Data.toEntity(): List<ProductsModel>{
     } ?: listOf()
 }
 
-fun GetCategoriesQuery.Data.toEntity(): List<CategoriesModel>{
+fun GetCategoriesQuery.Data.toModel(): List<CategoriesModel>{
     return this.collections.edges.map{
         CategoriesModel(
             id = it.node.id,
@@ -43,7 +43,7 @@ fun GetCategoriesQuery.Data.toEntity(): List<CategoriesModel>{
     }
 }
 
-fun GetProductByIdQuery.Data.toEntity(): ProductInfoEntity{
+fun GetProductByIdQuery.Data.toModel(): ProductInfoEntity{
     val id = this.current?.id ?: ""
     val images = this.current?.images?.nodes?.map { it.url.toString() } ?: listOf()
     val title = this.current?.title ?: ""

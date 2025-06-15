@@ -48,7 +48,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToSignup: (Screens) -> Unit,
     navigateToHome: (Screens)->Unit,
-    ) {
+) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
     val isLoading = remember { mutableStateOf(false) }
