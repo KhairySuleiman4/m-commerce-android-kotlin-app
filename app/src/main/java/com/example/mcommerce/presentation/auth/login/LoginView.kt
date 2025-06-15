@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +36,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.auth.AuthContract
 import com.example.mcommerce.presentation.navigation.Screens
@@ -44,9 +44,10 @@ import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
+    modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    navigateToSignup: (Screens) -> Unit,
+    navigateToHome: (Screens)->Unit,
 ) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
@@ -56,12 +57,12 @@ fun LoginScreen(
         when(event){
             is AuthContract.Events.Idle -> {}
             is AuthContract.Events.NavigateToHome -> {
-                navController.navigate(Screens.Home)
+                navigateToHome(Screens.Home)
                 viewModel.resetEvent()
             }
             is AuthContract.Events.NavigateToLogin -> {}
             is AuthContract.Events.NavigateToSignup -> {
-                navController.navigate(Screens.Signup)
+                navigateToSignup(Screens.Signup)
                 viewModel.resetEvent()
             }
             is AuthContract.Events.ShowLoading -> {
@@ -112,7 +113,7 @@ fun LoginComposable(
     onGuestClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val email = remember { mutableStateOf("") }
+    val email = rememberSaveable { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
     LazyColumn(
@@ -179,7 +180,7 @@ fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (S
         Text(
             modifier = modifier
                 .padding(
-                    top = 24.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,
@@ -217,7 +218,7 @@ fun PasswordSection(modifier: Modifier = Modifier, password: String, onPasswordC
         Text(
             modifier = modifier
                 .padding(
-                    top = 24.dp,
+                    top = 16.dp,
                     start = 16.dp
                 ),
             fontWeight = FontWeight.Bold,

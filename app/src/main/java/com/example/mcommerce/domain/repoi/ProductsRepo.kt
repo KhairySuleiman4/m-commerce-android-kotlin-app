@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductsRepo {
     suspend fun fetchProductsByBrand(id: String): Flow<ApiResult<List<ProductsEntity>>>
-    suspend fun fetchProductById(id: String): Flow<ApiResult<ProductInfoEntity>>
+    suspend fun fetchProductById(id: String): Flow<ApiResult<ProductInfoEntity?>>
 }

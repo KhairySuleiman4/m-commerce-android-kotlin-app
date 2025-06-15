@@ -4,7 +4,7 @@ data class ProductInfoEntity (
     val id: String,
     val images: List<String>,
     val title: String,
-    val price: String,
+    val price: Double,
     val priceUnit: String,
     val productType: String,
     val vendor: String,

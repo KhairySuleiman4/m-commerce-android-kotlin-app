@@ -17,8 +17,8 @@ class ProductsRemoteDataSourceImpl(private val graphQlService: GraphQLService): 
             } ?: listOf()
         }
 
-    override suspend fun getProductById(id: String): Flow<ApiResult<ProductInfoEntity>> =
+    override suspend fun getProductById(id: String): Flow<ApiResult<ProductInfoEntity?>> =
         executeAPI {
-            graphQlService.getProductById(id).data?.toModel()!!
+            graphQlService.getProductById(id).data?.toModel()
         }
 }

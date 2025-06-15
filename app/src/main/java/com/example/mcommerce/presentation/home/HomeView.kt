@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
@@ -54,8 +53,8 @@ import kotlin.math.absoluteValue
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    navigateTo: (Screens) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.getBrands()
@@ -66,7 +65,7 @@ fun HomeScreen(
         when(event){
             HomeContract.Events.Idle -> {}
             is HomeContract.Events.NavigateToBrandProducts -> {
-                navController.navigate(Screens.Products(event.brandId, event.brandName))
+                navigateTo(Screens.Products(event.brandId, event.brandName))
                 viewModel.resetEvent()
             }
         }
