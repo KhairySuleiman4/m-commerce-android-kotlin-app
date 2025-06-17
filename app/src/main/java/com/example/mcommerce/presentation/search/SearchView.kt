@@ -1,31 +1,62 @@
 package com.example.mcommerce.presentation.search
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuItemColors
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.SelectableChipColors
+import androidx.compose.material3.SliderColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
 fun SearchScreen(
@@ -35,57 +66,64 @@ fun SearchScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    LazyColumn(
+    Column(
         modifier = modifier
             .fillMaxSize()
     ) {
 
-        item {
-            TypesFilter(
-                state.filter.type
-            ){ type ->
-                viewModel.invokeActions(
-                    SearchContract.Action.OnTypeSelected(
-                        if (state.filter.type == type) null else type
-                    )
+        TypesFilter(
+            state.filter.type
+        ) { type ->
+            viewModel.invokeActions(
+                SearchContract.Action.OnTypeSelected(
+                    if (state.filter.type == type) null else type
                 )
-            }
-        }
-
-        item {
-            PriceFilter { min, max ->
-                viewModel.invokeActions(
-                    SearchContract.Action.OnPriceRangeChanged(min.toDouble(), max.toDouble())
-                )
-            }
-        }
-
-        item {
-            BrandDropdownMenu(
-                selectedBrand = state.filter.brand,
-                brands = state.brands,
-                onBrandSelected = { brand ->
-                    viewModel.invokeActions(SearchContract.Action.OnBrandSelected(brand))
-                }
             )
         }
 
-        item {
-            SearchBar(
-                searchQuery = state.filter.searchQuery
-            ){ query ->
-                viewModel.invokeActions(SearchContract.Action.OnSearchQueryChanged(query))
-            }
+        PriceFilter { min, max ->
+            viewModel.invokeActions(
+                SearchContract.Action.OnPriceRangeChanged(min.toDouble(), max.toDouble())
+            )
         }
 
-        items(state.filteredProducts.size) { index ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-            ) {
-                val product = state.filteredProducts[index]
-                Text("${index + 1}: ${product.title}\t${product.price}\t${product.productType}\t${product.brand}\n")
+        BrandDropdownMenu(
+            selectedBrand = state.filter.brand,
+            brands = state.brands,
+            onBrandSelected = { brand ->
+                viewModel.invokeActions(SearchContract.Action.OnBrandSelected(brand))
+            }
+        )
+
+        SearchBar(
+            searchQuery = state.filter.searchQuery
+        ) { query ->
+            viewModel.invokeActions(SearchContract.Action.OnSearchQueryChanged(query))
+        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = modifier.fillMaxSize()
+        ) {
+            items(state.filteredProducts.size) { index ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    ProductCard(
+                        product = state.filteredProducts[index],
+                        onProductClick = {
+                            navigateTo(Screens.ProductDetails(it))
+                        },
+                        onFavoriteClick = {
+                            //viewModel.invokeActions(SearchContract.Action.OnAddToFavorite(it))
+                        },
+                        onAddToCartClick = {
+                            //viewModel.invokeActions(SearchContract.Action.OnAddToCart(it))
+                        }
+                    )
+                }
             }
         }
     }
@@ -105,14 +143,30 @@ fun TypesFilter(
                 vertical = 8.dp
             ),
         horizontalArrangement = Arrangement.SpaceAround
-    ){
+    ) {
         listOf("Accessories", "Shoes", "T-Shirts").forEach { type ->
             FilterChip(
                 selected = selectedType == type,
                 onClick = {
                     onTypeSelected(type)
                 },
-                label = { Text(type) }
+                label = { Text(type) },
+                colors = SelectableChipColors(
+                    containerColor = Color.White,
+                    labelColor = Primary,
+                    leadingIconColor = Primary,
+                    trailingIconColor = Primary,
+                    disabledContainerColor = Color.Gray,
+                    disabledLabelColor = Color.Gray,
+                    disabledLeadingIconColor = Color.White,
+                    disabledTrailingIconColor = Color.White,
+                    selectedContainerColor = Primary,
+                    disabledSelectedContainerColor = Color.White,
+                    selectedLabelColor = Color.White,
+                    selectedLeadingIconColor = Color.White,
+                    selectedTrailingIconColor = Color.White
+                ),
+                border = BorderStroke(0.5.dp, Primary)
             )
         }
     }
@@ -129,21 +183,36 @@ fun PriceFilter(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         RangeSlider(
+            colors = SliderColors(
+                thumbColor = Primary,
+                activeTrackColor = Primary,
+                activeTickColor = Color.White,
+                inactiveTrackColor = Color.White,
+                inactiveTickColor = Primary,
+                disabledThumbColor = Color.Gray,
+                disabledActiveTrackColor = Color.Gray,
+                disabledActiveTickColor = Color.Gray,
+                disabledInactiveTrackColor = Color.Gray,
+                disabledInactiveTickColor = Color.Gray
+            ),
             value = sliderPosition.value,
-            steps = 50,
+            //steps = 19,
             valueRange = 0f..500f,
             onValueChange = {
                 sliderPosition.value = it
             },
             onValueChangeFinished = {
                 onRangeSelected(sliderPosition.value.start, sliderPosition.value.endInclusive)
-            }
-        )
+            },
+
+            )
         Text(
-            "Min: ${sliderPosition.value.start.toInt()} - Max: ${sliderPosition.value.endInclusive.toInt()}"
+            "Min: ${sliderPosition.value.start.toInt()} - Max: ${sliderPosition.value.endInclusive.toInt()}",
+            fontSize = 20.sp
         )
     }
 }
@@ -157,8 +226,24 @@ fun BrandDropdownMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box {
-        TextButton(onClick = { expanded = true }) {
+    Box(
+        modifier = modifier.padding(horizontal = 16.dp)
+    ) {
+        TextButton(
+            colors = ButtonColors(
+                containerColor = Color.White,
+                contentColor = Primary,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.Gray
+            ),
+            border = BorderStroke(
+                0.5.dp,
+                Primary
+            ),
+            onClick = {
+                expanded = true
+            }
+        ) {
             Text(text = selectedBrand ?: "Select Brand")
         }
 
@@ -166,7 +251,7 @@ fun BrandDropdownMenu(
             modifier = modifier
                 .padding(horizontal = 16.dp),
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             DropdownMenuItem(
                 onClick = {
@@ -180,6 +265,14 @@ fun BrandDropdownMenu(
 
             brands.forEach {
                 DropdownMenuItem(
+                    colors = MenuItemColors(
+                        textColor = Primary,
+                        leadingIconColor = Primary,
+                        trailingIconColor = Primary,
+                        disabledTextColor = Color.Gray,
+                        disabledLeadingIconColor = Color.Gray,
+                        disabledTrailingIconColor = Color.Gray
+                    ),
                     onClick = {
                         onBrandSelected(it)
                         expanded = false
@@ -199,14 +292,120 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onSearchQueryChanged: (String) -> Unit
 ) {
-    TextField(
+    OutlinedTextField(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         value = searchQuery,
         onValueChange = {
             onSearchQueryChanged(it)
         },
-        label = { Text("Search Products") }
+        placeholder = {
+            Text(
+                "Search Products",
+                color = Color.Gray
+            )
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
     )
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun ProductCard(
+    product: ProductSearchEntity,
+    onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductSearchEntity) -> Unit,
+    onAddToCartClick: (ProductSearchEntity) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    val isAddedToCart = remember {
+        mutableStateOf(false)
+    }
+
+    val isAddedToFavorite = remember {
+        mutableStateOf(false)
+    }
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier
+            .padding(4.dp)
+            .height(350.dp)
+            .clickable { onProductClick(product.id) },
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column {
+            Box {
+                GlideImage(
+                    model = product.imageUrl,
+                    contentDescription = product.title,
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                IconButton(
+                    onClick = {
+                        isAddedToFavorite.value = !isAddedToFavorite.value
+                        onFavoriteClick(product)
+                    },
+                    modifier = modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = if (isAddedToFavorite.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        modifier = modifier.size(30.dp),
+                        tint = Color(0xFFD32F2F)
+                    )
+                }
+            }
+            Spacer(modifier.height(8.dp))
+            Text(
+                text = product.title,
+                modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                maxLines = 2
+            )
+
+            Text(
+                text = "${product.brand} | ${product.productType}",
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+            Spacer(modifier.weight(1f))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            ) {
+                Text(
+                    text = "EGP ${product.price}",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
+                Spacer(modifier.weight(1f))
+                IconButton(
+                    onClick = {
+                        isAddedToCart.value = !isAddedToCart.value
+                        onAddToCartClick(product)
+                    },
+                    modifier = modifier
+                        .background(Color(0xFF795548), shape = CircleShape)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isAddedToCart.value) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
+                        contentDescription = "cart",
+                        tint = Color.White
+                    )
+                }
+            }
+            Spacer(modifier.height(8.dp))
+        }
+    }
 }
