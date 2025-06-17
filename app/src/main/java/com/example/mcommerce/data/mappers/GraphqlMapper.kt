@@ -1,11 +1,13 @@
 package com.example.mcommerce.data.mappers
 
+import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCategoriesQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
+import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
@@ -80,4 +82,17 @@ fun GetProductByIdQuery.Node1.toVariantEntity(): ProductVariantEntity{
         title = this.title,
         price = this.price.amount.toString(),
     )
+}
+
+fun GetAllProductsQuery.Data.toModel(): List<ProductsForSearchModel>{
+    return this.products.edges.map{
+        ProductsForSearchModel(
+            id = it.node.id,
+            title = it.node.title,
+            imageUrl = it.node.featuredImage?.url.toString(),
+            productType = it.node.productType,
+            price = it.node.priceRange.maxVariantPrice.amount.toString().toDouble(),
+            brand = it.node.vendor
+        )
+    }
 }

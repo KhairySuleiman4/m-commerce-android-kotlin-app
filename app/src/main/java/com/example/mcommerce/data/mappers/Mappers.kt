@@ -5,12 +5,14 @@ import com.example.mcommerce.data.models.AddressModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ExchangeResponse
+import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
 import com.example.mcommerce.domain.entities.AddressEntity
 import com.example.mcommerce.domain.entities.CategoriesEntity
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
+import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 
@@ -98,5 +100,16 @@ fun AddressModel.toEntity(): AddressEntity{
         zip = this.zip,
         latitude = this.latitude,
         longitude = this.longitude
+    )
+}
+
+fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
+    return ProductSearchEntity(
+        id = this.id,
+        title = this.title,
+        imageUrl = this.imageUrl,
+        productType = this.productType,
+        price = this.price,
+        brand = this.brand
     )
 }

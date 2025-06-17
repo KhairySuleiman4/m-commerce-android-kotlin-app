@@ -45,6 +45,7 @@ import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.product_info.ProductInfoScreen
 import com.example.mcommerce.presentation.products.ProductsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
+import com.example.mcommerce.presentation.search.SearchScreen
 import com.example.mcommerce.presentation.settings.view.SettingsScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -78,7 +79,7 @@ class MainActivity : ComponentActivity() {
                     if(showTopBar){
                         MyAppBar(
                             onSearchClick = {
-                                //navController.navigate(Screens.SearchScreen)
+                                navController.navigate(Screens.SearchScreen)
                             },
                             onCartClick = {
                                 //navController.navigate(Screens.CartScreen)
@@ -175,6 +176,11 @@ fun NavHostContainer(
                     brandId = value.brandId,
                     brandName = value.brandName
                 ){
+                    navController.navigate(it)
+                }
+            }
+            composable<Screens.SearchScreen> {
+                SearchScreen{
                     navController.navigate(it)
                 }
             }
