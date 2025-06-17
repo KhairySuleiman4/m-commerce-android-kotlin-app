@@ -1,0 +1,20 @@
+query getAllProducts {
+    products(first: 50){
+        edges{
+            node{
+                title
+                id
+                vendor
+                priceRange{
+                    maxVariantPrice{
+                        amount
+                    }
+                }
+                featuredImage{
+                    url
+                }
+                productType
+            }
+        }
+    }
+}

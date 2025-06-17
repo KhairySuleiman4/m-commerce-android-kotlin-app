@@ -24,4 +24,6 @@ sealed class Screens {
     data class Products(val brandId: String, val brandName: String = "") : Screens()
     @Serializable
     data class ProductDetails(val productId: String): Screens()
+    @Serializable
+    data object SearchScreen: Screens()
 }
