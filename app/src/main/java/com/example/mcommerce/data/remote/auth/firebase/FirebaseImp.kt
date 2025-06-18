@@ -19,7 +19,7 @@ class FirebaseImp(
             auth.currentUser?.updateProfile(
                 UserProfileChangeRequest.Builder()
                     .setDisplayName(credentials.name)
-                    .setPhotoUri(Uri.parse(credentials.accessToken))
+                    .setPhotoUri(Uri.parse("""{"token":"${credentials.accessToken}"}"""))
                     .build()
             )?.await()
 
@@ -35,26 +35,29 @@ class FirebaseImp(
             true
         }
 
-    override suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>> =
+    override suspend fun updatePhoto(value: String): Flow<ApiResult<Boolean>> =
         executeAPI {
-            auth.currentUser != null
+            auth.currentUser?.updateProfile(
+                UserProfileChangeRequest.Builder()
+                    .setPhotoUri(Uri.parse(value))
+                    .build()
+            )?.await()
+            auth.currentUser?.reload()?.await()
+            true
         }
+
+    override fun isMeLoggedIn(): Boolean = auth.currentUser != null
 
     override fun logout() =
         auth.signOut()
 
-    override fun isUserVerified(): Flow<ApiResult<Boolean>> =
-        executeAPI {
-            auth.currentUser?.isEmailVerified ?: false
-        }
+    override fun isUserVerified(): Boolean = auth.currentUser?.isEmailVerified ?: false
 
-    override fun getCustomerAccessToken(): Flow<ApiResult<String>> =
-        executeAPI {
-            auth.currentUser?.photoUrl.toString()
-        }
 
-    override fun isGuestMode(): Flow<ApiResult<Boolean>> =
-        executeAPI {
-            auth.currentUser == null
-        }
+    override fun getCustomerAccessToken(): String = auth.currentUser?.photoUrl.toString()
+    override fun getEmail(): String = auth.currentUser?.email ?: ""
+
+
+    override fun isGuestMode(): Boolean = auth.currentUser == null
+
 }

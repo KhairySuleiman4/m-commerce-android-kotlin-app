@@ -13,7 +13,7 @@ interface ProductsContract {
     sealed interface Action{
         data class ClickOnProduct(val productId: String): Action
         data class ClickOnFavorite(val productId: String): Action
-        data class ClickOnAddToCart(val productId: String): Action
+        data class ClickOnAddToCart(val variantId: String): Action
     }
 
     sealed interface States{
@@ -34,6 +34,7 @@ interface ProductsContract {
         val title: String,
         val imageUrl: String,
         val price: String,
+        val variantId: String,
         val isFavorite: Boolean = false,
         val isInCart: Boolean = false
     )

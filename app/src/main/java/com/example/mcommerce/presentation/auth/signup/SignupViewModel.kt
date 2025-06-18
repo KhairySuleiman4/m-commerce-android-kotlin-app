@@ -32,22 +32,9 @@ class SignupViewModel @Inject constructor (
     private fun keepMeLoggedIn(){
         viewModelScope.launch {
             _events.value = AuthContract.Events.ShowLoading
-            keepMeLoggedInUseCase().collect{
-                when(it){
-                    is ApiResult.Failure -> {
-                        _events.value = AuthContract.Events.ShowSnackbar(it.error.message!!)
-                    }
-                    is ApiResult.Loading -> {
-                        _events.value = AuthContract.Events.ShowLoading
-                    }
-                    is ApiResult.Success -> {
-                        if(it.data) {
-                            _events.value = AuthContract.Events.NavigateToHome
-                        } else{
-                            resetEvent()
-                        }
-                    }
-                }
+            when(keepMeLoggedInUseCase()){
+                true -> _events.value = AuthContract.Events.NavigateToHome
+                false -> resetEvent()
             }
         }
     }
