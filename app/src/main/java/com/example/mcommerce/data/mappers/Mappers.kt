@@ -137,6 +137,8 @@ fun LineModel.toEntity(): LineEntity = LineEntity(
     this.image,
     this.title,
     this.category,
+    this.brand,
+    this.lineId
 )
 
 fun OrderModel.toEntity(): OrderEntity{

@@ -27,8 +27,8 @@ mutation CreateCart($lines : [CartLineInput!],$customerToken : String!,$email :S
                                     title
                                     featuredImage {
                                         url
-                                        altText
                                     }
+                                    vendor
                                 }
                             }
                         }
@@ -43,11 +43,9 @@ mutation CreateCart($lines : [CartLineInput!],$customerToken : String!,$email :S
             cost {
                 subtotalAmount {
                     amount
-                    currencyCode
                 }
                 totalAmount {
                     amount
-                    currencyCode
                 }
             }
         }

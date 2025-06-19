@@ -21,6 +21,8 @@ sealed class Screens {
     @Serializable
     data object Maps : Screens()
     @Serializable
+    data object Cart : Screens()
+    @Serializable
     data class Products(val brandId: String, val brandName: String = "") : Screens()
     @Serializable
     data class ProductDetails(val productId: String): Screens()
