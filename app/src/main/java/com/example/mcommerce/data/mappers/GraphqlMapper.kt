@@ -3,12 +3,15 @@ package com.example.mcommerce.data.mappers
 import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCategoriesQuery
+import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
+import com.example.mcommerce.data.models.OrderModel
 import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
+import com.example.mcommerce.domain.entities.OrderEntity
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
 
@@ -96,3 +99,27 @@ fun GetAllProductsQuery.Data.toModel(): List<ProductsForSearchModel>{
         )
     }
 }
+
+//fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{
+//    return this.customer?.orders?.edges?.map{
+//        OrderModel(
+//            orderId = it.node.id,
+//            orderName = it.node.name,
+//            orderDate = it.node.processedAt.toString(),
+//            orderTime = it.node.processedAt.toString(),
+//            orderPrice = it.node.totalPrice.amount.toString(),
+//            currencyCode = it.node.totalPrice.currencyCode.toString(),
+//            productTitle = it.node.lineItems.edges.,
+//            productQuantity = TODO(),
+//            productPrice = TODO(),
+//            productImage = TODO(),
+//            variantTitle = TODO(),
+//            variantImage = TODO(),
+//            customerUrl = TODO(),
+//            customerName = TODO(),
+//            customerPhone = TODO(),
+//            shippingAddress = TODO(),
+//            shippingCity = TODO()
+//        )
+//    }
+//}
