@@ -1,0 +1,59 @@
+mutation CreateCart($lines : [CartLineInput!],$customerToken : String!,$email :String!) {
+    cartCreate(
+        input: {
+            lines: $lines,
+            buyerIdentity:{
+                email: $email
+                customerAccessToken: $customerToken
+            }
+        }
+    ){
+        cart {
+            id
+            checkoutUrl
+            createdAt
+            updatedAt
+            lines(first: 10) {
+                edges {
+                    node {
+                        id
+                        quantity
+                        merchandise {
+                            ... on ProductVariant {
+                                id
+                                title
+                                price {
+                                    amount
+                                    currencyCode
+                                }
+                                product {
+                                    title
+                                    handle
+                                    featuredImage {
+                                        url
+                                        altText
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            discountAllocations {
+                discountedAmount {
+                    amount
+                }
+            }
+            cost {
+                subtotalAmount {
+                    amount
+                    currencyCode
+                }
+                totalAmount {
+                    amount
+                    currencyCode
+                }
+            }
+        }
+    }
+}

@@ -2,16 +2,20 @@ package com.example.mcommerce.data.mappers
 
 import android.location.Address
 import com.example.mcommerce.data.models.AddressModel
+import com.example.mcommerce.data.models.CartModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ExchangeResponse
+import com.example.mcommerce.data.models.LineModel
 import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
 import com.example.mcommerce.domain.entities.AddressEntity
+import com.example.mcommerce.domain.entities.CartEntity
 import com.example.mcommerce.domain.entities.CategoriesEntity
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
+import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
@@ -42,7 +46,8 @@ fun ProductsModel.toEntity(): ProductsEntity{
         title = this.title,
         imageUrl = this.imageUrl,
         productType = this.productType,
-        price = this.price
+        price = this.price,
+        variantId = this.variantId
     )
 }
 
@@ -52,7 +57,8 @@ fun ProductsEntity.toModel(): ProductsModel{
         title = this.title,
         imageUrl = this.imageUrl,
         productType = this.productType,
-        price = this.price
+        price = this.price,
+        variantId = this.variantId
     )
 }
 
@@ -110,6 +116,25 @@ fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price,
-        brand = this.brand
+        brand = this.brand,
+        variantId = this.variantId
     )
 }
+
+fun CartModel.toEntity(): CartEntity = CartEntity(
+    this.id,
+    this.checkout,
+    this.subtotalAmount,
+    this.totalAmount,
+    this.discountAmount,
+    this.items.map { it.toEntity() }
+)
+
+fun LineModel.toEntity(): LineEntity = LineEntity(
+    this.id,
+    this.quantity,
+    this.price,
+    this.image,
+    this.title,
+    this.category,
+)

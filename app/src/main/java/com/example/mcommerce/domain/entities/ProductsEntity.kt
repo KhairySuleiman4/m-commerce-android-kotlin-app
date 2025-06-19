@@ -5,5 +5,6 @@ data class ProductsEntity(
     val title: String,
     val imageUrl: String,
     val productType: String,
-    val price: String
+    val price: String,
+    val variantId: String
 )

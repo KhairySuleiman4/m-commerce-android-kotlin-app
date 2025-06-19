@@ -1,0 +1,54 @@
+mutation RemoveItemFromCart($cartid : ID!,$varients : [ID!]!) {
+    cartLinesRemove(
+        cartId: $cartid,
+        lineIds: $varients
+    ){
+        cart {
+            id
+            checkoutUrl
+            createdAt
+            updatedAt
+            lines(first: 10) {
+                edges {
+                    node {
+                        id
+                        quantity
+                        merchandise {
+                            ... on ProductVariant {
+                                id
+                                title
+                                price {
+                                    amount
+                                    currencyCode
+                                }
+                                product {
+                                    title
+                                    handle
+                                    featuredImage {
+                                        url
+                                        altText
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            discountAllocations {
+                discountedAmount {
+                    amount
+                }
+            }
+            cost {
+                subtotalAmount {
+                    amount
+                    currencyCode
+                }
+                totalAmount {
+                    amount
+                    currencyCode
+                }
+            }
+        }
+    }
+}

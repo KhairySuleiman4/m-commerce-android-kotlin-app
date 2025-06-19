@@ -6,9 +6,7 @@ import com.example.mcommerce.data.remote.auth.shopify.CustomerRemoteDataSource
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 import com.example.mcommerce.domain.repoi.AuthenticationRepo
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 class AuthenticationRepoImp(
     private val firebase: Firebase,
@@ -23,18 +21,18 @@ class AuthenticationRepoImp(
     override suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>> =
         firebase.login(email, password)
 
-    override suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>> =
+    override suspend fun isMeLoggedIn(): Boolean =
         firebase.isMeLoggedIn()
 
     override fun logout() =
         firebase.logout()
 
-    override fun isUserVerified(): Flow<ApiResult<Boolean>> =
+    override fun isUserVerified(): Boolean =
         firebase.isUserVerified()
 
-    override fun getCustomerAccessToken(): Flow<ApiResult<String>> =
+    override fun getCustomerAccessToken(): String =
         firebase.getCustomerAccessToken()
 
-    override fun isGuestMode(): Flow<ApiResult<Boolean>> =
+    override fun isGuestMode(): Boolean =
         firebase.isGuestMode()
 }

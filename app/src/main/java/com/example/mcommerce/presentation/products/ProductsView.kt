@@ -1,6 +1,5 @@
 package com.example.mcommerce.presentation.products
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,9 +28,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.presentation.navigation.Screens
@@ -74,14 +72,10 @@ fun ProductsScreen(
                 viewModel.resetEvent()
             }
             is ProductsContract.Events.ShowSnackbar -> {
-                val result = snackbarHostState.showSnackbar(
+                snackbarHostState.showSnackbar(
                     message = event.message,
-                    actionLabel = "Undo"
+                    duration = SnackbarDuration.Short
                 )
-                if (result == SnackbarResult.ActionPerformed) {
-                    // undo adding or removing from wishlist or cart
-                    Log.d("snackbar", "undo clicked")
-                }
                 viewModel.resetEvent()
             }
         }
@@ -96,8 +90,8 @@ fun ProductsScreen(
        onFavoriteClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(productId))
        },
-       onAddToCartClick = { productId ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(productId))
+       onAddToCartClick = { variantId ->
+           viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(variantId))
        },
        snackbarHostState = snackbarHostState
    )
@@ -243,7 +237,7 @@ fun ProductCard(
                 )
                 Spacer(modifier.weight(1f))
                 IconButton(
-                    onClick = { onAddToCartClick(product.id) },
+                    onClick = { onAddToCartClick(product.variantId) },
                     modifier = modifier
                         .background(Color(0xFF795548), shape = CircleShape)
                         .size(40.dp)
