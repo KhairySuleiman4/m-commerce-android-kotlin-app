@@ -4,19 +4,23 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mcommerce.data.mappers.toSearchEntity
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetProductByIdUseCase
+import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductInfoViewModel @Inject constructor(
-    private val useCase: GetProductByIdUseCase,
     private val addItemToCartUseCase: AddItemToCartUseCase,
     private val getCartUseCase: GetCartUseCase,
+    private val getProductUseCase: GetProductByIdUseCase,
+    private val insertToFavoritesUseCase: InsertProductToFavoritesUseCase
 ) : ViewModel(), ProductInfoContract.ProductInfoViewModel {
 
     private val _states = mutableStateOf<ProductInfoContract.States>(ProductInfoContract.States.Loading)
@@ -29,7 +33,7 @@ class ProductInfoViewModel @Inject constructor(
 
     fun getProductById(id: String){
         viewModelScope.launch {
-            useCase(id).collect{ result ->
+            getProductUseCase(id).collect{ result ->
                 when(result){
                     is ApiResult.Failure -> {
                         _states.value = ProductInfoContract.States.Failure(result.error.message.toString())
@@ -113,9 +117,13 @@ class ProductInfoViewModel @Inject constructor(
         when(action){
             is ProductInfoContract.Action.ClickOnAddToCart -> {
                addItemToCart(action.variant.id)
+                _events.value = ProductInfoContract.Events.ShowSnackbar("Added to cart")
             }
             is ProductInfoContract.Action.ClickOnAddToWishList -> {
-                _events.value = ProductInfoContract.Events.ShowSnackbar("Success")
+                _events.value = ProductInfoContract.Events.ShowSnackbar("Added to favorites")
+                viewModelScope.launch(Dispatchers.IO) {
+                    insertToFavoritesUseCase(action.product.toSearchEntity())
+                }
             }
         }
     }

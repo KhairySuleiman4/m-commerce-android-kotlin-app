@@ -10,4 +10,7 @@ interface ProductsRepo {
     suspend fun fetchProductsByCollection(id: String): Flow<ApiResult<List<ProductsEntity>>>
     suspend fun fetchProductById(id: String): Flow<ApiResult<ProductInfoEntity?>>
     suspend fun fetchAllProducts(): Flow<ApiResult<List<ProductSearchEntity>>>
+    suspend fun insertProductToFavorites(product: ProductSearchEntity)
+    suspend fun getFavoriteProducts(): Flow<ApiResult<List<ProductSearchEntity>>>
+    suspend fun deleteFavoriteProduct(id: String)
 }

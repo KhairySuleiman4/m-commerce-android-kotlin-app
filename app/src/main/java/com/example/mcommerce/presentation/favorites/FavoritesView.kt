@@ -1,9 +1,231 @@
 package com.example.mcommerce.presentation.favorites
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.mcommerce.domain.entities.ProductSearchEntity
+import com.example.mcommerce.presentation.navigation.Screens
 
 @Composable
-fun FavoritesScreen(modifier: Modifier = Modifier) {
+fun FavoritesScreen(
+    viewModel: FavoritesViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
+    navigationTo: (Screens)-> Unit
+) {
+    val event = viewModel.events.value
+    val state = viewModel.states.value
 
+    LaunchedEffect(Unit) {
+        viewModel.getFavoriteProducts()
+    }
+
+    LaunchedEffect(event) {
+        when(event){
+            is FavoritesContract.Events.Idle -> {}
+            is FavoritesContract.Events.NavigateToProductInfo -> {
+                navigationTo(Screens.ProductDetails(event.productId))
+                viewModel.resetEvent()
+            }
+        }
+    }
+
+    Products(
+        state = state,
+        onProductClick = { id ->
+            viewModel.invokeActions(FavoritesContract.Action.ClickOnProduct(id))
+        },
+        onDeleteFromFavoriteClick = { id ->
+            viewModel.invokeActions(FavoritesContract.Action.ClickOnDeleteFromFavorite(id))
+        },
+        onAddToCartClick = { id ->
+            viewModel.invokeActions(FavoritesContract.Action.ClickOnAddToCart(id))
+        }
+    )
+}
+
+@Composable
+fun Products(
+    state: FavoritesContract.States,
+    onProductClick: (String) -> Unit,
+    onDeleteFromFavoriteClick: (String) -> Unit,
+    onAddToCartClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when(state){
+        is FavoritesContract.States.Failure -> {}
+        is FavoritesContract.States.Idle -> {}
+        is FavoritesContract.States.Loading -> {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        is FavoritesContract.States.Success -> {
+            ProductsList(
+                productsList = state.products,
+                onProductClick = onProductClick,
+                onDeleteFromFavoriteClick = onDeleteFromFavoriteClick,
+                onAddToCartClick = onAddToCartClick
+            )
+        }
+    }
+}
+
+@Composable
+fun ProductsList(
+    productsList: List<ProductSearchEntity>,
+    onProductClick: (String) -> Unit,
+    onDeleteFromFavoriteClick: (String) -> Unit,
+    onAddToCartClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = modifier.fillMaxSize()
+        ) {
+            items(productsList.size){ index ->
+                ProductCard(
+                    product = productsList[index],
+                    onProductClick = onProductClick,
+                    onDeleteFromFavoriteClick = onDeleteFromFavoriteClick,
+                    onAddToCartClick = onAddToCartClick
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun ProductCard(
+    product: ProductSearchEntity,
+    onProductClick: (String) -> Unit,
+    onDeleteFromFavoriteClick: (String) -> Unit,
+    onAddToCartClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isAddedToCart = remember {
+        mutableStateOf(false)
+    }
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier
+            .padding(4.dp)
+            .height(350.dp)
+            .clickable { onProductClick(product.id) },
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column {
+            Box {
+                GlideImage(
+                    model = product.imageUrl,
+                    contentDescription = product.title,
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                IconButton(
+                    onClick = {
+                        onDeleteFromFavoriteClick(product.id)
+                    },
+                    modifier = modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Favorite",
+                        modifier = modifier.size(30.dp),
+                        tint = Color(0xFFD32F2F)
+                    )
+                }
+            }
+            Spacer(modifier.height(8.dp))
+            Text(
+                text = product.title,
+                modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                maxLines = 2
+            )
+
+            Text(
+                text = "${product.brand} | ${product.productType}",
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+            Spacer(modifier.weight(1f))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            ) {
+                Text(
+                    text = "EGP ${product.price}",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp
+                )
+                Spacer(modifier.weight(1f))
+                IconButton(
+                    onClick = {
+                        isAddedToCart.value = !isAddedToCart.value
+                        onAddToCartClick(product.id)
+                    },
+                    modifier = modifier
+                        .background(Color(0xFF795548), shape = CircleShape)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isAddedToCart.value) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
+                        contentDescription = "cart",
+                        tint = Color.White
+                    )
+                }
+            }
+            Spacer(modifier.height(8.dp))
+        }
+    }
 }
