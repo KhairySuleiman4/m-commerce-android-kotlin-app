@@ -47,7 +47,6 @@ fun ProductsModel.toEntity(): ProductsEntity{
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price,
-        variantId = this.variantId
     )
 }
 
@@ -58,7 +57,6 @@ fun ProductsEntity.toModel(): ProductsModel{
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price,
-        variantId = this.variantId
     )
 }
 
@@ -117,7 +115,6 @@ fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
         productType = this.productType,
         price = this.price,
         brand = this.brand,
-        variantId = this.variantId
     )
 }
 

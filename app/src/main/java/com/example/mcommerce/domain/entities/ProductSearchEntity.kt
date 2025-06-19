@@ -7,5 +7,4 @@ data class ProductSearchEntity (
     val productType: String,
     val price: Double,
     val brand: String,
-    val variantId: String
 )

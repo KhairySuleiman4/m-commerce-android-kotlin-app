@@ -37,7 +37,6 @@ fun GetProductsByBrandQuery.Data.toModel(): List<ProductsModel>{
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString(),
-            variantId = it.node.variants.edges[0].node.id
         )
     } ?: listOf()
 }
@@ -101,7 +100,6 @@ fun GetAllProductsQuery.Data.toModel(): List<ProductsForSearchModel>{
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString().toDouble(),
             brand = it.node.vendor,
-            variantId = it.node.variants.edges[0].node.id
         )
     }
 }

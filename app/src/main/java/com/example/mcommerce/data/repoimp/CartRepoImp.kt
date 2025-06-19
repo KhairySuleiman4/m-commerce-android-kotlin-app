@@ -74,7 +74,7 @@ class CartRepoImp(
                         firebase.updatePhoto(json.toString()).collect{ result ->
                             when(result){
                                 is ApiResult.Failure -> {
-
+                                    emit(ApiResult.Failure(result.error))
                                 }
                                 is ApiResult.Loading -> {
                                 }
