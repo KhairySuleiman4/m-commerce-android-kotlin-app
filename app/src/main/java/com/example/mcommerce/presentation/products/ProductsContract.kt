@@ -13,12 +13,17 @@ interface ProductsContract {
     sealed interface Action{
         data class ClickOnProduct(val productId: String): Action
         data class ClickOnFavorite(val productId: String): Action
+        data class OnTypeSelected(val productType: String?): Action
         data class ClickOnAddToCart(val variantId: String): Action
     }
 
     sealed interface States{
         data object Loading: States
-        data class Success(val productsList: List<ProductUIModel>): States
+        data class Success(
+            val productsList: List<ProductUIModel>,
+            val filteredProductsList: List<ProductUIModel> = emptyList(),
+            val selectedProductType: String? = null,
+        ): States
         data class Failure(val errorMessage: String): States
         data object Idle: States
     }
@@ -33,6 +38,7 @@ interface ProductsContract {
         val id: String,
         val title: String,
         val imageUrl: String,
+        val productType: String,
         val price: String,
         val variantId: String,
         val isFavorite: Boolean = false,

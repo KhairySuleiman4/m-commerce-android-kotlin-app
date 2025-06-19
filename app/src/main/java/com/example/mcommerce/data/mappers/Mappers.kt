@@ -7,6 +7,7 @@ import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ExchangeResponse
 import com.example.mcommerce.data.models.LineModel
+import com.example.mcommerce.data.models.OrderModel
 import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
 import com.example.mcommerce.domain.entities.AddressEntity
@@ -16,6 +17,7 @@ import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
 import com.example.mcommerce.domain.entities.LineEntity
+import com.example.mcommerce.domain.entities.OrderEntity
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
@@ -138,3 +140,47 @@ fun LineModel.toEntity(): LineEntity = LineEntity(
     this.title,
     this.category,
 )
+
+fun OrderModel.toEntity(): OrderEntity{
+    return OrderEntity(
+        orderId = this.orderId,
+        orderName = this.orderName,
+        orderDate = this.orderDate,
+        orderTime = this.orderTime,
+        orderPrice = this.orderPrice,
+        currencyCode = this.currencyCode,
+        productTitle = this.productTitle,
+        productQuantity = this.productQuantity,
+        productPrice = this.productPrice,
+        productImage = this.productImage,
+        variantTitle = this.variantTitle,
+        variantImage = this.variantImage,
+        customerUrl = this.customerUrl,
+        customerName = this.customerName,
+        customerPhone = this.customerPhone,
+        shippingAddress = this.shippingAddress,
+        shippingCity = this.shippingCity
+    )
+}
+
+fun OrderEntity.toModel(): OrderModel{
+    return OrderModel(
+        orderId = this.orderId,
+        orderName = this.orderName,
+        orderDate = this.orderDate,
+        orderTime = this.orderTime,
+        orderPrice = this.orderPrice,
+        currencyCode = this.currencyCode,
+        productTitle = this.productTitle,
+        productQuantity = this.productQuantity,
+        productPrice = this.productPrice,
+        productImage = this.productImage,
+        variantTitle = this.variantTitle,
+        variantImage = this.variantImage,
+        customerUrl = this.customerUrl,
+        customerName = this.customerName,
+        customerPhone = this.customerPhone,
+        shippingAddress = this.shippingAddress,
+        shippingCity = this.shippingCity
+    )
+}
