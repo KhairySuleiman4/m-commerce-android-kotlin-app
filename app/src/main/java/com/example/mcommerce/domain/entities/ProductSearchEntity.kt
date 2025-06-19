@@ -6,5 +6,6 @@ data class ProductSearchEntity (
     val imageUrl: String = "",
     val productType: String = "",
     val price: Double = 0.0,
-    val brand: String = ""
+    val brand: String = "",
+    val isFavorite: Boolean = false
 )
