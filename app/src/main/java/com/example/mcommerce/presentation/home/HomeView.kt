@@ -206,11 +206,11 @@ fun AdsCarousel(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .padding(8.dp)
     ) {
         HorizontalPager(
             state = pagerState,
-            contentPadding = PaddingValues(horizontal = 64.dp),
+            contentPadding = PaddingValues(horizontal = 32.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
@@ -220,7 +220,7 @@ fun AdsCarousel(
                     ).absoluteValue
 
             val scale = lerp(
-                start = 0.85f,
+                start = 0.9f,
                 stop = 1f,
                 fraction = 1f - pageOffset.coerceIn(0f, 1f)
             )

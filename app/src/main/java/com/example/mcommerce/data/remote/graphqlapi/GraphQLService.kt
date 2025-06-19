@@ -10,6 +10,7 @@ import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
+import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.RemoveItemFromCartMutation
@@ -23,6 +24,7 @@ interface GraphQLService {
     suspend fun getCategories(): ApolloResponse<GetCategoriesQuery.Data>
     suspend fun getProductById(id: String): ApolloResponse<GetProductByIdQuery.Data>
     suspend fun getAllProducts(): ApolloResponse<GetAllProductsQuery.Data>
+    suspend fun getOrders(userAccessToken: String): ApolloResponse<GetOrdersQuery.Data>
     suspend fun getCartById(id: String): ApolloResponse<GetCartByIdQuery.Data>
     suspend fun createCart(accessToken: String, email: String): ApolloResponse<CreateCartMutation.Data>
     suspend fun addItemToCart(cartId: String, quantity: Int, itemId: String): ApolloResponse<AddItemToCartMutation.Data>

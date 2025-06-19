@@ -71,6 +71,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
     // Apollo GraphQL
     implementation(libs.apollographql.apollo.runtime)
     // Hilt
@@ -82,13 +89,6 @@ dependencies {
     implementation(libs.converter.gson)
     // Preferences DataStore
     implementation(libs.androidx.datastore.preferences)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
     // Google Maps
     implementation(libs.maps.compose)
     // Navigation
@@ -99,9 +99,11 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // Constraint Layout
     implementation(libs.androidx.constraintlayout.compose)
-    // Firebase
+    // Firebase & Firestore
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.firestore.ktx)
 }
 
 kapt {

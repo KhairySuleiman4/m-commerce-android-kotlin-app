@@ -3,7 +3,6 @@ package com.example.mcommerce.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -56,20 +56,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
-            val navDest = remember { mutableStateOf(0) }
-            val bottomBarRoutes = setOf(
-                "com.example.mcommerce.presentation.navigation.Screens.Home",
-                "com.example.mcommerce.presentation.navigation.Screens.Categories",
-                "com.example.mcommerce.presentation.navigation.Screens.Favorite",
-                "com.example.mcommerce.presentation.navigation.Screens.Profile"
-            )
-            val topBarRoutes = setOf(
-                "com.example.mcommerce.presentation.navigation.Screens.Home",
-                "com.example.mcommerce.presentation.navigation.Screens.Categories",
-                "com.example.mcommerce.presentation.navigation.Screens.Favorite",
-                "com.example.mcommerce.presentation.navigation.Screens.Profile"
-            )
+            val currentRoute = navBackStackEntry?.getScreenRoute() ?: ""
+            val navDest = remember { mutableIntStateOf(0) }
+
+            val bottomBarRoutes = setOf("home", "categories", "favorite", "profile")
+            val topBarRoutes = setOf("home", "categories", "favorite", "profile", "products")
 
             val showBottomBar = currentRoute in bottomBarRoutes
             val showTopBar = currentRoute in topBarRoutes
@@ -91,18 +82,16 @@ class MainActivity : ComponentActivity() {
                     if (showBottomBar) {
                         BottomNavigationBar(
                             navController = navController,
-                            currentRoute = navDest.value,
+                            currentRoute = navDest.intValue,
                         )
                     }
                 },
                 content = { padding ->
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        NavHostContainer(
-                            navController = navController,
-                            padding = padding,
-                            ){
-                            navDest.value = it
-                        }
+                    NavHostContainer(
+                        navController = navController,
+                        padding = padding
+                    ){
+                        navDest.intValue = it
                     }
                 }
             )
@@ -112,14 +101,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun NavHostContainer(
-    navController: NavHostController,
+    modifier: Modifier = Modifier,
     padding: PaddingValues,
+    navController: NavHostController,
     changeRoute: (Int) -> Unit,
 ) {
     NavHost(
+        modifier = modifier.fillMaxSize().padding(paddingValues = padding),
         navController = navController,
         startDestination = Screens.Signup,
-        modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable<Screens.Signup> {
                 SignupScreen(navigateToLogin = {
@@ -154,7 +144,9 @@ fun NavHostContainer(
             }
             composable<Screens.Favorite> {
                 changeRoute(2)
-                FavoritesScreen()
+                FavoritesScreen{
+                    navController.navigate(it)
+                }
             }
             composable<Screens.Profile> {
                 changeRoute(3)
@@ -173,7 +165,7 @@ fun NavHostContainer(
             composable<Screens.Products>{ backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
                 ProductsScreen(
-                    brandId = value.brandId,
+                    collectionId = value.brandId,
                     brandName = value.brandName
                 ){
                     navController.navigate(it)
@@ -197,13 +189,8 @@ fun BottomNavigationBar(
     navController: NavHostController,
     currentRoute: Int,
     ) {
-
-    NavigationBar(
-        modifier = Modifier.padding(8.dp)
-    ) {
-
+    NavigationBar{
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
-
             NavigationBarItem(
                 selected = index==currentRoute,
                 onClick = {
@@ -258,4 +245,16 @@ fun MyAppBar(
             }
         }
     )
+}
+
+fun NavBackStackEntry.getScreenRoute(): String {
+    val destinationName = destination.route
+    return when {
+        destinationName?.contains("Home") == true -> "home"
+        destinationName?.contains("Categories") == true -> "categories"
+        destinationName?.contains("Favorite") == true -> "favorite"
+        destinationName?.contains("Profile") == true -> "profile"
+        destinationName?.contains("Products") == true -> "products"
+        else -> ""
+    }
 }
