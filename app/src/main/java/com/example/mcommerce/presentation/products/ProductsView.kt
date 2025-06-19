@@ -1,6 +1,7 @@
 package com.example.mcommerce.presentation.products
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,8 +30,10 @@ import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -45,15 +50,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
 fun ProductsScreen(
     viewModel: ProductsViewModel = hiltViewModel(),
-    brandId: String,
+    collectionId: String,
     brandName: String,
     navigationTo: (Screens)-> Unit,
 ) {
@@ -63,7 +68,7 @@ fun ProductsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        viewModel.getProducts(brandId)
+        viewModel.getProducts(collectionId)
     }
 
     LaunchedEffect(event) {
@@ -99,6 +104,9 @@ fun ProductsScreen(
        onAddToCartClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(productId))
        },
+       onFilterTypeSelected = { productType ->
+           viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
+       },
        snackbarHostState = snackbarHostState
    )
 
@@ -112,6 +120,7 @@ fun Products(
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
     onAddToCartClick: (String) -> Unit,
+    onFilterTypeSelected: (String?) -> Unit,
     snackbarHostState: SnackbarHostState
     ) {
     when(state){
@@ -125,14 +134,24 @@ fun Products(
             }
         }
         is ProductsContract.States.Success -> {
-            ProductsList(
-                productsList = state.productsList,
-                brandName = brandName,
-                onProductClick =onProductClick,
-                onFavoriteClick = onFavoriteClick,
-                onAddToCartClick = onAddToCartClick,
-                snackbarHostState = snackbarHostState
-            )
+                Column(
+                    modifier = modifier.fillMaxSize()
+                ) {
+                    ProductTypeFilterChips(
+                        selectedProductType = state.selectedProductType,
+                        onTypeSelected = onFilterTypeSelected
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ProductsList(
+                        productsList = state.filteredProductsList,
+                        brandName = brandName,
+                        onProductClick =onProductClick,
+                        onFavoriteClick = onFavoriteClick,
+                        onAddToCartClick = onAddToCartClick,
+                        snackbarHostState = snackbarHostState
+                    )
+                }
         }
     }
 }
@@ -259,3 +278,68 @@ fun ProductCard(
         }
     }
 }
+
+@Composable
+private fun ProductTypeFilterChips(
+    selectedProductType: String?,
+    onTypeSelected: (String?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val typesList = listOf("Accessories", "Shoes", "T-Shirts")
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
+            ),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        item {
+            FilterChipTheme(
+                label = { Text("All") },
+                selected = selectedProductType == null,
+                onClick = { onTypeSelected(null) }
+            )
+        }
+        items(typesList) { type ->
+            FilterChipTheme(
+                label = { Text(type) },
+                selected = selectedProductType == type,
+                onClick = {
+                    onTypeSelected(type)
+                },
+            )
+        }
+    }
+}
+
+@Composable
+fun FilterChipTheme(
+    label: @Composable () -> Unit,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = label,
+        colors = SelectableChipColors(
+            containerColor = Color.White,
+            labelColor = Primary,
+            leadingIconColor = Primary,
+            trailingIconColor = Primary,
+            disabledContainerColor = Color.Gray,
+            disabledLabelColor = Color.Gray,
+            disabledLeadingIconColor = Color.White,
+            disabledTrailingIconColor = Color.White,
+            selectedContainerColor = Primary,
+            disabledSelectedContainerColor = Color.White,
+            selectedLabelColor = Color.White,
+            selectedLeadingIconColor = Color.White,
+            selectedTrailingIconColor = Color.White
+        ),
+        border = BorderStroke(0.5.dp, Primary)
+    )
+}
+
