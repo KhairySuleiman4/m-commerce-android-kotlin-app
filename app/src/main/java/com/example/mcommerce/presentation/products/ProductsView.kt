@@ -97,9 +97,6 @@ fun ProductsScreen(
        onFavoriteClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(productId))
        },
-       onAddToCartClick = { variantId ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(variantId))
-       },
        onFilterTypeSelected = { productType ->
            viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
        },
@@ -115,7 +112,6 @@ fun Products(
     brandName: String,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
     snackbarHostState: SnackbarHostState
     ) {
@@ -144,7 +140,6 @@ fun Products(
                         brandName = brandName,
                         onProductClick =onProductClick,
                         onFavoriteClick = onFavoriteClick,
-                        onAddToCartClick = onAddToCartClick,
                         snackbarHostState = snackbarHostState
                     )
                 }
@@ -159,7 +154,6 @@ fun ProductsList(
     brandName: String,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
 
@@ -177,7 +171,6 @@ fun ProductsList(
                     product = product,
                     brandName = brandName,
                     onFavoriteClick = onFavoriteClick,
-                    onAddToCartClick = onAddToCartClick,
                     onProductClick = onProductClick
                 )
             }
@@ -197,7 +190,6 @@ fun ProductCard(
     product: ProductsContract.ProductUIModel,
     brandName: String,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     onProductClick: (String) -> Unit
 ) {
     Card(
@@ -256,19 +248,6 @@ fun ProductCard(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )
-                Spacer(modifier.weight(1f))
-                IconButton(
-                    onClick = { onAddToCartClick(product.variantId) },
-                    modifier = modifier
-                        .background(Color(0xFF795548), shape = CircleShape)
-                        .size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = if(product.isInCart) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
-                        contentDescription = "cart",
-                        tint = Color.White
-                    )
-                }
             }
             Spacer(modifier.height(8.dp))
         }

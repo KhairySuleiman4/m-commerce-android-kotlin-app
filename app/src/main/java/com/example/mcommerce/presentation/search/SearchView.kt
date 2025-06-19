@@ -119,9 +119,6 @@ fun SearchScreen(
                         onFavoriteClick = {
                             //viewModel.invokeActions(SearchContract.Action.OnAddToFavorite(it))
                         },
-                        onAddToCartClick = {
-                            //viewModel.invokeActions(SearchContract.Action.OnAddToCart(it))
-                        }
                     )
                 }
             }
@@ -317,14 +314,8 @@ fun ProductCard(
     product: ProductSearchEntity,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductSearchEntity) -> Unit,
-    onAddToCartClick: (ProductSearchEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    val isAddedToCart = remember {
-        mutableStateOf(false)
-    }
-
     val isAddedToFavorite = remember {
         mutableStateOf(false)
     }
@@ -388,22 +379,6 @@ fun ProductCard(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )
-                Spacer(modifier.weight(1f))
-                IconButton(
-                    onClick = {
-                        isAddedToCart.value = !isAddedToCart.value
-                        onAddToCartClick(product)
-                    },
-                    modifier = modifier
-                        .background(Color(0xFF795548), shape = CircleShape)
-                        .size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = if (isAddedToCart.value) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
-                        contentDescription = "cart",
-                        tint = Color.White
-                    )
-                }
             }
             Spacer(modifier.height(8.dp))
         }
