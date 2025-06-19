@@ -191,6 +191,5 @@ fun ProductInfoEntity.toSearchEntity(): ProductSearchEntity{
         productType = this.productType,
         price = this.price,
         brand = this.vendor,
-        variantId = this.variants[0].id
     )
 }

@@ -13,6 +13,7 @@ interface ProductsContract {
     sealed interface Action{
         data class ClickOnProduct(val productId: String): Action
         data class ClickOnFavorite(val productId: String): Action
+        data class OnTypeSelected(val productType: String?): Action
     }
 
     sealed interface States{
