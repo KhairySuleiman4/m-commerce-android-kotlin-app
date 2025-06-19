@@ -18,7 +18,7 @@
       </SelectionState>
       <SelectionState runConfigName="OrdersListPreview">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-06-17T22:29:02.770558300Z">
+        <DropdownSelection timestamp="2025-06-19T14:00:19.898328700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\SHEREEN\.android\avd\Pixel_9_Pro_API_35.avd" />
