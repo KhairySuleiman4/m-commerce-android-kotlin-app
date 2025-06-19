@@ -12,6 +12,7 @@ import com.example.mcommerce.domain.entities.CategoriesEntity
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
+import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
@@ -111,5 +112,16 @@ fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
         productType = this.productType,
         price = this.price,
         brand = this.brand
+    )
+}
+
+fun ProductInfoEntity.toSearchEntity(): ProductSearchEntity{
+    return ProductSearchEntity(
+        id = this.id,
+        title = this.title,
+        imageUrl = this.images[0],
+        productType = this.productType,
+        price = this.price,
+        brand = this.vendor
     )
 }

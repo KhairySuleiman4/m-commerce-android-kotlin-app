@@ -154,7 +154,9 @@ fun NavHostContainer(
             }
             composable<Screens.Favorite> {
                 changeRoute(2)
-                FavoritesScreen()
+                FavoritesScreen{
+                    navController.navigate(it)
+                }
             }
             composable<Screens.Profile> {
                 changeRoute(3)

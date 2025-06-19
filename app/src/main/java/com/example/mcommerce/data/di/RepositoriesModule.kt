@@ -35,6 +35,7 @@ import com.example.mcommerce.domain.repoi.CurrencyRepo
 import com.example.mcommerce.domain.repoi.MapRepo
 import com.example.mcommerce.domain.repoi.ProductsRepo
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -64,7 +65,7 @@ object RepositoriesModule{
 
     @Provides
     @Singleton
-    fun provideProductsDataSource(graphQLService: GraphQLService): ProductsRemoteDataSource = ProductsRemoteDataSourceImpl(graphQLService)
+    fun provideProductsDataSource(graphQLService: GraphQLService, firestore: Firebase): ProductsRemoteDataSource = ProductsRemoteDataSourceImpl(graphQLService, firestore)
 
     @Provides
     @Singleton
@@ -93,7 +94,14 @@ object RepositoriesModule{
 
     @Provides
     @Singleton
-    fun provideFirebase(firebaseAuth: FirebaseAuth): Firebase = FirebaseImp(firebaseAuth)
+    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebase(
+        firebaseAuth: FirebaseAuth,
+        firestore: FirebaseFirestore
+    ): Firebase = FirebaseImp(firebaseAuth, firestore)
 
     @Provides
     @Singleton

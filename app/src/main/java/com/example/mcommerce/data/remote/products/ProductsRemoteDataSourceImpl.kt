@@ -2,6 +2,7 @@ package com.example.mcommerce.data.remote.products
 
 import com.example.mcommerce.data.mappers.toEntity
 import com.example.mcommerce.data.mappers.toModel
+import com.example.mcommerce.data.remote.auth.firebase.Firebase
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLService
 import com.example.mcommerce.data.utils.executeAPI
 import com.example.mcommerce.domain.ApiResult
@@ -10,7 +11,10 @@ import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import kotlinx.coroutines.flow.Flow
 
-class ProductsRemoteDataSourceImpl(private val graphQlService: GraphQLService): ProductsRemoteDataSource {
+class ProductsRemoteDataSourceImpl(
+    private val graphQlService: GraphQLService,
+    private val firestore: Firebase
+): ProductsRemoteDataSource {
     override suspend fun getProducts(id: String): Flow<ApiResult<List<ProductsEntity>>> =
         executeAPI {
             graphQlService.getProducts(id).data?.toModel()?.map {
@@ -29,4 +33,10 @@ class ProductsRemoteDataSourceImpl(private val graphQlService: GraphQLService): 
                 it.toEntity()
             } ?: listOf()
         }
+
+    override suspend fun insertProductToFavorites(product: ProductSearchEntity) = firestore.insertProductToFavorites(product)
+
+    override suspend fun getFavoriteProducts(): Flow<ApiResult<List<ProductSearchEntity>>> = firestore.getFavoriteProducts()
+
+    override suspend fun deleteFavoriteProduct(id: String) = firestore.deleteProduct(id)
 }
