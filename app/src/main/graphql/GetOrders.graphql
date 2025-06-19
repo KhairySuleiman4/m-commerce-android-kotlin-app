@@ -24,9 +24,6 @@ query GetOrders($customerAccessToken: String!) {
                                 quantity
                                 variant {
                                     title
-                                    image{
-                                        url
-                                    }
                                     product {
                                         title
                                         priceRange{

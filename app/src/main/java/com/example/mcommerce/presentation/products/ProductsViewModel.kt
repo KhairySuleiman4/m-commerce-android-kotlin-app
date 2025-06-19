@@ -18,7 +18,7 @@ class ProductsViewModel @Inject constructor(
     private val productsUseCase: GetProductsUseCase,
     private val getCartUseCase: GetCartUseCase,
     private val addItemToCartUseCase: AddItemToCartUseCase,
-): ViewModel(), ProductsContract.ProductsViewModel {
+) : ViewModel(), ProductsContract.ProductsViewModel {
 
     private val _states = mutableStateOf<ProductsContract.States>(ProductsContract.States.Idle)
     private val _events = mutableStateOf<ProductsContract.Events>(ProductsContract.Events.Idle)
@@ -29,17 +29,20 @@ class ProductsViewModel @Inject constructor(
     private var allProducts: List<ProductsContract.ProductUIModel> = emptyList()
     private var currentCollectionId: String = ""
 
-    fun getProducts(id: String){
+    fun getProducts(id: String) {
         viewModelScope.launch {
             currentCollectionId = id
-            productsUseCase(id).collect{ result ->
-                when(result){
+            productsUseCase(id).collect { result ->
+                when (result) {
                     is ApiResult.Failure -> {
-                        _states.value = ProductsContract.States.Failure(result.error.message.toString())
+                        _states.value =
+                            ProductsContract.States.Failure(result.error.message.toString())
                     }
+
                     is ApiResult.Loading -> {
                         _states.value = ProductsContract.States.Loading
                     }
+
                     is ApiResult.Success -> {
                         val products = result.data.map {
                             ProductsContract.ProductUIModel(
@@ -47,8 +50,7 @@ class ProductsViewModel @Inject constructor(
                                 title = it.title,
                                 imageUrl = it.imageUrl,
                                 price = it.price,
-                                variantId = it.variantId
-                                price = it.price,
+                                variantId = it.variantId,
                                 productType = it.productType
                             )
                         }
@@ -63,16 +65,19 @@ class ProductsViewModel @Inject constructor(
     }
 
     override fun invokeActions(action: ProductsContract.Action) {
-        when(action){
+        when (action) {
             is ProductsContract.Action.ClickOnProduct -> {
                 _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
             }
+
             is ProductsContract.Action.ClickOnAddToCart -> {
                 toggleCart(action.variantId)
             }
+
             is ProductsContract.Action.OnTypeSelected -> {
                 filterProductsByType(action.productType)
             }
+
             is ProductsContract.Action.ClickOnFavorite -> {
                 toggleFavorite(action.productId)
             }
@@ -103,7 +108,7 @@ class ProductsViewModel @Inject constructor(
         )
     }
 
-    private fun toggleFavorite(productId: String){
+    private fun toggleFavorite(productId: String) {
         //add product to wishlist
         val currentState = _states.value
         if (currentState is ProductsContract.States.Success) {
@@ -120,8 +125,9 @@ class ProductsViewModel @Inject constructor(
                 productsList = updatedAllProducts,
                 filteredProductsList = updatedFilteredProducts
             )
-            val message = if (updatedFilteredProducts.find { it.id == productId }?.isFavorite == true)
-                "Added to Favorites!" else "Removed from Favorites."
+            val message =
+                if (updatedFilteredProducts.find { it.id == productId }?.isFavorite == true)
+                    "Added to Favorites!" else "Removed from Favorites."
             _events.value = ProductsContract.Events.ShowSnackbar(message)
         }
     }
@@ -130,14 +136,8 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             getCartUseCase().collect { result ->
                 when (result) {
-                    is ApiResult.Failure -> {
-
-                    }
-
-                    is ApiResult.Loading -> {
-
-                    }
-
+                    is ApiResult.Failure -> {   }
+                    is ApiResult.Loading -> {   }
                     is ApiResult.Success -> {
                         if (result.data != null) {
                             if (_states.value is ProductsContract.States.Success) {
@@ -149,7 +149,18 @@ class ProductsViewModel @Inject constructor(
                                     else
                                         item
                                 }
-                                _states.value = ProductsContract.States.Success(newData)
+                                allProducts = newData
+                                val filteredProducts = (_states.value as ProductsContract.States.Success).filteredProductsList
+                                val newFilteredProducts = filteredProducts.map { item ->
+                                    if (result.data.items.any { it.id == item.variantId })
+                                        item.copy(isInCart = true)
+                                    else
+                                        item
+                                }
+                                _states.value = ProductsContract.States.Success(
+                                    productsList = newData,
+                                    filteredProductsList = newFilteredProducts
+                                    )
                             }
                         }
                     }
@@ -158,26 +169,42 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    private fun toggleCart(variantId: String){
+    private fun toggleCart(variantId: String) {
         viewModelScope.launch {
-            addItemToCartUseCase(variantId, 1).collect{ result ->
-                when(result){
+            addItemToCartUseCase(variantId, 1).collect { result ->
+                when (result) {
                     is ApiResult.Failure -> {
-                        _events.value = ProductsContract.Events.ShowSnackbar(result.error.message ?: "Unknown Error")
+                        _events.value = ProductsContract.Events.ShowSnackbar(
+                            result.error.message ?: "Unknown Error"
+                        )
                     }
+
                     is ApiResult.Loading -> {
 
                     }
+
                     is ApiResult.Success -> {
                         if (result.data != null) {
                             val currentState = _states.value
                             if (currentState is ProductsContract.States.Success) {
                                 val updatedList = currentState.productsList.map { item ->
-                                    if (result.data.items.any { it.id == item.variantId }) item.copy(isInCart = true)
+                                    if (result.data.items.any { it.id == item.variantId }) item.copy(
+                                        isInCart = true
+                                    )
                                     else item
                                 }
-                                Log.i("cart", result.data.id)
-                                _states.value = currentState.copy(productsList = updatedList)
+                                val filteredProducts = (_states.value as ProductsContract.States.Success).filteredProductsList
+                                val newFilteredProducts = filteredProducts.map { item ->
+                                    if (result.data.items.any { it.id == item.variantId })
+                                        item.copy(isInCart = true)
+                                    else
+                                        item
+                                }
+                                _states.value = ProductsContract.States.Success(
+                                    productsList = updatedList,
+                                    filteredProductsList = newFilteredProducts
+                                )
+                                allProducts = updatedList
                                 val message =
                                     if (updatedList.find { it.variantId == variantId }?.isInCart == true)
                                         "Added to cart!" else "Removed from Cart."
@@ -187,31 +214,8 @@ class ProductsViewModel @Inject constructor(
                     }
                 }
             }
-    private fun toggleCart(productId: String){
-        //add product to cart
-        val currentState = _states.value
-        if(currentState is ProductsContract.States.Success){
-            val updatedAllProducts = currentState.productsList.map {
-                if(it.id == productId) it.copy(isInCart = !it.isInCart)
-                else it
-            }
-            val updatedFilteredProducts = currentState.filteredProductsList.map {
-                if(it.id == productId) it.copy(isInCart = !it.isInCart)
-                else it
-            }
-
-            allProducts = updatedAllProducts
-            _states.value = currentState.copy(
-                productsList = updatedAllProducts,
-                filteredProductsList = updatedFilteredProducts
-            )
-
-            val message = if (updatedFilteredProducts.find { it.id == productId}?.isInCart == true)
-                "Added to cart!" else "Removed from Cart."
-            _events.value = ProductsContract.Events.ShowSnackbar(message)
         }
     }
-
     fun resetEvent() {
         _events.value = ProductsContract.Events.Idle
     }
