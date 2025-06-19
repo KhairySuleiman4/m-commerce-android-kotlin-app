@@ -1,14 +1,19 @@
 package com.example.mcommerce.data.remote.graphqlapi
 
 import com.apollographql.apollo.api.ApolloResponse
+import com.example.mcommerce.AddCartDiscountMutation
+import com.example.mcommerce.AddItemToCartMutation
+import com.example.mcommerce.CreateCartMutation
 import com.example.mcommerce.CustomerAccessTokenCreateMutation
 import com.example.mcommerce.CustomerCreateMutation
 import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
+import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
 import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
+import com.example.mcommerce.RemoveItemFromCartMutation
 import com.example.mcommerce.domain.entities.CustomerEntity
 
 interface GraphQLService {
@@ -20,4 +25,10 @@ interface GraphQLService {
     suspend fun getProductById(id: String): ApolloResponse<GetProductByIdQuery.Data>
     suspend fun getAllProducts(): ApolloResponse<GetAllProductsQuery.Data>
     suspend fun getOrders(userAccessToken: String): ApolloResponse<GetOrdersQuery.Data>
+    suspend fun getCartById(id: String): ApolloResponse<GetCartByIdQuery.Data>
+    suspend fun createCart(accessToken: String, email: String): ApolloResponse<CreateCartMutation.Data>
+    suspend fun addItemToCart(cartId: String, quantity: Int, itemId: String): ApolloResponse<AddItemToCartMutation.Data>
+    suspend fun removeItemFromCart(cartId: String, itemId: String): ApolloResponse<RemoveItemFromCartMutation.Data>
+    suspend fun changeQuantityOfItemInCart(cartId: String, quantity: Int, itemId: String): Boolean
+    suspend fun addDiscountCodeToCart(cartId: String, code:String): ApolloResponse<AddCartDiscountMutation.Data>
 }

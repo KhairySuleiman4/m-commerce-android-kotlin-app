@@ -6,5 +6,6 @@ data class ProductsForSearchModel (
     val imageUrl: String,
     val productType: String,
     val price: Double,
-    val brand: String
-)
+    val brand: String,
+    val variantId: String,
+    )
