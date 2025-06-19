@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.data.mappers.toSearchEntity
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
+import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetProductByIdUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProductInfoViewModel @Inject constructor(
+    private val addItemToCartUseCase: AddItemToCartUseCase,
+    private val getCartUseCase: GetCartUseCase,
     private val getProductUseCase: GetProductByIdUseCase,
     private val insertToFavoritesUseCase: InsertProductToFavoritesUseCase
 ) : ViewModel(), ProductInfoContract.ProductInfoViewModel {
@@ -42,6 +46,66 @@ class ProductInfoViewModel @Inject constructor(
                             _states.value = ProductInfoContract.States.Failure("Product Not Found")
                         } else{
                             _states.value = ProductInfoContract.States.Success(result.data)
+                            getCart()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getCart() {
+        viewModelScope.launch {
+            getCartUseCase().collect { result ->
+                when (result) {
+                    is ApiResult.Failure -> {
+
+                    }
+
+                    is ApiResult.Loading -> {
+
+                    }
+
+                    is ApiResult.Success -> {
+                        if (result.data != null) {
+                            if (_states.value is ProductInfoContract.States.Success) {
+                                val product =
+                                    (_states.value as ProductInfoContract.States.Success).product
+                                val newProduct= product.copy(variants = product.variants.map { item ->
+                                    if (result.data.items.any { it.id == item.id })
+                                        item.isSelected = true
+                                    item
+                                })
+                                _states.value = ProductInfoContract.States.Success(newProduct)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addItemToCart(id: String){
+        viewModelScope.launch {
+            addItemToCartUseCase(id,1).collect{
+                when(it){
+                    is ApiResult.Failure -> {
+                        _events.value = ProductInfoContract.Events.ShowSnackbar(it.error.message.toString())
+                    }
+                    is ApiResult.Loading -> {
+
+                    }
+                    is ApiResult.Success -> {
+                        if (_states.value is ProductInfoContract.States.Success){
+                            val product =
+                                (_states.value as ProductInfoContract.States.Success).product
+                            val newProduct = product.copy(variants = product.variants.map {
+                              if (it.id==id)
+                                  it.isSelected = true
+                              it
+                          })
+                            _states.value = ProductInfoContract.States.Success(newProduct)
+                            _events.value = ProductInfoContract.Events.ShowSnackbar("Success")
                         }
                     }
                 }
@@ -52,6 +116,7 @@ class ProductInfoViewModel @Inject constructor(
     override fun invokeActions(action: ProductInfoContract.Action) {
         when(action){
             is ProductInfoContract.Action.ClickOnAddToCart -> {
+               addItemToCart(action.variant.id)
                 _events.value = ProductInfoContract.Events.ShowSnackbar("Added to cart")
             }
             is ProductInfoContract.Action.ClickOnAddToWishList -> {

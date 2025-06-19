@@ -1,0 +1,7 @@
+mutation UpdateItemCount($cartId: ID!, $lines: [CartLineUpdateInput!]!){
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+        cart {
+            id
+        }
+    }
+}

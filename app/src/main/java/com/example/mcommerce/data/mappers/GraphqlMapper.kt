@@ -1,14 +1,24 @@
 package com.example.mcommerce.data.mappers
 
+import com.example.mcommerce.AddCartDiscountMutation
+import com.example.mcommerce.AddItemToCartMutation
+import com.example.mcommerce.CreateCartMutation
 import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
+import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
+import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
+import com.example.mcommerce.RemoveItemFromCartMutation
+import com.example.mcommerce.data.models.CartModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
+import com.example.mcommerce.data.models.LineModel
+import com.example.mcommerce.data.models.OrderModel
 import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
+import com.example.mcommerce.domain.entities.OrderEntity
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
 
@@ -29,7 +39,8 @@ fun GetProductsByBrandQuery.Data.toModel(): List<ProductsModel>{
             title = it.node.title,
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
-            price = it.node.priceRange.maxVariantPrice.amount.toString()
+            price = it.node.priceRange.maxVariantPrice.amount.toString(),
+            variantId = it.node.variants.edges[0].node.id
         )
     } ?: listOf()
 }
@@ -92,7 +103,147 @@ fun GetAllProductsQuery.Data.toModel(): List<ProductsForSearchModel>{
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString().toDouble(),
-            brand = it.node.vendor
+            brand = it.node.vendor,
+            variantId = it.node.variants.edges[0].node.id
         )
     }
 }
+
+fun GetCartByIdQuery.Data.toModel(): CartModel = CartModel(
+    id = this.cart?.id ?: "",
+    checkout = this.cart?.checkoutUrl.toString(),
+    subtotalAmount = (this.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
+    totalAmount = (this.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
+    discountAmount = this.cart?.discountAllocations?.let {
+        if (it.isNotEmpty())
+            it[0].discountedAmount.amount.toString().toDouble()
+        else
+            0.0
+    } ?: 0.0,
+    items = this.cart?.lines?.edges?.map { it.toModel() } ?: listOf()
+)
+
+fun CreateCartMutation.Data.toModel(): CartModel = CartModel(
+    id = this.cartCreate?.cart?.id ?: "",
+    checkout = this.cartCreate?.cart?.checkoutUrl.toString(),
+    subtotalAmount = (this.cartCreate?.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
+    totalAmount = (this.cartCreate?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
+    discountAmount = this.cartCreate?.cart?.discountAllocations?.let {
+        if (it.isNotEmpty())
+            it[0].discountedAmount.amount.toString().toDouble()
+        else
+            0.0
+    } ?: 0.0,
+    items = this.cartCreate?.cart?.lines?.edges?.map { it.toModel() } ?: listOf()
+)
+
+fun AddItemToCartMutation.Data.toModel(): CartModel = CartModel(
+    id = this.cartLinesAdd?.cart?.id ?: "",
+    checkout = this.cartLinesAdd?.cart?.checkoutUrl.toString(),
+    subtotalAmount = (this.cartLinesAdd?.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
+    totalAmount = (this.cartLinesAdd?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
+    discountAmount = this.cartLinesAdd?.cart?.discountAllocations?.let {
+        if (it.isNotEmpty())
+            it[0].discountedAmount.amount.toString().toDouble()
+        else
+            0.0
+    } ?: 0.0,
+    items = this.cartLinesAdd?.cart?.lines?.edges?.map { it.toModel() } ?: listOf()
+)
+
+fun RemoveItemFromCartMutation.Data.toModel(): CartModel = CartModel(
+    id = this.cartLinesRemove?.cart?.id ?: "",
+    checkout = this.cartLinesRemove?.cart?.checkoutUrl.toString(),
+    subtotalAmount = (this.cartLinesRemove?.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
+    totalAmount = (this.cartLinesRemove?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
+    discountAmount = this.cartLinesRemove?.cart?.discountAllocations?.let {
+        if (it.isNotEmpty())
+            it[0].discountedAmount.amount.toString().toDouble()
+        else
+            0.0
+    } ?: 0.0,
+    items = this.cartLinesRemove?.cart?.lines?.edges?.map { it.toModel() } ?: listOf()
+)
+
+fun AddCartDiscountMutation.Data.toModel(): CartModel = CartModel(
+    id = this.cartDiscountCodesUpdate?.cart?.id ?: "",
+    checkout = this.cartDiscountCodesUpdate?.cart?.checkoutUrl.toString(),
+    subtotalAmount = (this.cartDiscountCodesUpdate?.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
+    totalAmount = (this.cartDiscountCodesUpdate?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
+    discountAmount = this.cartDiscountCodesUpdate?.cart?.discountAllocations?.let {
+        if (it.isNotEmpty())
+            it[0].discountedAmount.amount.toString().toDouble()
+        else
+            0.0
+    } ?: 0.0,
+    items = this.cartDiscountCodesUpdate?.cart?.lines?.edges?.map { it.toModel() } ?: listOf()
+)
+
+fun GetCartByIdQuery.Edge.toModel(): LineModel = LineModel(
+    id = this.node.merchandise.onProductVariant?.id ?: "",
+    quantity = this.node.quantity,
+    price = (this.node.merchandise.onProductVariant?.price?.amount ?: "0.0").toString().toDouble(),
+    image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
+    title = this.node.merchandise.onProductVariant?.product?.title ?: "",
+    category = this.node.merchandise.onProductVariant?.title ?: "",
+)
+
+fun CreateCartMutation.Edge.toModel(): LineModel = LineModel(
+    id = this.node.merchandise.onProductVariant?.id ?: "",
+    quantity = this.node.quantity,
+    price = (this.node.merchandise.onProductVariant?.price?.amount ?: "0.0").toString().toDouble(),
+    image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
+    title = this.node.merchandise.onProductVariant?.product?.title ?: "",
+    category = this.node.merchandise.onProductVariant?.title ?: "",
+)
+
+fun AddItemToCartMutation.Edge.toModel(): LineModel = LineModel(
+    id = this.node.merchandise.onProductVariant?.id ?: "",
+    quantity = this.node.quantity,
+    price = (this.node.merchandise.onProductVariant?.price?.amount ?: "0.0").toString().toDouble(),
+    image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
+    title = this.node.merchandise.onProductVariant?.product?.title ?: "",
+    category = this.node.merchandise.onProductVariant?.title ?: "",
+)
+
+fun RemoveItemFromCartMutation.Edge.toModel(): LineModel = LineModel(
+    id = this.node.merchandise.onProductVariant?.id ?: "",
+    quantity = this.node.quantity,
+    price = (this.node.merchandise.onProductVariant?.price?.amount ?: "0.0").toString().toDouble(),
+    image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
+    title = this.node.merchandise.onProductVariant?.product?.title ?: "",
+    category = this.node.merchandise.onProductVariant?.title ?: "",
+)
+
+fun AddCartDiscountMutation.Edge.toModel(): LineModel = LineModel(
+    id = this.node.merchandise.onProductVariant?.id ?: "",
+    quantity = this.node.quantity,
+    price = (this.node.merchandise.onProductVariant?.price?.amount ?: "0.0").toString().toDouble(),
+    image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
+    title = this.node.merchandise.onProductVariant?.product?.title ?: "",
+    category = this.node.merchandise.onProductVariant?.title ?: "",
+)
+
+//fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{
+//    return this.customer?.orders?.edges?.map{
+//        OrderModel(
+//            orderId = it.node.id,
+//            orderName = it.node.name,
+//            orderDate = it.node.processedAt.toString(),
+//            orderTime = it.node.processedAt.toString(),
+//            orderPrice = it.node.totalPrice.amount.toString(),
+//            currencyCode = it.node.totalPrice.currencyCode.toString(),
+//            productTitle = it.node.lineItems.edges.,
+//            productQuantity = TODO(),
+//            productPrice = TODO(),
+//            productImage = TODO(),
+//            variantTitle = TODO(),
+//            variantImage = TODO(),
+//            customerUrl = TODO(),
+//            customerName = TODO(),
+//            customerPhone = TODO(),
+//            shippingAddress = TODO(),
+//            shippingCity = TODO()
+//        )
+//    }
+//}

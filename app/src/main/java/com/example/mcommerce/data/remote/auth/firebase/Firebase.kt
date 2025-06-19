@@ -8,11 +8,13 @@ import kotlinx.coroutines.flow.Flow
 interface Firebase {
     suspend fun createNewAccount(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>>
     suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>>
-    suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>>
+    suspend fun updatePhoto(value: String): Flow<ApiResult<Boolean>>
+    fun isMeLoggedIn(): Boolean
     fun logout()
-    fun isUserVerified(): Flow<ApiResult<Boolean>>
-    fun getCustomerAccessToken(): Flow<ApiResult<String>>
-    fun isGuestMode(): Flow<ApiResult<Boolean>>
+    fun isUserVerified(): Boolean
+    fun getCustomerAccessToken(): String
+    fun getEmail(): String
+    fun isGuestMode(): Boolean
     suspend fun insertProductToFavorites(product: ProductSearchEntity)
     suspend fun getFavoriteProducts(): Flow<ApiResult<List<ProductSearchEntity>>>
     suspend fun deleteProduct(id: String)

@@ -12,6 +12,13 @@ query getProductsByBrand($id:ID){
                             amount
                         }
                     }
+                    variants(first: 1){
+                        edges {
+                            node {
+                                id
+                            }
+                        }
+                    }
                     featuredImage{
                         url
                     }

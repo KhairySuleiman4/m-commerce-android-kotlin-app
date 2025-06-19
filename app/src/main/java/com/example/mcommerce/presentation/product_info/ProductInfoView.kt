@@ -412,10 +412,6 @@ fun VariantRow(
     modifier: Modifier = Modifier
 ) {
 
-    val isAddedToCart = remember {
-        mutableStateOf(false)
-    }
-
     ConstraintLayout(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -458,8 +454,8 @@ fun VariantRow(
                 end.linkTo(image.end)
             },
             onClick = {
-                isAddedToCart.value = !isAddedToCart.value
-                onAddToCartClicked(variant)
+                if(!variant.isSelected)
+                    onAddToCartClicked(variant)
             },
             colors = ButtonColors(
                 containerColor = Color.White,
@@ -471,11 +467,11 @@ fun VariantRow(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                if(isAddedToCart.value) "Remove from Cart" else "Add to Cart",
+                if(variant.isSelected) "Remove from Cart" else "Add to Cart",
                 color = Primary
             )
             Icon(
-                if(isAddedToCart.value) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
+                if(variant.isSelected) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
                 modifier = modifier.padding(start = 4.dp),
                 contentDescription = "Cart Icon"
             )

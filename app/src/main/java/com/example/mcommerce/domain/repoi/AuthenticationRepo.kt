@@ -8,9 +8,9 @@ interface AuthenticationRepo {
     suspend fun createAccountOnShopify(credentials: UserCredentialsEntity): Flow<ApiResult<String>>
     suspend fun createAccountOnFirebase(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>>
     suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>>
-    suspend fun isMeLoggedIn(): Flow<ApiResult<Boolean>>
+    suspend fun isMeLoggedIn(): Boolean
     fun logout()
-    fun isUserVerified(): Flow<ApiResult<Boolean>>
-    fun getCustomerAccessToken(): Flow<ApiResult<String>>
-    fun isGuestMode(): Flow<ApiResult<Boolean>>
+    fun isUserVerified(): Boolean
+    fun getCustomerAccessToken(): String
+    fun isGuestMode(): Boolean
 }
