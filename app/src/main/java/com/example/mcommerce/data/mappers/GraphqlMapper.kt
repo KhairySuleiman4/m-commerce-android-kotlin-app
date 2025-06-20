@@ -115,7 +115,12 @@ fun GetCartByIdQuery.Data.toModel(): CartModel = CartModel(
     totalAmount = (this.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
     discountAmount = this.cart?.discountAllocations?.let {
         if (it.isNotEmpty())
-            it[0].discountedAmount.amount.toString().toDouble()
+             {
+            var output = 0.0
+            for (value in it)
+                output += value.discountedAmount.amount.toString().toDouble()
+            output
+        }
         else
             0.0
     } ?: 0.0,
@@ -129,7 +134,12 @@ fun CreateCartMutation.Data.toModel(): CartModel = CartModel(
     totalAmount = (this.cartCreate?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
     discountAmount = this.cartCreate?.cart?.discountAllocations?.let {
         if (it.isNotEmpty())
-            it[0].discountedAmount.amount.toString().toDouble()
+             {
+            var output = 0.0
+            for (value in it)
+                output += value.discountedAmount.amount.toString().toDouble()
+            output
+        }
         else
             0.0
     } ?: 0.0,
@@ -143,7 +153,12 @@ fun AddItemToCartMutation.Data.toModel(): CartModel = CartModel(
     totalAmount = (this.cartLinesAdd?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
     discountAmount = this.cartLinesAdd?.cart?.discountAllocations?.let {
         if (it.isNotEmpty())
-            it[0].discountedAmount.amount.toString().toDouble()
+             {
+            var output = 0.0
+            for (value in it)
+                output += value.discountedAmount.amount.toString().toDouble()
+            output
+        }
         else
             0.0
     } ?: 0.0,
@@ -157,7 +172,12 @@ fun RemoveItemFromCartMutation.Data.toModel(): CartModel = CartModel(
     totalAmount = (this.cartLinesRemove?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
     discountAmount = this.cartLinesRemove?.cart?.discountAllocations?.let {
         if (it.isNotEmpty())
-            it[0].discountedAmount.amount.toString().toDouble()
+             {
+            var output = 0.0
+            for (value in it)
+                output += value.discountedAmount.amount.toString().toDouble()
+            output
+        }
         else
             0.0
     } ?: 0.0,
@@ -170,8 +190,12 @@ fun AddCartDiscountMutation.Data.toModel(): CartModel = CartModel(
     subtotalAmount = (this.cartDiscountCodesUpdate?.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
     totalAmount = (this.cartDiscountCodesUpdate?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
     discountAmount = this.cartDiscountCodesUpdate?.cart?.discountAllocations?.let {
-        if (it.isNotEmpty())
-            it[0].discountedAmount.amount.toString().toDouble()
+        if (it.isNotEmpty()) {
+            var output = 0.0
+            for (value in it)
+                output += value.discountedAmount.amount.toString().toDouble()
+            output
+        }
         else
             0.0
     } ?: 0.0,
@@ -184,8 +208,12 @@ fun UpdateItemCountMutation.Data.toModel(): CartModel = CartModel(
     subtotalAmount = (this.cartLinesUpdate?.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
     totalAmount = (this.cartLinesUpdate?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
     discountAmount = this.cartLinesUpdate?.cart?.discountAllocations?.let {
-        if (it.isNotEmpty())
-            it[0].discountedAmount.amount.toString().toDouble()
+        if (it.isNotEmpty()) {
+            var output = 0.0
+            for (value in it)
+                output += value.discountedAmount.amount.toString().toDouble()
+            output
+        }
         else
             0.0
     } ?: 0.0,

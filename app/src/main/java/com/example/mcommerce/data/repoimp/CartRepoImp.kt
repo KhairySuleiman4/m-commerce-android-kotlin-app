@@ -173,7 +173,7 @@ class CartRepoImp(
         }
         val cart = cache.getCart()
         if (cart!=null){
-            if (!cart.items.any { it.id == itemId }){
+            if (!cart.items.any { it.lineId == itemId }){
                 emit(ApiResult.Failure(Throwable("No item Found")))
                 return@flow
             }
@@ -203,7 +203,7 @@ class CartRepoImp(
             .firstOrNull()
             ?.data
             ?.let { freshCart ->
-                if (!freshCart.items.any { it.id == itemId }){
+                if (!freshCart.items.any { it.lineId == itemId }){
                     emit(ApiResult.Failure(Throwable("No item Found")))
                     return@flow
                 }

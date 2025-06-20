@@ -30,6 +30,7 @@ interface ProductsContract {
     sealed interface Events{
         data object Idle: Events
         data class NavigateToProductDetails(val productId: String): Events
+        data class ChangeCurrency(val currency: String, val rate: Double): Events
         data class ShowSnackbar(val message: String) : Events
     }
 

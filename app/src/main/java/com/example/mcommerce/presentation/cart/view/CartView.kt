@@ -1,11 +1,13 @@
 package com.example.mcommerce.presentation.cart.view
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,8 +18,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -26,6 +33,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -37,7 +45,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.presentation.cart.CartContract
 import com.example.mcommerce.presentation.cart.viewmodel.CartViewModel
@@ -104,9 +115,13 @@ fun CartScreen(
         minusAction = { id, quantity ->
             viewModel.invokeActions(CartContract.Action.ClickOnMinusItem(id, quantity))
         },
+        deleteAction = {
+            viewModel.invokeActions(CartContract.Action.ClickOnRemoveItem(it))
+        }
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun CartPage(
     modifier: Modifier = Modifier,
@@ -117,25 +132,32 @@ fun CartPage(
     hostState: SnackbarHostState,
     onApply: (String) -> Unit,
     plusAction: (String, Int) -> Unit,
-    minusAction: (String, Int) -> Unit
+    minusAction: (String, Int) -> Unit,
+    deleteAction: (String) -> Unit
     ) {
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val selectedItem = remember { mutableStateOf<LineEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false,
+    )
     Scaffold(
         modifier = modifier,
         snackbarHost = {
             SnackbarHost(hostState)
         },
         bottomBar = {
-            if (state is CartContract.States.Success)
-            BottomBar(
-                currency = currency,
-                subtotal = (state.cart.subtotalAmount * rate),
-                discount = (state.cart.discountAmount * rate),
-                total = (state.cart.totalAmount * rate),
-                isApplied = isApplied,
-                onApply = {
-                    onApply(it)
-                }
-            )
+            if (state is CartContract.States.Success && state.cart.items.isNotEmpty()) {
+                BottomBar(
+                    currency = currency,
+                    subtotal = (state.cart.subtotalAmount * rate),
+                    discount = (state.cart.discountAmount * rate),
+                    total = (state.cart.totalAmount * rate),
+                    isApplied = isApplied,
+                    onApply = {
+                        onApply(it)
+                    }
+                )
+            }
         }
         ) { padding->
         when(state){
@@ -151,15 +173,16 @@ fun CartPage(
                 }
             }
             is CartContract.States.Success -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    items(state.cart.items.size){
-                        val item = state.cart.items[it]
+                if (state.cart.items.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items(state.cart.items.size) {
+                            val item = state.cart.items[it]
                             CartItem(
                                 item = item,
                                 currency = currency,
@@ -169,10 +192,129 @@ fun CartPage(
                                 },
                                 minusAction = {
                                     minusAction(item.lineId, item.quantity)
+                                },
+                                deleteAction = {
+                                    showBottomSheet.value = true
+                                    selectedItem.value = item
                                 }
                             )
+                        }
+                        item {
+                            Spacer(modifier = Modifier.height(320.dp))
+                        }
                     }
                 }
+                else{
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            "Opps! Your Cart is empty. Let's fix That!",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Image(
+                            painter = painterResource(R.drawable.cart),
+                            contentDescription = "Cart Photo",
+                            modifier = Modifier.fillMaxSize(0.5f)
+                        )
+
+                    }
+                }
+                if (showBottomSheet.value){
+                    ModalBottomSheet(
+                        sheetState = sheetState,
+                        onDismissRequest = {
+                            showBottomSheet.value = false
+                            selectedItem.value = null
+                        }
+                    ) {
+                        if (selectedItem.value != null) {
+                            val item = selectedItem.value!!
+                            Column(
+                                Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    "Are you sure you want to delete this?",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Row(
+                                    modifier = modifier
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(color = Background)
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    GlideImage(
+                                        model = item.image,
+                                        contentDescription = item.title,
+                                        contentScale = ContentScale.FillBounds,
+                                        modifier = Modifier
+                                            .height(100.dp)
+                                            .width(100.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                    )
+                                    CartInfo(
+                                        name = item.title,
+                                        brand = item.brand,
+                                        category = item.category,
+                                        currency = currency,
+                                        price = item.price * rate
+                                    )
+                                }
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            deleteAction(item.lineId)
+                                            selectedItem.value = null
+                                            showBottomSheet.value = false
+                                        },
+                                        colors = ButtonDefaults.buttonColors().copy(
+                                            containerColor = Primary,
+                                            contentColor = Background,
+                                        ),
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(20))
+                                            .fillMaxWidth(0.5f)
+                                    ) {
+                                        Text("Delete")
+                                    }
+                                    OutlinedButton (
+                                        onClick = {
+                                            selectedItem.value = null
+                                            showBottomSheet.value = false
+                                        },
+                                        colors = ButtonDefaults.outlinedButtonColors().copy(
+                                            contentColor = Primary,
+                                        ),
+                                        border = BorderStroke(2.dp, Primary),
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(20))
+                                            .fillMaxWidth(0.9f)
+                                    ) {
+                                        Text("Cancel")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
@@ -349,6 +491,7 @@ fun CartItem(
     rate: Double,
     plusAction: () -> Unit,
     minusAction: () -> Unit,
+    deleteAction: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -376,9 +519,11 @@ fun CartItem(
             price = item.price * rate
         )
         QuantityChanger(
+            modifier = Modifier.height(200.dp),
             value = item.quantity,
             plusAction = plusAction,
-            minusAction = minusAction
+            minusAction = minusAction,
+            deleteAction = deleteAction
         )
     }
 }
@@ -401,7 +546,9 @@ fun CartInfo(
             name,
             fontSize = 20.sp,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(200.dp)
+            modifier = Modifier
+                .width(200.dp)
+                .height(60.dp)
         )
 
         Text(
@@ -445,43 +592,77 @@ fun QuantityChanger(
     value: Int,
     plusAction: () -> Unit,
     minusAction: () -> Unit,
+    deleteAction: () -> Unit
     ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    Column(
+        modifier = modifier.fillMaxSize(1f),
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        if (value != 1) {
+
+        IconButton(
+            colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+            onClick = deleteAction,
+            modifier = Modifier
+                .width(30.dp)
+                .height(30.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.delete_icon),
+                contentDescription = "delete"
+            )
+        }
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            if (value != 1) {
+                OutlinedIconButton(
+                    border = BorderStroke(1.dp, color = Primary),
+                    colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
+                    onClick = minusAction,
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                ) {
+                    Text("-")
+                }
+            }
+            else{
+                Spacer(
+                    Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                )
+            }
+            Text(
+                "$value",
+                fontSize = 17.sp
+            )
             OutlinedIconButton(
                 border = BorderStroke(1.dp, color = Primary),
-                colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
-                onClick = minusAction,
+                colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+                onClick = plusAction,
                 modifier = Modifier
                     .width(20.dp)
                     .height(20.dp)
             ) {
-                Text("-")
+                Text("+")
             }
         }
-        Text(
-            "$value",
-            fontSize = 15.sp
-            )
-        OutlinedIconButton(
-            border = BorderStroke(1.dp, color = Primary),
-            colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
-            onClick = plusAction,
-            modifier = Modifier
-                .width(20.dp)
-                .height(20.dp)
-        ) {
-            Text("+")
-        }
     }
+
 }
 
 @Preview
 @Composable
 private fun PreviewCartScreen() {
-    CartScreen()
+    CartItem(
+        item = LineEntity("", 2, 2.0, "", "", "1/x", "", "s"),
+        currency = "",
+        rate = 1.0,
+        plusAction = {  },
+        minusAction = {  },
+    ) { }
 }

@@ -6,7 +6,7 @@ mutation RemoveItemFromCart($cartid : ID!,$varients : [ID!]!) {
         cart {
             id
             checkoutUrl
-            lines(first: 10) {
+            lines(first: 20) {
                 edges {
                     node {
                         id
