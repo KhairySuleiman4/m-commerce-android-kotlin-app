@@ -11,6 +11,7 @@ import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.RemoveItemFromCartMutation
+import com.example.mcommerce.UpdateItemCountMutation
 import com.example.mcommerce.data.models.CartModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
@@ -40,7 +41,6 @@ fun GetProductsByBrandQuery.Data.toModel(): List<ProductsModel>{
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString(),
-            variantId = it.node.variants.edges[0].node.id
         )
     } ?: listOf()
 }
@@ -104,7 +104,6 @@ fun GetAllProductsQuery.Data.toModel(): List<ProductsForSearchModel>{
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString().toDouble(),
             brand = it.node.vendor,
-            variantId = it.node.variants.edges[0].node.id
         )
     }
 }
@@ -179,6 +178,20 @@ fun AddCartDiscountMutation.Data.toModel(): CartModel = CartModel(
     items = this.cartDiscountCodesUpdate?.cart?.lines?.edges?.map { it.toModel() } ?: listOf()
 )
 
+fun UpdateItemCountMutation.Data.toModel(): CartModel = CartModel(
+    id = this.cartLinesUpdate?.cart?.id ?: "",
+    checkout = this.cartLinesUpdate?.cart?.checkoutUrl.toString(),
+    subtotalAmount = (this.cartLinesUpdate?.cart?.cost?.subtotalAmount?.amount ?: "0.0").toString().toDouble(),
+    totalAmount = (this.cartLinesUpdate?.cart?.cost?.totalAmount?.amount ?: "0.0").toString().toDouble(),
+    discountAmount = this.cartLinesUpdate?.cart?.discountAllocations?.let {
+        if (it.isNotEmpty())
+            it[0].discountedAmount.amount.toString().toDouble()
+        else
+            0.0
+    } ?: 0.0,
+    items = this.cartLinesUpdate?.cart?.lines?.edges?.map { it.toModel() } ?: listOf()
+)
+
 fun GetCartByIdQuery.Edge.toModel(): LineModel = LineModel(
     id = this.node.merchandise.onProductVariant?.id ?: "",
     quantity = this.node.quantity,
@@ -186,6 +199,9 @@ fun GetCartByIdQuery.Edge.toModel(): LineModel = LineModel(
     image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
+    brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
+    lineId = this.node.id
+
 )
 
 fun CreateCartMutation.Edge.toModel(): LineModel = LineModel(
@@ -195,6 +211,9 @@ fun CreateCartMutation.Edge.toModel(): LineModel = LineModel(
     image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
+    brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
+    lineId = this.node.id
+
 )
 
 fun AddItemToCartMutation.Edge.toModel(): LineModel = LineModel(
@@ -204,6 +223,9 @@ fun AddItemToCartMutation.Edge.toModel(): LineModel = LineModel(
     image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
+    brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
+    lineId = this.node.id
+
 )
 
 fun RemoveItemFromCartMutation.Edge.toModel(): LineModel = LineModel(
@@ -213,6 +235,9 @@ fun RemoveItemFromCartMutation.Edge.toModel(): LineModel = LineModel(
     image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
+    brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
+    lineId = this.node.id
+
 )
 
 fun AddCartDiscountMutation.Edge.toModel(): LineModel = LineModel(
@@ -222,6 +247,20 @@ fun AddCartDiscountMutation.Edge.toModel(): LineModel = LineModel(
     image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
+    brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
+    lineId = this.node.id
+
+)
+
+fun UpdateItemCountMutation.Edge.toModel(): LineModel = LineModel(
+    id = this.node.merchandise.onProductVariant?.id ?: "",
+    quantity = this.node.quantity,
+    price = (this.node.merchandise.onProductVariant?.price?.amount ?: "0.0").toString().toDouble(),
+    image = this.node.merchandise.onProductVariant?.product?.featuredImage?.url.toString(),
+    title = this.node.merchandise.onProductVariant?.product?.title ?: "",
+    category = this.node.merchandise.onProductVariant?.title ?: "",
+    brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
+    lineId = this.node.id
 )
 
 //fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{

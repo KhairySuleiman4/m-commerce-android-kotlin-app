@@ -6,5 +6,8 @@ data class LineModel(
     val price: Double,
     val image: String,
     val title: String,
-    val category: String
+    val category: String,
+    val brand: String,
+    val lineId: String
+
 )

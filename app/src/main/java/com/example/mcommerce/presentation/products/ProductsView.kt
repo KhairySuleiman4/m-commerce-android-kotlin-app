@@ -1,8 +1,6 @@
 package com.example.mcommerce.presentation.products
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,13 +18,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -97,9 +92,6 @@ fun ProductsScreen(
        onFavoriteClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(productId))
        },
-       onAddToCartClick = { variantId ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(variantId))
-       },
        onFilterTypeSelected = { productType ->
            viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
        },
@@ -115,7 +107,6 @@ fun Products(
     brandName: String,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
     snackbarHostState: SnackbarHostState
     ) {
@@ -144,7 +135,6 @@ fun Products(
                         brandName = brandName,
                         onProductClick =onProductClick,
                         onFavoriteClick = onFavoriteClick,
-                        onAddToCartClick = onAddToCartClick,
                         snackbarHostState = snackbarHostState
                     )
                 }
@@ -159,7 +149,6 @@ fun ProductsList(
     brandName: String,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
 
@@ -177,7 +166,6 @@ fun ProductsList(
                     product = product,
                     brandName = brandName,
                     onFavoriteClick = onFavoriteClick,
-                    onAddToCartClick = onAddToCartClick,
                     onProductClick = onProductClick
                 )
             }
@@ -197,7 +185,6 @@ fun ProductCard(
     product: ProductsContract.ProductUIModel,
     brandName: String,
     onFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     onProductClick: (String) -> Unit
 ) {
     Card(
@@ -256,19 +243,6 @@ fun ProductCard(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )
-                Spacer(modifier.weight(1f))
-                IconButton(
-                    onClick = { onAddToCartClick(product.variantId) },
-                    modifier = modifier
-                        .background(Color(0xFF795548), shape = CircleShape)
-                        .size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = if(product.isInCart) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
-                        contentDescription = "cart",
-                        tint = Color.White
-                    )
-                }
             }
             Spacer(modifier.height(8.dp))
         }

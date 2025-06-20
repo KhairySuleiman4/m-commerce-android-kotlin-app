@@ -72,10 +72,7 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
         cartId: String,
         quantity: Int,
         itemId: String
-    ): Boolean {
-        val response = client.mutation(UpdateItemCountMutation(cartId, listOf(CartLineUpdateInput(itemId, quantity = Optional.present(quantity))))).execute()
-        return (!response.hasErrors()) && (response.data?.cartLinesUpdate?.cart != null)
-    }
+    ): ApolloResponse<UpdateItemCountMutation.Data> = client.mutation(UpdateItemCountMutation(cartId, listOf(CartLineUpdateInput(itemId, quantity = Optional.present(quantity))))).execute()
 
     override suspend fun addDiscountCodeToCart(cartId: String, code: String): ApolloResponse<AddCartDiscountMutation.Data>
     = client.mutation(AddCartDiscountMutation(cartId, listOf(code))).execute()

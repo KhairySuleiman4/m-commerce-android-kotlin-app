@@ -8,5 +8,4 @@ data class ProductSearchEntity (
     val price: Double = 0.0,
     val brand: String = "",
     val isFavorite: Boolean = false,
-    val variantId: String = ""
 )

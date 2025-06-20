@@ -59,7 +59,10 @@ class FirebaseImp(
     override fun isUserVerified(): Boolean = auth.currentUser?.isEmailVerified ?: false
 
 
-    override fun getCustomerAccessToken(): String = auth.currentUser?.photoUrl.toString()
+    override suspend fun getCustomerAccessToken(): String {
+        auth.currentUser?.reload()?.await()
+        return auth.currentUser?.photoUrl.toString()
+    }
     override fun getEmail(): String = auth.currentUser?.email ?: ""
 
     override fun isGuestMode(): Boolean = auth.currentUser == null

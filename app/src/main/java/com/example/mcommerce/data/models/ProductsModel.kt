@@ -6,6 +6,4 @@ data class ProductsModel(
     val imageUrl: String,
     val productType: String,
     val price: String,
-    val variantId: String,
-
     )

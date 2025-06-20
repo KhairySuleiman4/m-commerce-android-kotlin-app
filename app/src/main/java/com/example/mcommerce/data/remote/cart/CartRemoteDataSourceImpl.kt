@@ -28,7 +28,7 @@ class CartRemoteDataSourceImpl(private val graphQLService: GraphQLService) : Car
         cartId: String,
         quantity: Int,
         itemId: String
-    ): Flow<ApiResult<Boolean>> = executeAPI { graphQLService.changeQuantityOfItemInCart(cartId, quantity, itemId) }
+    ): Flow<ApiResult<CartEntity?>> = executeAPI { graphQLService.changeQuantityOfItemInCart(cartId, quantity, itemId).data?.toModel()?.toEntity() }
 
     override fun addDiscountCodeToCart(cartId: String, code: String): Flow<ApiResult<CartEntity?>> = executeAPI { graphQLService.addDiscountCodeToCart(cartId, code).data?.toModel()?.toEntity() }
 }
