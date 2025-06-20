@@ -7,6 +7,7 @@ import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
+import com.example.mcommerce.GetHomeProductsQuery
 import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
@@ -223,6 +224,19 @@ fun AddCartDiscountMutation.Edge.toModel(): LineModel = LineModel(
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
 )
+
+fun GetHomeProductsQuery.Data.toModel(): List<ProductsModel>{
+    return this.products.edges.map{
+        ProductsModel(
+            id = it.node.id,
+            title = it.node.title,
+            imageUrl = it.node.featuredImage?.url.toString(),
+            productType = it.node.productType,
+            price = it.node.priceRange.maxVariantPrice.amount.toString(),
+            variantId = it.node.variants.edges[0].node.id
+        )
+    }
+}
 
 //fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{
 //    return this.customer?.orders?.edges?.map{

@@ -1,0 +1,26 @@
+query getHomeProducts($sortKey: ProductSortKeys, $reverse: Boolean) {
+    products (first: 6, sortKey: $sortKey, reverse: $reverse) {
+        edges {
+            node {
+                id
+                title
+                productType
+                featuredImage{
+                    url
+                }
+                priceRange{
+                    maxVariantPrice{
+                        amount
+                    }
+                }
+                variants(first: 1){
+                    edges {
+                        node {
+                            id
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

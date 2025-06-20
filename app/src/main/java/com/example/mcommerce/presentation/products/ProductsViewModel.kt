@@ -1,13 +1,10 @@
 package com.example.mcommerce.presentation.products
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
-import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
-import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -26,6 +23,21 @@ class ProductsViewModel @Inject constructor(
 
     private var allProducts: List<ProductsContract.ProductUIModel> = emptyList()
     private var currentCollectionId: String = ""
+
+    override fun invokeActions(action: ProductsContract.Action) {
+        when (action) {
+            is ProductsContract.Action.ClickOnProduct -> {
+                _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
+            }
+            is ProductsContract.Action.OnTypeSelected -> {
+                filterProductsByType(action.productType)
+            }
+
+            is ProductsContract.Action.ClickOnFavorite -> {
+                toggleFavorite(action.productId)
+            }
+        }
+    }
 
     fun getProducts(id: String) {
         viewModelScope.launch {
@@ -57,21 +69,6 @@ class ProductsViewModel @Inject constructor(
                         updateSuccessState()
                     }
                 }
-            }
-        }
-    }
-
-    override fun invokeActions(action: ProductsContract.Action) {
-        when (action) {
-            is ProductsContract.Action.ClickOnProduct -> {
-                _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
-            }
-            is ProductsContract.Action.OnTypeSelected -> {
-                filterProductsByType(action.productType)
-            }
-
-            is ProductsContract.Action.ClickOnFavorite -> {
-                toggleFavorite(action.productId)
             }
         }
     }
