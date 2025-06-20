@@ -90,13 +90,18 @@ fun HomeScreen(
     }
     
     HomeItems(
-        viewModel = viewModel
+        viewModel = viewModel,
+        currency = "EGP",
+        rate = 1.0
     )
 }
 
 @Composable
 fun HomeItems(
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+
+    currency: String,
+    rate: Double
     ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -158,7 +163,9 @@ fun HomeItems(
                         },
                         onFavoriteClick = { productId ->
                             viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(productId))
-                        }
+                        },
+                        currency = currency,
+                        rate = rate
                     )
                 }
                 item {
@@ -168,7 +175,9 @@ fun HomeItems(
                         isLoading = state.latestArrivalsLoading,
                         onProductClick = { productId ->
                             viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
-                        }
+                        },
+                        currency = currency,
+                        rate = rate
                     )
                 }
             }
@@ -240,7 +249,9 @@ fun BestSellersList(
     products: List<ProductsEntity>,
     isLoading: Boolean,
     onFavoriteClick: (String) -> Unit,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    currency: String,
+    rate: Double
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -269,10 +280,11 @@ fun BestSellersList(
                                 price = product.price,
                                 isFavorite = false,
                                 productType = product.productType,
-                                //variantId = product.variantId
                             ),
                             onFavoriteClick = { productId -> onFavoriteClick(productId) },
-                            onProductClick = { productId -> onProductClick(productId) }
+                            onProductClick = { productId -> onProductClick(productId) },
+                            currency = currency,
+                            rate = rate
                         )
                     }
                 }
@@ -286,7 +298,9 @@ fun LatestArrivalsList(
     title: String,
     products: List<ProductsEntity>,
     isLoading: Boolean,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    currency: String,
+    rate: Double
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -317,12 +331,14 @@ fun LatestArrivalsList(
                                         price = product.price,
                                         isFavorite = false,
                                         productType = product.productType,
-                                    //    variantId = product.variantId
+                                        //    variantId = product.variantId
                                     ),
                                     onFavoriteClick = {
                                         //handle onFavorite click
                                     },
-                                    onProductClick = { productId -> onProductClick(productId) }
+                                    onProductClick = { productId -> onProductClick(productId) },
+                                    currency = currency,
+                                    rate = rate
                                 )
                             }
                         }

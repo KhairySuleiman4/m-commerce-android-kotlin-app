@@ -172,7 +172,9 @@ fun ProductsList(
                     ProductCard(
                         product = product,
                         onFavoriteClick = onFavoriteClick,
-                        onProductClick = onProductClick
+                        onProductClick = onProductClick,
+                        currency = currency,
+                        rate = rate
                     )
                 }
             }
