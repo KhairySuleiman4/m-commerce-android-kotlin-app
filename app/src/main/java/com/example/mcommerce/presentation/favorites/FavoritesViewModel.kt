@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +17,9 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
-    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
+    private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
 ): ViewModel(), FavoritesContract.FavoritesViewModel {
 
     private val _states = mutableStateOf<FavoritesContract.States>(FavoritesContract.States.Idle)
@@ -53,6 +57,14 @@ class FavoritesViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun getCurrency(){
+        viewModelScope.launch {
+            val currency = getCurrencyUseCase()
+            val rate = getCurrentExchangeRateUseCase()
+            _events.value = FavoritesContract.Events.ShowCurrency(currency, rate)
         }
     }
 

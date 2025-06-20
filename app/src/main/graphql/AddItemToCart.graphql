@@ -11,7 +11,7 @@ mutation AddItemToCart($cartid : ID!,$quantity : Int!,$varientid : ID!) {
         cart {
             id
             checkoutUrl
-            lines(first: 10) {
+            lines(first: 20) {
                 edges {
                     node {
                         id

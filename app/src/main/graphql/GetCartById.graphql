@@ -2,7 +2,7 @@ query GetCartById($id: ID!){
     cart(id: $id) {
         id
         checkoutUrl
-        lines(first: 10) {
+        lines(first: 20) {
             edges {
                 node {
                     id

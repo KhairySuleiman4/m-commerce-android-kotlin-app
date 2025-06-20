@@ -26,5 +26,6 @@ interface FavoritesContract {
     sealed interface Events{
         data object Idle: Events
         data class NavigateToProductInfo(val productId: String): Events
+        data class ShowCurrency(val currency: String, val rate: Double): Events
     }
 }

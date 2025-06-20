@@ -3,7 +3,7 @@ mutation UpdateItemCount($cartId: ID!, $lines: [CartLineUpdateInput!]!){
         cart {
             id
             checkoutUrl
-            lines(first: 10) {
+            lines(first: 20) {
                 edges {
                     node {
                         id
