@@ -1,10 +1,14 @@
 package com.example.mcommerce.presentation.search
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.GetAllProductsUseCase
 import com.example.mcommerce.domain.usecases.GetBrandsUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,14 +19,21 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val productsUseCase: GetAllProductsUseCase,
-    private val brandsUseCase: GetBrandsUseCase
+    private val brandsUseCase: GetBrandsUseCase,
+    private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
 ): ViewModel(), SearchContract.SearchViewModel {
 
     private val _state = MutableStateFlow(SearchContract.ProductState())
     val state: StateFlow<SearchContract.ProductState> = _state
 
+    private val _events = mutableStateOf<SearchContract.Events>(SearchContract.Events.Idle)
+    override val events: State<SearchContract.Events>
+        get() = _events
+
     init {
         getAllProductsAndBrands()
+        getCurrency()
     }
 
     private fun getAllProductsAndBrands(){
@@ -79,6 +90,14 @@ class SearchViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun getCurrency(){
+        viewModelScope.launch {
+            val currency = getCurrencyUseCase()
+            val rate = getCurrentExchangeRateUseCase()
+            _events.value = SearchContract.Events.ShowCurrency(currency, rate)
         }
     }
 

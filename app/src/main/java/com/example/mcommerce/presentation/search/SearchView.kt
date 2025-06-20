@@ -34,8 +34,10 @@ import androidx.compose.material3.SliderColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +55,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
+import java.util.Locale
 
 @Composable
 fun SearchScreen(
@@ -60,7 +63,25 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     navigateTo: (Screens) -> Unit
 ) {
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
+
     val state by viewModel.state.collectAsState()
+
+    val event = viewModel.events.value
+
+
+    LaunchedEffect(event) {
+        when(event){
+            SearchContract.Events.Idle -> {
+
+            }
+            is SearchContract.Events.ShowCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+            }
+        }
+    }
 
     Column(
         modifier = modifier
@@ -77,7 +98,10 @@ fun SearchScreen(
             )
         }
 
-        PriceFilter { min, max ->
+        PriceFilter(
+            currency = currency.value,
+            rate = rate.doubleValue
+        ) { min, max ->
             viewModel.invokeActions(
                 SearchContract.Action.OnPriceRangeChanged(min.toDouble(), max.toDouble())
             )
@@ -109,6 +133,8 @@ fun SearchScreen(
                 ) {
                     ProductCard(
                         product = state.filteredProducts[index],
+                        currency = currency.value,
+                        rate = rate.doubleValue,
                         onProductClick = {
                             navigateTo(Screens.ProductDetails(it))
                         },
@@ -168,6 +194,8 @@ fun TypesFilter(
 @Composable
 fun PriceFilter(
     modifier: Modifier = Modifier,
+    currency: String,
+    rate: Double,
     onRangeSelected: (Float, Float) -> Unit
 ) {
     val sliderPosition = remember {
@@ -204,7 +232,7 @@ fun PriceFilter(
 
             )
         Text(
-            "Min: ${sliderPosition.value.start.toInt()} - Max: ${sliderPosition.value.endInclusive.toInt()}",
+            "Min: ${(sliderPosition.value.start * rate).toInt()} $currency - Max: ${(sliderPosition.value.endInclusive * rate).toInt()} $currency",
             fontSize = 20.sp
         )
     }
@@ -308,6 +336,8 @@ fun SearchBar(
 @Composable
 fun ProductCard(
     product: ProductSearchEntity,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductSearchEntity) -> Unit,
     modifier: Modifier = Modifier
@@ -371,7 +401,7 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "EGP ${product.price}",
+                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price * rate))}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )

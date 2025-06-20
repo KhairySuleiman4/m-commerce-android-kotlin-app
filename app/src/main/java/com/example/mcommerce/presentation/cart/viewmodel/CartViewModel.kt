@@ -76,6 +76,7 @@ class CartViewModel @Inject constructor(
                             _states.value = CartContract.States.Success(result.data)
                             if (result.data.discountAmount>0)
                                 _events.value = CartContract.Events.DisableApplyEvent
+
                         }
                         else
                             _states.value = CartContract.States.Failure("Not able to get the cart")
@@ -117,8 +118,13 @@ class CartViewModel @Inject constructor(
                     is ApiResult.Success -> {
                         if (result.data != null) {
                             _states.value = CartContract.States.Success(result.data)
-                            if (result.data.discountAmount>0)
+                            if (result.data.discountAmount>0) {
                                 _events.value = CartContract.Events.DisableApplyEvent
+                                _events.value = CartContract.Events.DisplayError("The Code was Applied Successfully")
+                            }
+                            else{
+                                _events.value = CartContract.Events.DisplayError("The Code couldn't be Applied")
+                            }
                         }
                         else
                             _states.value = CartContract.States.Failure("There is something wrong")

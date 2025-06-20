@@ -29,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,6 +45,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.presentation.navigation.Screens
+import java.util.Locale
 
 @Composable
 fun FavoritesScreen(
@@ -51,11 +53,15 @@ fun FavoritesScreen(
     modifier: Modifier = Modifier,
     navigationTo: (Screens)-> Unit
 ) {
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
+
     val event = viewModel.events.value
     val state = viewModel.states.value
 
     LaunchedEffect(Unit) {
         viewModel.getFavoriteProducts()
+        viewModel.getCurrency()
     }
 
     LaunchedEffect(event) {
@@ -65,11 +71,18 @@ fun FavoritesScreen(
                 navigationTo(Screens.ProductDetails(event.productId))
                 viewModel.resetEvent()
             }
+
+            is FavoritesContract.Events.ShowCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+            }
         }
     }
 
     Products(
         state = state,
+        currency = currency.value,
+        rate = rate.doubleValue,
         onProductClick = { id ->
             viewModel.invokeActions(FavoritesContract.Action.ClickOnProduct(id))
         },
@@ -85,6 +98,8 @@ fun FavoritesScreen(
 @Composable
 fun Products(
     state: FavoritesContract.States,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onDeleteFromFavoriteClick: (String) -> Unit,
     onAddToCartClick: (String) -> Unit,
@@ -101,6 +116,8 @@ fun Products(
         is FavoritesContract.States.Success -> {
             ProductsList(
                 productsList = state.products,
+                currency = currency,
+                rate = rate,
                 onProductClick = onProductClick,
                 onDeleteFromFavoriteClick = onDeleteFromFavoriteClick,
                 onAddToCartClick = onAddToCartClick
@@ -112,6 +129,8 @@ fun Products(
 @Composable
 fun ProductsList(
     productsList: List<ProductSearchEntity>,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onDeleteFromFavoriteClick: (String) -> Unit,
     onAddToCartClick: (String) -> Unit,
@@ -128,6 +147,8 @@ fun ProductsList(
             items(productsList.size){ index ->
                 ProductCard(
                     product = productsList[index],
+                    currency = currency,
+                    rate = rate,
                     onProductClick = onProductClick,
                     onDeleteFromFavoriteClick = onDeleteFromFavoriteClick,
                     onAddToCartClick = onAddToCartClick
@@ -141,6 +162,8 @@ fun ProductsList(
 @Composable
 fun ProductCard(
     product: ProductSearchEntity,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onDeleteFromFavoriteClick: (String) -> Unit,
     onAddToCartClick: (String) -> Unit,
@@ -204,7 +227,7 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "EGP ${product.price}",
+                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price * rate))}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )

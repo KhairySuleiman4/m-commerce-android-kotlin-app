@@ -35,6 +35,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
 import com.example.mcommerce.presentation.theme.Primary
+import java.util.Locale
 
 @Composable
 fun ProductInfoScreen(
@@ -62,6 +64,9 @@ fun ProductInfoScreen(
     modifier: Modifier = Modifier,
     viewModel: ProductInfoViewModel = hiltViewModel()
 ) {
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
+
     val event = viewModel.events.value
     val state = viewModel.states.value
 
@@ -69,6 +74,7 @@ fun ProductInfoScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getProductById(productId)
+        viewModel.getCurrency()
     }
 
     LaunchedEffect(event) {
@@ -85,11 +91,18 @@ fun ProductInfoScreen(
                 }
                 viewModel.resetEvent()
             }
+
+            is ProductInfoContract.Events.ShowCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+            }
         }
     }
 
     ProductInfoScreenComposable(
         state = state,
+        currency = currency.value,
+        rate = rate.doubleValue,
         onAddToCartClicked = { variant ->
             viewModel.invokeActions(ProductInfoContract.Action.ClickOnAddToCart(variant))
         },
@@ -103,6 +116,8 @@ fun ProductInfoScreen(
 @Composable
 fun ProductInfoScreenComposable(
     state: ProductInfoContract.States,
+    currency: String,
+    rate: Double,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
     onFavoriteClicked: (ProductInfoEntity) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -122,6 +137,8 @@ fun ProductInfoScreenComposable(
         is ProductInfoContract.States.Success -> {
             ShowProductInfo(
                 product = state.product,
+                currency = currency,
+                rate = rate,
                 onAddToCartClicked = onAddToCartClicked,
                 onFavoriteClicked = onFavoriteClicked,
                 snackbarHostState = snackbarHostState
@@ -133,6 +150,8 @@ fun ProductInfoScreenComposable(
 @Composable
 fun ShowProductInfo(
     product: ProductInfoEntity,
+    currency: String,
+    rate: Double,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
     onFavoriteClicked: (ProductInfoEntity) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -156,9 +175,9 @@ fun ShowProductInfo(
     Scaffold(
         bottomBar = {
             BottomBar(
-                price = product.price.toString(),
+                price = String.format(Locale.US,"%.2f", (product.price * rate)),
                 product = product,
-                priceUnit = product.priceUnit,
+                priceUnit = currency,
                 onFavoriteClicked = onFavoriteClicked,
             )
         }
@@ -228,7 +247,8 @@ fun ShowProductInfo(
                 2 -> AddToCartSection(
                     variants = product.variants,
                     onAddToCartClicked = onAddToCartClicked,
-                    priceUnit = product.priceUnit
+                    priceUnit = currency,
+                    rate = rate
                 )
             }
         }
@@ -331,6 +351,7 @@ fun AddToCartSection(
     variants: List<ProductVariantEntity>,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
     priceUnit: String,
+    rate: Double,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -340,7 +361,8 @@ fun AddToCartSection(
             VariantRow(
                 variants[it],
                 onAddToCartClicked = onAddToCartClicked,
-                priceUnit = priceUnit
+                priceUnit = priceUnit,
+                rate = rate
             )
         }
     }
@@ -408,6 +430,7 @@ fun BottomBar(
 fun VariantRow(
     variant: ProductVariantEntity,
     priceUnit: String,
+    rate: Double,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -432,14 +455,14 @@ fun VariantRow(
                 top.linkTo(parent.top, margin = 32.dp)
                 bottom.linkTo(parent.bottom)
             },
-            text = "${variant.price} $priceUnit",
+            text = "${String.format(Locale.US,"%.2f", (variant.price.toDouble() * rate))} $priceUnit",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
         GlideImage(
             modifier = modifier
                 .size(120.dp)
-                .constrainAs(image){
+                .constrainAs(image) {
                     end.linkTo(parent.end, margin = 32.dp)
                     top.linkTo(parent.top, margin = 8.dp)
                 },

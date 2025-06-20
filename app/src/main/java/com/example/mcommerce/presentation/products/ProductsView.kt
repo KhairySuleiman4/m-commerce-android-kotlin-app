@@ -33,6 +33,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +50,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
+import java.util.Locale
 
 @Composable
 fun ProductsScreen(
@@ -55,6 +58,10 @@ fun ProductsScreen(
     collectionId: String,
     navigationTo: (Screens)-> Unit,
 ) {
+
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
+
     val event = viewModel.events.value
     val state = viewModel.states.value
 
@@ -62,6 +69,7 @@ fun ProductsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getProducts(collectionId)
+        viewModel.getCurrency()
     }
 
     LaunchedEffect(event) {
@@ -78,11 +86,18 @@ fun ProductsScreen(
                 )
                 viewModel.resetEvent()
             }
+
+            is ProductsContract.Events.ChangeCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+            }
         }
     }
 
    Products(
        state = state,
+       currency = currency.value,
+       rate = rate.doubleValue,
        onProductClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnProduct(productId))
        },
@@ -101,6 +116,8 @@ fun ProductsScreen(
 fun Products(
     modifier: Modifier = Modifier,
     state: ProductsContract.States,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
@@ -128,6 +145,8 @@ fun Products(
 
                     ProductsList(
                         productsList = state.filteredProductsList,
+                        currency = currency,
+                        rate = rate,
                         onProductClick =onProductClick,
                         onFavoriteClick = onFavoriteClick,
                         snackbarHostState = snackbarHostState
@@ -140,6 +159,8 @@ fun Products(
 @Composable
 fun ProductsList(
     productsList: List<ProductsContract.ProductUIModel>,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState
@@ -169,6 +190,8 @@ fun ProductsList(
 fun ProductCard(
     modifier: Modifier = Modifier,
     product: ProductsContract.ProductUIModel,
+    currency: String,
+    rate: Double,
     onFavoriteClick: (String) -> Unit,
     onProductClick: (String) -> Unit
 ) {
@@ -225,7 +248,7 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "EGP ${product.price}",
+                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price.toDouble() * rate))}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 16.sp
                 )

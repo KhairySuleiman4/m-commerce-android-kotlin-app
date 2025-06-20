@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import com.example.mcommerce.domain.usecases.GetProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,7 +15,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
     private val productsUseCase: GetProductsUseCase,
-) : ViewModel(), ProductsContract.ProductsViewModel {
+    private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
+): ViewModel(), ProductsContract.ProductsViewModel {
 
     private val _states = mutableStateOf<ProductsContract.States>(ProductsContract.States.Idle)
     private val _events = mutableStateOf<ProductsContract.Events>(ProductsContract.Events.Idle)
@@ -69,6 +73,14 @@ class ProductsViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun getCurrency(){
+        viewModelScope.launch {
+            val currency = getCurrencyUseCase()
+            val rate = getCurrentExchangeRateUseCase()
+            _events.value = ProductsContract.Events.ChangeCurrency(currency, rate)
         }
     }
 
