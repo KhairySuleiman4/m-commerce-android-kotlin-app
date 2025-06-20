@@ -41,6 +41,5 @@ interface ProductsContract {
         val productType: String,
         val price: String,
         val isFavorite: Boolean = false,
-        val isInCart: Boolean = false
     )
 }

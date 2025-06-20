@@ -7,7 +7,7 @@ import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
-import com.example.mcommerce.GetOrdersQuery
+import com.example.mcommerce.GetHomeProductsQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.RemoveItemFromCartMutation
@@ -16,10 +16,8 @@ import com.example.mcommerce.data.models.CartModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.LineModel
-import com.example.mcommerce.data.models.OrderModel
 import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
-import com.example.mcommerce.domain.entities.OrderEntity
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
 
@@ -290,6 +288,18 @@ fun UpdateItemCountMutation.Edge.toModel(): LineModel = LineModel(
     brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
     lineId = this.node.id
 )
+
+fun GetHomeProductsQuery.Data.toModel(): List<ProductsModel>{
+    return this.products.edges.map{
+        ProductsModel(
+            id = it.node.id,
+            title = it.node.title,
+            imageUrl = it.node.featuredImage?.url.toString(),
+            productType = it.node.productType,
+            price = it.node.priceRange.maxVariantPrice.amount.toString(),
+        )
+    }
+}
 
 //fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{
 //    return this.customer?.orders?.edges?.map{

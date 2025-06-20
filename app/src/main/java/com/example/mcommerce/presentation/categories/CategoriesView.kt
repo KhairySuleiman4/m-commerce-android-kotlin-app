@@ -134,16 +134,17 @@ fun CategoriesCard(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 20.sp,
                 color = Color.White,
-                modifier = modifier.align(Alignment.CenterVertically)
+                maxLines = 2,
+                modifier = modifier.align(Alignment.CenterVertically).width(120.dp)
             )
             GlideImage(
                 model = imagesMapper(category.imageUrl),
                 contentDescription = category.title,
                 modifier = modifier
                     .height(172.dp)
-                    .width(150.dp)
+                    .width(180.dp)
                     .align(Alignment.Bottom),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
         }
     }

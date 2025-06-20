@@ -12,6 +12,7 @@ import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
+import com.example.mcommerce.GetHomeProductsQuery
 import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
@@ -21,6 +22,7 @@ import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.type.CartLineUpdateInput
 import com.example.mcommerce.type.CustomerAccessTokenCreateInput
 import com.example.mcommerce.type.CustomerCreateInput
+import com.example.mcommerce.type.ProductSortKeys
 
 class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
 
@@ -76,5 +78,10 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
 
     override suspend fun addDiscountCodeToCart(cartId: String, code: String): ApolloResponse<AddCartDiscountMutation.Data>
     = client.mutation(AddCartDiscountMutation(cartId, listOf(code))).execute()
+
+    override suspend fun getHomeProducts(
+        sortKey: ProductSortKeys,
+        reverse: Boolean
+    ): ApolloResponse<GetHomeProductsQuery.Data> = client.query(GetHomeProductsQuery(Optional.present(sortKey), Optional.present(reverse))).execute()
 
 }

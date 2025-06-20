@@ -166,8 +166,7 @@ fun NavHostContainer(
             composable<Screens.Products>{ backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
                 ProductsScreen(
-                    collectionId = value.brandId,
-                    brandName = value.brandName
+                    collectionId = value.brandId
                 ){
                     navController.navigate(it)
                 }

@@ -9,6 +9,7 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.type.ProductSortKeys
 import kotlinx.coroutines.flow.Flow
 
 class ProductsRemoteDataSourceImpl(
@@ -30,6 +31,13 @@ class ProductsRemoteDataSourceImpl(
     override suspend fun getAllProducts(): Flow<ApiResult<List<ProductSearchEntity>>> =
         executeAPI {
             graphQlService.getAllProducts().data?.toModel()?.map{
+                it.toEntity()
+            } ?: listOf()
+        }
+
+    override suspend fun getHomeProducts(sortKeys: ProductSortKeys, reverse: Boolean): Flow<ApiResult<List<ProductsEntity>>> =
+        executeAPI {
+            graphQlService.getHomeProducts(sortKeys, reverse).data?.toModel()?.map {
                 it.toEntity()
             } ?: listOf()
         }

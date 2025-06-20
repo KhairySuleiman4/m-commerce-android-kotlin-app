@@ -28,6 +28,21 @@ class ProductsViewModel @Inject constructor(
     private var allProducts: List<ProductsContract.ProductUIModel> = emptyList()
     private var currentCollectionId: String = ""
 
+    override fun invokeActions(action: ProductsContract.Action) {
+        when (action) {
+            is ProductsContract.Action.ClickOnProduct -> {
+                _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
+            }
+            is ProductsContract.Action.OnTypeSelected -> {
+                filterProductsByType(action.productType)
+            }
+
+            is ProductsContract.Action.ClickOnFavorite -> {
+                toggleFavorite(action.productId)
+            }
+        }
+    }
+
     fun getProducts(id: String) {
         viewModelScope.launch {
             currentCollectionId = id
@@ -66,21 +81,6 @@ class ProductsViewModel @Inject constructor(
             val currency = getCurrencyUseCase()
             val rate = getCurrentExchangeRateUseCase()
             _events.value = ProductsContract.Events.ChangeCurrency(currency, rate)
-        }
-    }
-
-    override fun invokeActions(action: ProductsContract.Action) {
-        when (action) {
-            is ProductsContract.Action.ClickOnProduct -> {
-                _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
-            }
-            is ProductsContract.Action.OnTypeSelected -> {
-                filterProductsByType(action.productType)
-            }
-
-            is ProductsContract.Action.ClickOnFavorite -> {
-                toggleFavorite(action.productId)
-            }
         }
     }
 
