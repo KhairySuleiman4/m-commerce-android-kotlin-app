@@ -269,7 +269,6 @@ fun GetHomeProductsQuery.Data.toModel(): List<ProductsModel>{
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString(),
-            variantId = it.node.variants.edges[0].node.id
         )
     }
 }

@@ -72,21 +72,6 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    override fun invokeActions(action: ProductsContract.Action) {
-        when (action) {
-            is ProductsContract.Action.ClickOnProduct -> {
-                _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
-            }
-            is ProductsContract.Action.OnTypeSelected -> {
-                filterProductsByType(action.productType)
-            }
-
-            is ProductsContract.Action.ClickOnFavorite -> {
-                toggleFavorite(action.productId)
-            }
-        }
-    }
-
     private fun filterProductsByType(selectedProductType: String?) {
         val currentState = _states.value
         if (currentState is ProductsContract.States.Success) {

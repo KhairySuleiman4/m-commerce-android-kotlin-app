@@ -192,7 +192,7 @@ fun BrandList(
             modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         LazyRow(
-            contentPadding = PaddingValues(top = 8.dp, bottom = 12.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp, start = 4.dp, end = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = modifier.fillMaxSize()
         ) {
@@ -257,7 +257,7 @@ fun BestSellersList(
             }
             else -> {
                 LazyRow(
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(products) { product ->
@@ -269,7 +269,7 @@ fun BestSellersList(
                                 price = product.price,
                                 isFavorite = false,
                                 productType = product.productType,
-                                variantId = product.variantId
+                                //variantId = product.variantId
                             ),
                             onFavoriteClick = { productId -> onFavoriteClick(productId) },
                             onProductClick = { productId -> onProductClick(productId) }
@@ -317,7 +317,7 @@ fun LatestArrivalsList(
                                         price = product.price,
                                         isFavorite = false,
                                         productType = product.productType,
-                                        variantId = product.variantId
+                                    //    variantId = product.variantId
                                     ),
                                     onFavoriteClick = {
                                         //handle onFavorite click
