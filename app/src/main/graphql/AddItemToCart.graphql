@@ -11,8 +11,6 @@ mutation AddItemToCart($cartid : ID!,$quantity : Int!,$varientid : ID!) {
         cart {
             id
             checkoutUrl
-            createdAt
-            updatedAt
             lines(first: 10) {
                 edges {
                     node {
@@ -24,15 +22,13 @@ mutation AddItemToCart($cartid : ID!,$quantity : Int!,$varientid : ID!) {
                                 title
                                 price {
                                     amount
-                                    currencyCode
                                 }
                                 product {
                                     title
-                                    handle
                                     featuredImage {
                                         url
-                                        altText
                                     }
+                                    vendor
                                 }
                             }
                         }
@@ -47,11 +43,9 @@ mutation AddItemToCart($cartid : ID!,$quantity : Int!,$varientid : ID!) {
             cost {
                 subtotalAmount {
                     amount
-                    currencyCode
                 }
                 totalAmount {
                     amount
-                    currencyCode
                 }
             }
         }

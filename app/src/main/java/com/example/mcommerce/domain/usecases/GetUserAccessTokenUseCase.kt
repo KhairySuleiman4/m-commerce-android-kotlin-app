@@ -6,5 +6,5 @@ import javax.inject.Inject
 class GetUserAccessTokenUseCase @Inject constructor(
     private val repo: AuthenticationRepo
 ) {
-    operator fun invoke(): String = repo.getCustomerAccessToken()
+    suspend operator fun invoke(): String = repo.getCustomerAccessToken()
 }

@@ -12,4 +12,7 @@ interface ProductsRemoteDataSource {
     suspend fun getProductById(id: String): Flow<ApiResult<ProductInfoEntity?>>
     suspend fun getAllProducts(): Flow<ApiResult<List<ProductSearchEntity>>>
     suspend fun getHomeProducts(sortKeys: ProductSortKeys, reverse: Boolean): Flow<ApiResult<List<ProductsEntity>>>
+    suspend fun insertProductToFavorites(product: ProductSearchEntity)
+    suspend fun getFavoriteProducts(): Flow<ApiResult<List<ProductSearchEntity>>>
+    suspend fun deleteFavoriteProduct(id: String)
 }

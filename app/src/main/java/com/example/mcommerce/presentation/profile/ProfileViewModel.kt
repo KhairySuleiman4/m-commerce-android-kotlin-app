@@ -3,13 +3,15 @@ package com.example.mcommerce.presentation.profile
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.mcommerce.domain.usecases.ClearLocalCartUseCase
 import com.example.mcommerce.domain.usecases.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val clearLocalCartUseCase: ClearLocalCartUseCase
 ): ViewModel(), ProfileContract.ProfileViewModel {
 
     private val _events = mutableStateOf<ProfileContract.Event>(ProfileContract.Event.Idle)
@@ -20,6 +22,7 @@ class ProfileViewModel @Inject constructor(
         when(action){
             ProfileContract.Action.ClickOnLogout -> {
                 logoutUseCase()
+                clearLocalCartUseCase()
                 _events.value = ProfileContract.Event.Logout
             }
         }

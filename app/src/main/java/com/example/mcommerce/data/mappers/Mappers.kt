@@ -18,6 +18,7 @@ import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
 import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.domain.entities.OrderEntity
+import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
@@ -49,7 +50,6 @@ fun ProductsModel.toEntity(): ProductsEntity{
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price,
-        variantId = this.variantId
     )
 }
 
@@ -60,7 +60,6 @@ fun ProductsEntity.toModel(): ProductsModel{
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price,
-        variantId = this.variantId
     )
 }
 
@@ -119,7 +118,6 @@ fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
         productType = this.productType,
         price = this.price,
         brand = this.brand,
-        variantId = this.variantId
     )
 }
 
@@ -139,6 +137,8 @@ fun LineModel.toEntity(): LineEntity = LineEntity(
     this.image,
     this.title,
     this.category,
+    this.brand,
+    this.lineId
 )
 
 fun OrderModel.toEntity(): OrderEntity{
@@ -182,5 +182,16 @@ fun OrderEntity.toModel(): OrderModel{
         customerPhone = this.customerPhone,
         shippingAddress = this.shippingAddress,
         shippingCity = this.shippingCity
+    )
+}
+
+fun ProductInfoEntity.toSearchEntity(): ProductSearchEntity{
+    return ProductSearchEntity(
+        id = this.id,
+        title = this.title,
+        imageUrl = this.images[0],
+        productType = this.productType,
+        price = this.price,
+        brand = this.vendor,
     )
 }

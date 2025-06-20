@@ -115,6 +115,7 @@ fun SearchScreen(
                         onFavoriteClick = {
                             //viewModel.invokeActions(SearchContract.Action.OnAddToFavorite(it))
                         },
+                        }
                     )
                 }
             }

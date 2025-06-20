@@ -60,7 +60,6 @@ class ProductsViewModel @Inject constructor(
                                 title = it.title,
                                 imageUrl = it.imageUrl,
                                 price = it.price,
-                                variantId = it.variantId,
                                 productType = it.productType
                             )
                         }
@@ -69,6 +68,21 @@ class ProductsViewModel @Inject constructor(
                         updateSuccessState()
                     }
                 }
+            }
+        }
+    }
+
+    override fun invokeActions(action: ProductsContract.Action) {
+        when (action) {
+            is ProductsContract.Action.ClickOnProduct -> {
+                _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
+            }
+            is ProductsContract.Action.OnTypeSelected -> {
+                filterProductsByType(action.productType)
+            }
+
+            is ProductsContract.Action.ClickOnFavorite -> {
+                toggleFavorite(action.productId)
             }
         }
     }

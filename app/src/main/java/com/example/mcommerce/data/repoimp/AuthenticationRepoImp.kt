@@ -30,7 +30,7 @@ class AuthenticationRepoImp(
     override fun isUserVerified(): Boolean =
         firebase.isUserVerified()
 
-    override fun getCustomerAccessToken(): String =
+    override suspend fun getCustomerAccessToken(): String =
         firebase.getCustomerAccessToken()
 
     override fun isGuestMode(): Boolean =
