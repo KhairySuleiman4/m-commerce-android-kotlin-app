@@ -15,7 +15,14 @@ query GetOrders($customerAccessToken: String!) {
                     }
                     totalPrice {
                         amount
-                        currencyCode
+                    }
+                    subtotalPrice{
+                        amount
+                    }
+                    shippingDiscountAllocations{
+                        allocatedAmount{
+                            amount
+                        }
                     }
                     lineItems(first: 5) {
                         edges {

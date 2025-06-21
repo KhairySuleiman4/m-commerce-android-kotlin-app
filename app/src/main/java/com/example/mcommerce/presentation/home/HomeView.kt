@@ -331,7 +331,6 @@ fun LatestArrivalsList(
                                         price = product.price,
                                         isFavorite = false,
                                         productType = product.productType,
-                                        //    variantId = product.variantId
                                     ),
                                     onFavoriteClick = {
                                         //handle onFavorite click
