@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -136,7 +135,7 @@ fun ProductInfoScreenComposable(
         }
         is ProductInfoContract.States.Success -> {
             ShowProductInfo(
-                product = state.product,
+                state = state,
                 currency = currency,
                 rate = rate,
                 onAddToCartClicked = onAddToCartClicked,
@@ -149,7 +148,7 @@ fun ProductInfoScreenComposable(
 
 @Composable
 fun ShowProductInfo(
-    product: ProductInfoEntity,
+    state: ProductInfoContract.States.Success,
     currency: String,
     rate: Double,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
@@ -157,7 +156,7 @@ fun ShowProductInfo(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
-
+    val product = state.product
     val tabs = listOf(
         stringResource(R.string.overview),
         stringResource(R.string.description),
@@ -175,8 +174,8 @@ fun ShowProductInfo(
     Scaffold(
         bottomBar = {
             BottomBar(
+                state = state,
                 price = String.format(Locale.US,"%.2f", (product.price * rate)),
-                product = product,
                 priceUnit = currency,
                 onFavoriteClicked = onFavoriteClicked,
             )
@@ -372,13 +371,15 @@ fun AddToCartSection(
 fun BottomBar(
     price: String,
     priceUnit: String,
-    product: ProductInfoEntity,
+    state: ProductInfoContract.States.Success,
     onFavoriteClicked: (ProductInfoEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val product = state.product
+    val isFavorite = remember { mutableStateOf(product.isFavorite) }
 
-    val isFavorite = remember {
-        mutableStateOf(false)
+    LaunchedEffect(product.isFavorite) {
+        isFavorite.value = product.isFavorite
     }
 
     ConstraintLayout (
@@ -407,7 +408,8 @@ fun BottomBar(
         IconButton(
             onClick = {
                 isFavorite.value = !isFavorite.value
-                onFavoriteClicked(product)
+                val newProduct = product.copy(isFavorite = !product.isFavorite)
+                onFavoriteClicked(newProduct)
             },
             modifier = modifier
                 .constrainAs(favoriteBtn) {
@@ -490,7 +492,7 @@ fun VariantRow(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                if(variant.isSelected) "Remove from Cart" else "Add to Cart",
+                if(variant.isSelected) "Added to Cart" else "Add to Cart",
                 color = Primary
             )
             Icon(
@@ -501,15 +503,3 @@ fun VariantRow(
         }
     }
 }
-
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-private fun ProductInfoScreenPreview() {
-    ProductInfoScreen("gid://shopify/Product/10443052286225")
-}
-
-
-

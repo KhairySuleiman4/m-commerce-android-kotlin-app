@@ -8,6 +8,7 @@ query getHomeProducts($sortKey: ProductSortKeys, $reverse: Boolean) {
                 featuredImage{
                     url
                 }
+                vendor
                 priceRange{
                     maxVariantPrice{
                         amount

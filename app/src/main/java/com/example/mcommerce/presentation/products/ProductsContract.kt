@@ -12,7 +12,7 @@ interface ProductsContract {
 
     sealed interface Action{
         data class ClickOnProduct(val productId: String): Action
-        data class ClickOnFavorite(val productId: String): Action
+        data class ClickOnFavorite(val product: ProductUIModel): Action
         data class OnTypeSelected(val productType: String?): Action
     }
 
@@ -39,7 +39,8 @@ interface ProductsContract {
         val title: String,
         val imageUrl: String,
         val productType: String,
+        val brand: String,
         val price: String,
-        val isFavorite: Boolean = false,
+        val isFavorite: Boolean = false
     )
 }

@@ -7,8 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
+import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
+import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetProductsUseCase
+import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
+import com.example.mcommerce.presentation.utils.toSearchEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,8 +21,11 @@ import javax.inject.Inject
 class ProductsViewModel @Inject constructor(
     private val productsUseCase: GetProductsUseCase,
     private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
-    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
-): ViewModel(), ProductsContract.ProductsViewModel {
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
+    private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
+    private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
+) : ViewModel(), ProductsContract.ProductsViewModel {
 
     private val _states = mutableStateOf<ProductsContract.States>(ProductsContract.States.Idle)
     private val _events = mutableStateOf<ProductsContract.Events>(ProductsContract.Events.Idle)
@@ -38,7 +46,7 @@ class ProductsViewModel @Inject constructor(
             }
 
             is ProductsContract.Action.ClickOnFavorite -> {
-                toggleFavorite(action.productId)
+                toggleFavorite(action.product)
             }
         }
     }
@@ -64,12 +72,13 @@ class ProductsViewModel @Inject constructor(
                                 title = it.title,
                                 imageUrl = it.imageUrl,
                                 price = it.price,
-                                productType = it.productType
+                                productType = it.productType,
+                                brand = it.brand
                             )
                         }
                         _states.value = ProductsContract.States.Success(products)
                         allProducts = products
-                        updateSuccessState()
+                        getFavorites()
                     }
                 }
             }
@@ -100,25 +109,71 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    private fun updateSuccessState() {
-        _states.value = ProductsContract.States.Success(
-            productsList = allProducts,
-            filteredProductsList = allProducts,
-            selectedProductType = null,
-        )
+    private fun getFavorites(){
+        viewModelScope.launch(Dispatchers.IO) {
+            getFavoriteProductsUseCase().collect{ result ->
+                when(result){
+                    is ApiResult.Failure -> {
+
+                    }
+                    is ApiResult.Loading -> {
+
+                    }
+                    is ApiResult.Success -> {
+                        if(_states.value is ProductsContract.States.Success) {
+                            val data = (_states.value as ProductsContract.States.Success).productsList
+                            val newData = data.map { product ->
+                                if (result.data.any { it.id == product.id }) {
+                                    product.copy(isFavorite = true)
+                                } else {
+                                    product
+                                }
+                            }
+                            allProducts = newData
+                            val newFilteredProducts = newData.map { product ->
+                                if (result.data.any { it.id == product.id }) {
+                                    product.copy(isFavorite = true)
+                                } else {
+                                    product
+                                }
+                            }
+                            _states.value = ProductsContract.States.Success(
+                                productsList = newData,
+                                filteredProductsList = newFilteredProducts,
+                                selectedProductType = null
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private fun toggleFavorite(productId: String) {
-        //add product to wishlist
+    private fun toggleFavorite(product: ProductsContract.ProductUIModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if(product.isFavorite){
+                insertProductToFavoritesUseCase(product.toSearchEntity())
+            } else{
+                deleteFavoriteProductUseCase(product.id)
+            }
+        }
         val currentState = _states.value
         if (currentState is ProductsContract.States.Success) {
             val updatedAllProducts = currentState.productsList.map {
-                if (it.id == productId) it.copy(isFavorite = !it.isFavorite)
-                else it
+                if (it.id == product.id) {
+                    it.copy(isFavorite = !it.isFavorite)
+                }
+                else {
+                    it
+                }
             }
             val updatedFilteredProducts = currentState.filteredProductsList.map {
-                if (it.id == productId) it.copy(isFavorite = !it.isFavorite)
-                else it
+                if (it.id == product.id) {
+                    it.copy(isFavorite = !it.isFavorite)
+                }
+                else {
+                    it
+                }
             }
             allProducts = updatedAllProducts
             _states.value = currentState.copy(
@@ -126,7 +181,7 @@ class ProductsViewModel @Inject constructor(
                 filteredProductsList = updatedFilteredProducts
             )
             val message =
-                if (updatedFilteredProducts.find { it.id == productId }?.isFavorite == true)
+                if (updatedFilteredProducts.find { it.id == product.id }?.isFavorite == true)
                     "Added to Favorites!" else "Removed from Favorites."
             _events.value = ProductsContract.Events.ShowSnackbar(message)
         }
