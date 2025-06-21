@@ -1,6 +1,5 @@
 package com.example.mcommerce.presentation.products
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,9 +23,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,18 +39,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.mcommerce.R
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
 
@@ -94,8 +96,8 @@ fun ProductsScreen(
        onProductClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnProduct(productId))
        },
-       onFavoriteClick = { productId ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(productId))
+       onFavoriteClick = { product ->
+           viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(product))
        },
        onAddToCartClick = { variantId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(variantId))
@@ -114,7 +116,7 @@ fun Products(
     state: ProductsContract.States,
     brandName: String,
     onProductClick: (String) -> Unit,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onAddToCartClick: (String) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
     snackbarHostState: SnackbarHostState
@@ -158,7 +160,7 @@ fun ProductsList(
     productsList: List<ProductsContract.ProductUIModel>,
     brandName: String,
     onProductClick: (String) -> Unit,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onAddToCartClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
@@ -196,10 +198,17 @@ fun ProductCard(
     modifier: Modifier = Modifier,
     product: ProductsContract.ProductUIModel,
     brandName: String,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onAddToCartClick: (String) -> Unit,
     onProductClick: (String) -> Unit
 ) {
+
+    val isFavorite = remember { mutableStateOf(product.isFavorite) }
+
+    LaunchedEffect(product.isFavorite) {
+        isFavorite.value = product.isFavorite
+    }
+
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
@@ -220,14 +229,18 @@ fun ProductCard(
                     contentScale = ContentScale.Crop
                 )
                 IconButton(
-                    onClick = { onFavoriteClick(product.id) },
+                    onClick = {
+                        isFavorite.value = !isFavorite.value
+                        val newProduct = product.copy(isFavorite = !product.isFavorite)
+                        onFavoriteClick(newProduct)
+                    },
                     modifier = modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
-                        imageVector = if (product.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
                         modifier = modifier.size(30.dp),
-                        tint = Color(0xFFD32F2F)
+                        imageVector = if (isFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                        tint = if (isFavorite.value) Color.Red else Color.DarkGray,
+                        contentDescription = stringResource(R.string.favorite_icon)
                     )
                 }
             }

@@ -44,7 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -481,15 +480,3 @@ fun VariantRow(
         }
     }
 }
-
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-private fun ProductInfoScreenPreview() {
-    ProductInfoScreen("gid://shopify/Product/10443052286225")
-}
-
-
-

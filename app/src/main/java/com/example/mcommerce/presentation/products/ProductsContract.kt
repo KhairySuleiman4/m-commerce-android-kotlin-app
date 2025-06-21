@@ -12,7 +12,7 @@ interface ProductsContract {
 
     sealed interface Action{
         data class ClickOnProduct(val productId: String): Action
-        data class ClickOnFavorite(val productId: String): Action
+        data class ClickOnFavorite(val product: ProductUIModel): Action
         data class OnTypeSelected(val productType: String?): Action
         data class ClickOnAddToCart(val variantId: String): Action
     }
