@@ -23,7 +23,7 @@ class CartRepoImp(
             emit(ApiResult.Failure(Throwable("You are not logged in")))
             return@flow
         }
-
+        val customerInfo = firebase.getCustomerAccessToken()
         if (!firebase.isUserVerified()) {
             emit(ApiResult.Failure(Throwable("Your account is not Verified")))
             return@flow
@@ -33,8 +33,6 @@ class CartRepoImp(
             emit(ApiResult.Success(it))
             return@flow
         }
-
-        val customerInfo = firebase.getCustomerAccessToken()
         val json = Gson().fromJson(customerInfo, JsonObject::class.java)
         val cartId = json.get("cart")?.asString
         val access = json.get("token")?.asString
@@ -74,7 +72,7 @@ class CartRepoImp(
                         firebase.updatePhoto(json.toString()).collect{ result ->
                             when(result){
                                 is ApiResult.Failure -> {
-
+                                    emit(ApiResult.Failure(result.error))
                                 }
                                 is ApiResult.Loading -> {
                                 }
@@ -175,7 +173,7 @@ class CartRepoImp(
         }
         val cart = cache.getCart()
         if (cart!=null){
-            if (!cart.items.any { it.id == itemId }){
+            if (!cart.items.any { it.lineId == itemId }){
                 emit(ApiResult.Failure(Throwable("No item Found")))
                 return@flow
             }
@@ -205,7 +203,7 @@ class CartRepoImp(
             .firstOrNull()
             ?.data
             ?.let { freshCart ->
-                if (!freshCart.items.any { it.id == itemId }){
+                if (!freshCart.items.any { it.lineId == itemId }){
                     emit(ApiResult.Failure(Throwable("No item Found")))
                     return@flow
                 }
@@ -234,26 +232,66 @@ class CartRepoImp(
             }
     }
 
-    override suspend fun changeItem(itemId: String, quantity: Int): Flow<ApiResult<Boolean>> {
+    override fun changeItem(itemId: String, quantity: Int): Flow<ApiResult<CartEntity?>> = flow{
         if (!firebase.isMeLoggedIn()){
-            return flow { emit(ApiResult.Failure(Throwable(message = "You are not logged in"))) }
+             emit(ApiResult.Failure(Throwable(message = "You are not logged in")))
+            return@flow
         }
         if (!firebase.isUserVerified()) {
-            return flow { emit(ApiResult.Failure(Throwable("Your account is not Verified"))) }
+             emit(ApiResult.Failure(Throwable("Your account is not Verified")))
+            return@flow
         }
         val cart = cache.getCart()
-        if (cart!=null)
-            return remoteDataSource.changeQuantityOfItemInCart(cartId = cart.id,quantity,itemId)
-        return getCart()
-            .filterIsInstance<ApiResult.Success<CartEntity?>>()
-            .firstOrNull()
-            ?.data
-            ?.let { freshCart ->
-                remoteDataSource.changeQuantityOfItemInCart(freshCart.id, quantity, itemId)
+        if (cart!=null){
+            emit(ApiResult.Loading())
+            remoteDataSource.changeQuantityOfItemInCart(cartId = cart.id, quantity, itemId).collect {
+                when (it) {
+                    is ApiResult.Failure -> {
+                        emit(it)
+                        return@collect
+                    }
+
+                    is ApiResult.Loading -> {
+
+                    }
+
+                    is ApiResult.Success -> {
+                        cache.setCart(it.data)
+                        emit(it)
+                        return@collect
+                    }
+                }
             }
-            ?: flow {
-                emit(ApiResult.Failure(Throwable("Unable to obtain cart")))
-            }
+        }
+        else{
+            getCart()
+                .filterIsInstance<ApiResult.Success<CartEntity?>>()
+                .firstOrNull()
+                ?.data
+                ?.let { freshCart ->
+                    emit(ApiResult.Loading())
+                    remoteDataSource.changeQuantityOfItemInCart(cartId = freshCart.id, quantity, itemId).collect {
+                        when (it) {
+                            is ApiResult.Failure -> {
+                                emit(it)
+                                return@collect
+                            }
+
+                            is ApiResult.Loading -> {
+
+                            }
+
+                            is ApiResult.Success -> {
+                                cache.setCart(it.data)
+                                emit(it)
+                                return@collect
+                            }
+                        }
+                    }
+                }
+                ?: emit(ApiResult.Failure(Throwable("Unable to obtain cart")))
+            return@flow
+        }
     }
 
     override fun addDiscountCode(code: String): Flow<ApiResult<CartEntity?>> = flow{

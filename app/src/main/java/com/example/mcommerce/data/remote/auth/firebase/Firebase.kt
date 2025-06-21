@@ -12,7 +12,7 @@ interface Firebase {
     fun isMeLoggedIn(): Boolean
     fun logout()
     fun isUserVerified(): Boolean
-    fun getCustomerAccessToken(): String
+    suspend fun getCustomerAccessToken(): String
     fun getEmail(): String
     fun isGuestMode(): Boolean
     suspend fun insertProductToFavorites(product: ProductSearchEntity)

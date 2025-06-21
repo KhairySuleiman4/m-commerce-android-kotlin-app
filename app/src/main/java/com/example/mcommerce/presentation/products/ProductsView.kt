@@ -1,12 +1,10 @@
 package com.example.mcommerce.presentation.products
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,15 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -40,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,17 +51,22 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
+import java.util.Locale
 
 @Composable
 fun ProductsScreen(
     viewModel: ProductsViewModel = hiltViewModel(),
     collectionId: String,
-    brandName: String,
     navigationTo: (Screens)-> Unit,
 ) {
+
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
+
     val event = viewModel.events.value
     val state = viewModel.states.value
 
@@ -71,6 +74,7 @@ fun ProductsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getProducts(collectionId)
+        viewModel.getCurrency()
     }
 
     LaunchedEffect(event) {
@@ -87,20 +91,23 @@ fun ProductsScreen(
                 )
                 viewModel.resetEvent()
             }
+
+            is ProductsContract.Events.ChangeCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+            }
         }
     }
 
    Products(
        state = state,
-       brandName = brandName,
+       currency = currency.value,
+       rate = rate.doubleValue,
        onProductClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnProduct(productId))
        },
        onFavoriteClick = { product ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(product))
-       },
-       onAddToCartClick = { variantId ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnAddToCart(variantId))
        },
        onFilterTypeSelected = { productType ->
            viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
@@ -114,7 +121,8 @@ fun ProductsScreen(
 fun Products(
     modifier: Modifier = Modifier,
     state: ProductsContract.States,
-    brandName: String,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onAddToCartClick: (String) -> Unit,
@@ -143,10 +151,10 @@ fun Products(
 
                     ProductsList(
                         productsList = state.filteredProductsList,
-                        brandName = brandName,
+                        currency = currency,
+                        rate = rate,
                         onProductClick =onProductClick,
                         onFavoriteClick = onFavoriteClick,
-                        onAddToCartClick = onAddToCartClick,
                         snackbarHostState = snackbarHostState
                     )
                 }
@@ -156,34 +164,28 @@ fun Products(
 
 @Composable
 fun ProductsList(
-    modifier: Modifier = Modifier,
     productsList: List<ProductsContract.ProductUIModel>,
-    brandName: String,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onAddToCartClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-
     Box{
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = modifier.fillMaxSize()
-        ) {
-
-            items(productsList) { product ->
-                ProductCard(
-                    product = product,
-                    brandName = brandName,
-                    onFavoriteClick = onFavoriteClick,
-                    onAddToCartClick = onAddToCartClick,
-                    onProductClick = onProductClick
-                )
+        CustomLazyVerticalGrid(
+            content = {
+                items(productsList) { product ->
+                    ProductCard(
+                        product = product,
+                        onFavoriteClick = onFavoriteClick,
+                        onProductClick = onProductClick,
+                        currency = currency,
+                        rate = rate
+                    )
+                }
             }
-        }
+        )
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
@@ -197,9 +199,9 @@ fun ProductsList(
 fun ProductCard(
     modifier: Modifier = Modifier,
     product: ProductsContract.ProductUIModel,
-    brandName: String,
+    currency: String,
+    rate: Double,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     onProductClick: (String) -> Unit
 ) {
 
@@ -213,7 +215,8 @@ fun ProductCard(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
             .padding(4.dp)
-            .height(350.dp)
+            .height(250.dp)
+            .width(150.dp)
             .clickable { onProductClick(product.id) },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -224,7 +227,7 @@ fun ProductCard(
                     contentDescription = product.title,
                     modifier = modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(150.dp)
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
@@ -246,18 +249,18 @@ fun ProductCard(
             }
             Spacer(modifier.height(8.dp))
             Text(
-                text = product.title,
+                text = product.title.split('|')[1].trim(),
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
+                fontSize = 14.sp,
                 maxLines = 2
             )
-
             Text(
-                text = brandName,
+                text = product.title.split('|')[0],
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                fontSize = 16.sp,
-                color = Color.Gray
+                fontSize = 12.sp,
+                color = Color.Gray,
+                maxLines = 1
             )
             Spacer(modifier.weight(1f))
             Row(
@@ -265,23 +268,10 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "EGP ${product.price}",
+                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price.toDouble() * rate))}",
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp
+                    fontSize = 16.sp
                 )
-                Spacer(modifier.weight(1f))
-                IconButton(
-                    onClick = { onAddToCartClick(product.variantId) },
-                    modifier = modifier
-                        .background(Color(0xFF795548), shape = CircleShape)
-                        .size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = if(product.isInCart) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
-                        contentDescription = "cart",
-                        tint = Color.White
-                    )
-                }
             }
             Spacer(modifier.height(8.dp))
         }

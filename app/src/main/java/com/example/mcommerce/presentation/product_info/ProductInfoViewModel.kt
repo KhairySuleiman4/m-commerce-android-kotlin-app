@@ -12,6 +12,8 @@ import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
 import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import com.example.mcommerce.domain.usecases.GetProductByIdUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +28,9 @@ class ProductInfoViewModel @Inject constructor(
     private val getProductUseCase: GetProductByIdUseCase,
     private val insertToFavoritesUseCase: InsertProductToFavoritesUseCase,
     private val getFavoritesUseCase: GetFavoriteProductsUseCase,
-    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
+    private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
 ) : ViewModel(), ProductInfoContract.ProductInfoViewModel {
 
     private val _states = mutableStateOf<ProductInfoContract.States>(ProductInfoContract.States.Loading)
@@ -113,6 +117,14 @@ class ProductInfoViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun getCurrency(){
+        viewModelScope.launch {
+            val currency = getCurrencyUseCase()
+            val rate = getCurrentExchangeRateUseCase()
+            _events.value = ProductInfoContract.Events.ShowCurrency(currency, rate)
         }
     }
 

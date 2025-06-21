@@ -3,9 +3,7 @@ mutation AddCartDiscount($cartId: ID!, $discountCodes: [String!]!){
         cart {
             id
             checkoutUrl
-            createdAt
-            updatedAt
-            lines(first: 10) {
+            lines(first: 20) {
                 edges {
                     node {
                         id
@@ -16,15 +14,13 @@ mutation AddCartDiscount($cartId: ID!, $discountCodes: [String!]!){
                                 title
                                 price {
                                     amount
-                                    currencyCode
                                 }
                                 product {
                                     title
-                                    handle
                                     featuredImage {
                                         url
-                                        altText
                                     }
+                                    vendor
                                 }
                             }
                         }
@@ -39,11 +35,9 @@ mutation AddCartDiscount($cartId: ID!, $discountCodes: [String!]!){
             cost {
                 subtotalAmount {
                     amount
-                    currencyCode
                 }
                 totalAmount {
                     amount
-                    currencyCode
                 }
             }
         }

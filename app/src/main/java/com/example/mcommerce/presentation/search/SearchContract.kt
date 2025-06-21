@@ -1,10 +1,12 @@
 package com.example.mcommerce.presentation.search
 
+import androidx.compose.runtime.State
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 
 interface SearchContract {
     interface SearchViewModel{
         fun invokeActions(action: Action)
+        val events: State<Events>
     }
 
     sealed interface Action{
@@ -13,6 +15,15 @@ interface SearchContract {
         data class OnBrandSelected(val brand: String?): Action
         data class OnPriceRangeChanged(val min: Double?, val max: Double?): Action
         data class ClickOnFavoriteIcon(val product: ProductSearchEntity): Action
+    }
+
+    sealed interface States{
+
+    }
+
+    sealed interface Events{
+        data object Idle: Events
+        data class ShowCurrency(val currency: String, val rate: Double): Events
     }
 
     data class ProductState(

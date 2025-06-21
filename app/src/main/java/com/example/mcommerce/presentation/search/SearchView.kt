@@ -1,7 +1,6 @@
 package com.example.mcommerce.presentation.search
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -43,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,6 +61,7 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
+import java.util.Locale
 
 @Composable
 fun SearchScreen(
@@ -69,10 +69,28 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     navigateTo: (Screens) -> Unit
 ) {
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
+
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getAllProductsAndBrands()
+    }
+
+    val event = viewModel.events.value
+
+
+    LaunchedEffect(event) {
+        when(event){
+            SearchContract.Events.Idle -> {
+
+            }
+            is SearchContract.Events.ShowCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+            }
+        }
     }
 
     Column(
@@ -90,7 +108,10 @@ fun SearchScreen(
             )
         }
 
-        PriceFilter { min, max ->
+        PriceFilter(
+            currency = currency.value,
+            rate = rate.doubleValue
+        ) { min, max ->
             viewModel.invokeActions(
                 SearchContract.Action.OnPriceRangeChanged(min.toDouble(), max.toDouble())
             )
@@ -122,14 +143,13 @@ fun SearchScreen(
                 ) {
                     ProductCard(
                         product = state.filteredProducts[index],
+                        currency = currency.value,
+                        rate = rate.doubleValue,
                         onProductClick = {
                             navigateTo(Screens.ProductDetails(it))
                         },
                         onFavoriteClick = {
                             viewModel.invokeActions(SearchContract.Action.ClickOnFavoriteIcon(it))
-                        },
-                        onAddToCartClick = {
-                            //viewModel.invokeActions(SearchContract.Action.OnAddToCart(it))
                         }
                     )
                 }
@@ -184,6 +204,8 @@ fun TypesFilter(
 @Composable
 fun PriceFilter(
     modifier: Modifier = Modifier,
+    currency: String,
+    rate: Double,
     onRangeSelected: (Float, Float) -> Unit
 ) {
     val sliderPosition = remember {
@@ -219,7 +241,7 @@ fun PriceFilter(
 
             )
         Text(
-            "Min: ${sliderPosition.value.start.toInt()} - Max: ${sliderPosition.value.endInclusive.toInt()}",
+            "Min: ${(sliderPosition.value.start * rate).toInt()} $currency - Max: ${(sliderPosition.value.endInclusive * rate).toInt()} $currency",
             fontSize = 20.sp
         )
     }
@@ -323,15 +345,12 @@ fun SearchBar(
 @Composable
 fun ProductCard(
     product: ProductSearchEntity,
+    currency: String,
+    rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductSearchEntity) -> Unit,
-    onAddToCartClick: (ProductSearchEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    val isAddedToCart = remember {
-        mutableStateOf(false)
-    }
 
     val isAddedToFavorite = remember { mutableStateOf(product.isFavorite) }
 
@@ -395,26 +414,10 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "EGP ${product.price}",
+                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price * rate))}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )
-                Spacer(modifier.weight(1f))
-                IconButton(
-                    onClick = {
-                        isAddedToCart.value = !isAddedToCart.value
-                        onAddToCartClick(product)
-                    },
-                    modifier = modifier
-                        .background(Color(0xFF795548), shape = CircleShape)
-                        .size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = if (isAddedToCart.value) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
-                        contentDescription = "cart",
-                        tint = Color.White
-                    )
-                }
             }
             Spacer(modifier.height(8.dp))
         }

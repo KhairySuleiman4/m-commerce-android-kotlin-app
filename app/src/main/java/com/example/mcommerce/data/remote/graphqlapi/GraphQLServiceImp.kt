@@ -12,6 +12,7 @@ import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
+import com.example.mcommerce.GetHomeProductsQuery
 import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
@@ -21,6 +22,7 @@ import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.type.CartLineUpdateInput
 import com.example.mcommerce.type.CustomerAccessTokenCreateInput
 import com.example.mcommerce.type.CustomerCreateInput
+import com.example.mcommerce.type.ProductSortKeys
 
 class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
 
@@ -72,12 +74,14 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
         cartId: String,
         quantity: Int,
         itemId: String
-    ): Boolean {
-        val response = client.mutation(UpdateItemCountMutation(cartId, listOf(CartLineUpdateInput(itemId, quantity = Optional.present(quantity))))).execute()
-        return (!response.hasErrors()) && (response.data?.cartLinesUpdate?.cart != null)
-    }
+    ): ApolloResponse<UpdateItemCountMutation.Data> = client.mutation(UpdateItemCountMutation(cartId, listOf(CartLineUpdateInput(itemId, quantity = Optional.present(quantity))))).execute()
 
     override suspend fun addDiscountCodeToCart(cartId: String, code: String): ApolloResponse<AddCartDiscountMutation.Data>
     = client.mutation(AddCartDiscountMutation(cartId, listOf(code))).execute()
+
+    override suspend fun getHomeProducts(
+        sortKey: ProductSortKeys,
+        reverse: Boolean
+    ): ApolloResponse<GetHomeProductsQuery.Data> = client.query(GetHomeProductsQuery(Optional.present(sortKey), Optional.present(reverse))).execute()
 
 }
