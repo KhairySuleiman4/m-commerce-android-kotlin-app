@@ -12,14 +12,7 @@ interface SearchContract {
         data class OnTypeSelected(val type: String?): Action
         data class OnBrandSelected(val brand: String?): Action
         data class OnPriceRangeChanged(val min: Double?, val max: Double?): Action
-    }
-
-    sealed interface States{
-
-    }
-
-    sealed interface Events{
-
+        data class ClickOnFavoriteIcon(val product: ProductSearchEntity): Action
     }
 
     data class ProductState(

@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
+import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetProductsUseCase
+import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
+import com.example.mcommerce.presentation.utils.toSearchEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +22,9 @@ class ProductsViewModel @Inject constructor(
     private val productsUseCase: GetProductsUseCase,
     private val getCartUseCase: GetCartUseCase,
     private val addItemToCartUseCase: AddItemToCartUseCase,
-    private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase
+    private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
+    private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
 ) : ViewModel(), ProductsContract.ProductsViewModel {
 
     private val _states = mutableStateOf<ProductsContract.States>(ProductsContract.States.Idle)
@@ -60,7 +65,6 @@ class ProductsViewModel @Inject constructor(
                         allProducts = products
                         getCart()
                         getFavorites()
-                        //updateSuccessState()
                     }
                 }
             }
@@ -101,14 +105,6 @@ class ProductsViewModel @Inject constructor(
                 selectedProductType = selectedProductType
             )
         }
-    }
-
-    private fun updateSuccessState() {
-        _states.value = ProductsContract.States.Success(
-            productsList = allProducts,
-            filteredProductsList = allProducts,
-            selectedProductType = null,
-        )
     }
 
     private fun getFavorites(){
@@ -153,6 +149,13 @@ class ProductsViewModel @Inject constructor(
     }
 
     private fun toggleFavorite(product: ProductsContract.ProductUIModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if(product.isFavorite){
+                insertProductToFavoritesUseCase(product.toSearchEntity())
+            } else{
+                deleteFavoriteProductUseCase(product.id)
+            }
+        }
         val currentState = _states.value
         if (currentState is ProductsContract.States.Success) {
             val updatedAllProducts = currentState.productsList.map {

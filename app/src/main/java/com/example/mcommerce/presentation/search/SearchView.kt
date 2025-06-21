@@ -22,9 +22,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
@@ -38,6 +40,7 @@ import androidx.compose.material3.SliderColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,12 +51,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
@@ -65,6 +70,10 @@ fun SearchScreen(
     navigateTo: (Screens) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getAllProductsAndBrands()
+    }
 
     Column(
         modifier = modifier
@@ -117,7 +126,7 @@ fun SearchScreen(
                             navigateTo(Screens.ProductDetails(it))
                         },
                         onFavoriteClick = {
-                            //viewModel.invokeActions(SearchContract.Action.OnAddToFavorite(it))
+                            viewModel.invokeActions(SearchContract.Action.ClickOnFavoriteIcon(it))
                         },
                         onAddToCartClick = {
                             //viewModel.invokeActions(SearchContract.Action.OnAddToCart(it))
@@ -200,7 +209,6 @@ fun PriceFilter(
                 disabledInactiveTickColor = Color.Gray
             ),
             value = sliderPosition.value,
-            //steps = 19,
             valueRange = 0f..500f,
             onValueChange = {
                 sliderPosition.value = it
@@ -325,8 +333,10 @@ fun ProductCard(
         mutableStateOf(false)
     }
 
-    val isAddedToFavorite = remember {
-        mutableStateOf(false)
+    val isAddedToFavorite = remember { mutableStateOf(product.isFavorite) }
+
+    LaunchedEffect(product.isFavorite) {
+        isAddedToFavorite.value = product.isFavorite
     }
 
     Card(
@@ -351,15 +361,16 @@ fun ProductCard(
                 IconButton(
                     onClick = {
                         isAddedToFavorite.value = !isAddedToFavorite.value
-                        onFavoriteClick(product)
+                        val newProduct = product.copy(isFavorite = !product.isFavorite)
+                        onFavoriteClick(newProduct)
                     },
                     modifier = modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
-                        imageVector = if (isAddedToFavorite.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
                         modifier = modifier.size(30.dp),
-                        tint = Color(0xFFD32F2F)
+                        imageVector = if (isAddedToFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                        tint = if (isAddedToFavorite.value) Color.Red else Color.DarkGray,
+                        contentDescription = stringResource(R.string.favorite_icon)
                     )
                 }
             }
