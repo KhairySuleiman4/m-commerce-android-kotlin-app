@@ -121,7 +121,7 @@ fun ProductInfoScreenComposable(
         }
         is ProductInfoContract.States.Success -> {
             ShowProductInfo(
-                product = state.product,
+                state = state,
                 onAddToCartClicked = onAddToCartClicked,
                 onFavoriteClicked = onFavoriteClicked,
                 snackbarHostState = snackbarHostState
@@ -132,13 +132,13 @@ fun ProductInfoScreenComposable(
 
 @Composable
 fun ShowProductInfo(
-    product: ProductInfoEntity,
+    state: ProductInfoContract.States.Success,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
     onFavoriteClicked: (ProductInfoEntity) -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
-
+    val product = state.product
     val tabs = listOf(
         stringResource(R.string.overview),
         stringResource(R.string.description),
@@ -157,9 +157,9 @@ fun ShowProductInfo(
         bottomBar = {
             BottomBar(
                 price = product.price.toString(),
-                product = product,
+                state = state,
                 priceUnit = product.priceUnit,
-                onFavoriteClicked = onFavoriteClicked,
+                onFavoriteClicked = onFavoriteClicked
             )
         }
     ) { padding ->
@@ -350,13 +350,15 @@ fun AddToCartSection(
 fun BottomBar(
     price: String,
     priceUnit: String,
-    product: ProductInfoEntity,
+    state: ProductInfoContract.States.Success,
     onFavoriteClicked: (ProductInfoEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val product = state.product
+    val isFavorite = remember { mutableStateOf(product.isFavorite) }
 
-    val isFavorite = remember {
-        mutableStateOf(false)
+    LaunchedEffect(product.isFavorite) {
+        isFavorite.value = product.isFavorite
     }
 
     ConstraintLayout (
@@ -385,7 +387,8 @@ fun BottomBar(
         IconButton(
             onClick = {
                 isFavorite.value = !isFavorite.value
-                onFavoriteClicked(product)
+                val newProduct = product.copy(isFavorite = !product.isFavorite)
+                onFavoriteClicked(newProduct)
             },
             modifier = modifier
                 .constrainAs(favoriteBtn) {
@@ -467,7 +470,7 @@ fun VariantRow(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                if(variant.isSelected) "Remove from Cart" else "Add to Cart",
+                if(variant.isSelected) "Added to Cart" else "Add to Cart",
                 color = Primary
             )
             Icon(

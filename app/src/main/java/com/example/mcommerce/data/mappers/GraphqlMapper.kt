@@ -77,6 +77,7 @@ fun GetProductByIdQuery.Data.toModel(): ProductInfoEntity{
         vendor = vendor,
         description = description,
         variants = variants,
+        isFavorite = false
     )
 }
 
