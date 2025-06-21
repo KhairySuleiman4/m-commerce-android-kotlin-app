@@ -161,8 +161,8 @@ fun HomeItems(
                         onProductClick = { productId ->
                             viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
                         },
-                        onFavoriteClick = { productId ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(productId))
+                        onFavoriteClick = { product ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
                         },
                         currency = currency,
                         rate = rate
@@ -248,7 +248,7 @@ fun BestSellersList(
     title: String,
     products: List<ProductsEntity>,
     isLoading: Boolean,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onProductClick: (String) -> Unit,
     currency: String,
     rate: Double
@@ -280,8 +280,11 @@ fun BestSellersList(
                                 price = product.price,
                                 isFavorite = false,
                                 productType = product.productType,
+                                brand = product.brand
                             ),
-                            onFavoriteClick = { productId -> onFavoriteClick(productId) },
+                            onFavoriteClick = {
+                                onFavoriteClick(it)
+                            },
                             onProductClick = { productId -> onProductClick(productId) },
                             currency = currency,
                             rate = rate
@@ -331,7 +334,7 @@ fun LatestArrivalsList(
                                         price = product.price,
                                         isFavorite = false,
                                         productType = product.productType,
-                                        //    variantId = product.variantId
+                                        brand = product.brand
                                     ),
                                     onFavoriteClick = {
                                         //handle onFavorite click

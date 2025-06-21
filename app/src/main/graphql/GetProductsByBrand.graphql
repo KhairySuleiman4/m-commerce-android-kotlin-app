@@ -12,6 +12,7 @@ query getProductsByBrand($id:ID){
                             amount
                         }
                     }
+                    vendor
                     variants(first: 1){
                         edges {
                             node {

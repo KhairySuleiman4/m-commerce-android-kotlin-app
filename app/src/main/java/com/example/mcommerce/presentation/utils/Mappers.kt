@@ -10,8 +10,7 @@ fun ProductsContract.ProductUIModel.toSearchEntity(): ProductSearchEntity {
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price.toDouble(),
-        brand = "TODO",
-        isFavorite = this.isFavorite,
-        variantId = this.variantId
+        brand = this.brand,
+        isFavorite = this.isFavorite
     )
 }

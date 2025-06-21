@@ -39,7 +39,8 @@ interface ProductsContract {
         val title: String,
         val imageUrl: String,
         val productType: String,
+        val brand: String,
         val price: String,
-        val isFavorite: Boolean = false,
+        val isFavorite: Boolean = false
     )
 }

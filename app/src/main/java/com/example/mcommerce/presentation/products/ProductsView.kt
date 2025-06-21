@@ -19,9 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -112,7 +109,7 @@ fun ProductsScreen(
        onFilterTypeSelected = { productType ->
            viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
        },
-       snackbarHostState = snackbarHostState
+       snackbarHostState = snackbarHostState,
    )
 
 }
@@ -125,7 +122,6 @@ fun Products(
     rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
     snackbarHostState: SnackbarHostState
     ) {
@@ -153,7 +149,7 @@ fun Products(
                         productsList = state.filteredProductsList,
                         currency = currency,
                         rate = rate,
-                        onProductClick =onProductClick,
+                        onProductClick = onProductClick,
                         onFavoriteClick = onFavoriteClick,
                         snackbarHostState = snackbarHostState
                     )
@@ -169,7 +165,6 @@ fun ProductsList(
     rate: Double,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     Box{

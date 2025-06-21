@@ -26,7 +26,7 @@ class SearchViewModel @Inject constructor(
     private val productsUseCase: GetAllProductsUseCase,
     private val brandsUseCase: GetBrandsUseCase,
     private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
-    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
@@ -36,12 +36,7 @@ class SearchViewModel @Inject constructor(
     val state: StateFlow<SearchContract.ProductState> = _state
 
     private val _events = mutableStateOf<SearchContract.Events>(SearchContract.Events.Idle)
-    override val events: State<SearchContract.Events>
-        get() = _events
-
-    init {
-        getCurrency()
-    }
+    override val events: State<SearchContract.Events> get() = _events
 
     fun getAllProductsAndBrands(){
         viewModelScope.launch(Dispatchers.IO) {

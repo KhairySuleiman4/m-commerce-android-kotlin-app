@@ -17,14 +17,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
@@ -76,6 +72,7 @@ fun SearchScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getAllProductsAndBrands()
+        viewModel.getCurrency()
     }
 
     val event = viewModel.events.value

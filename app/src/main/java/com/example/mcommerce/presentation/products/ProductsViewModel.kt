@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
-import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
 import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
-import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetProductsUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
@@ -24,8 +22,6 @@ class ProductsViewModel @Inject constructor(
     private val productsUseCase: GetProductsUseCase,
     private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
     private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
-    private val getCartUseCase: GetCartUseCase,
-    private val addItemToCartUseCase: AddItemToCartUseCase,
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
@@ -50,7 +46,7 @@ class ProductsViewModel @Inject constructor(
             }
 
             is ProductsContract.Action.ClickOnFavorite -> {
-                toggleFavorite(action.productId)
+                toggleFavorite(action.product)
             }
         }
     }
@@ -76,7 +72,8 @@ class ProductsViewModel @Inject constructor(
                                 title = it.title,
                                 imageUrl = it.imageUrl,
                                 price = it.price,
-                                productType = it.productType
+                                productType = it.productType,
+                                brand = it.brand
                             )
                         }
                         _states.value = ProductsContract.States.Success(products)

@@ -39,6 +39,7 @@ fun GetProductsByBrandQuery.Data.toModel(): List<ProductsModel>{
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString(),
+            brand = it.node.vendor
         )
     } ?: listOf()
 }
@@ -298,6 +299,7 @@ fun GetHomeProductsQuery.Data.toModel(): List<ProductsModel>{
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString(),
+            brand = it.node.vendor
         )
     }
 }
