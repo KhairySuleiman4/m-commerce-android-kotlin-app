@@ -121,8 +121,7 @@ class ProductsViewModel @Inject constructor(
                     }
                     is ApiResult.Success -> {
                         if(_states.value is ProductsContract.States.Success) {
-                            val data =
-                                (_states.value as ProductsContract.States.Success).productsList
+                            val data = (_states.value as ProductsContract.States.Success).productsList
                             val newData = data.map { product ->
                                 if (result.data.any { it.id == product.id }) {
                                     product.copy(isFavorite = true)

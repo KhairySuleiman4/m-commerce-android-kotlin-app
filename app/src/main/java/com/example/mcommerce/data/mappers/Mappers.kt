@@ -50,7 +50,8 @@ fun ProductsModel.toEntity(): ProductsEntity{
         imageUrl = this.imageUrl,
         productType = this.productType,
         price = this.price,
-        brand = this.brand
+        brand = this.brand,
+        isFavorite = false
     )
 }
 

@@ -176,6 +176,9 @@ fun HomeItems(
                         onProductClick = { productId ->
                             viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
                         },
+                        onFavoriteClick = { product ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
+                        },
                         currency = currency,
                         rate = rate
                     )
@@ -278,7 +281,7 @@ fun BestSellersList(
                                 title = product.title,
                                 imageUrl = product.imageUrl,
                                 price = product.price,
-                                isFavorite = false,
+                                isFavorite = product.isFavorite,
                                 productType = product.productType,
                                 brand = product.brand
                             ),
@@ -302,6 +305,7 @@ fun LatestArrivalsList(
     products: List<ProductsEntity>,
     isLoading: Boolean,
     onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     currency: String,
     rate: Double
 ) {
@@ -332,12 +336,12 @@ fun LatestArrivalsList(
                                         title = product.title,
                                         imageUrl = product.imageUrl,
                                         price = product.price,
-                                        isFavorite = false,
+                                        isFavorite = product.isFavorite,
                                         productType = product.productType,
                                         brand = product.brand
                                     ),
                                     onFavoriteClick = {
-                                        //handle onFavorite click
+                                        onFavoriteClick(it)
                                     },
                                     onProductClick = { productId -> onProductClick(productId) },
                                     currency = currency,

@@ -5,11 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetBrandsUseCase
 import com.example.mcommerce.domain.usecases.GetBestSellersUseCase
+import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetLatestArrivalsUseCase
+import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
+import com.example.mcommerce.presentation.products.ProductsContract
+import com.example.mcommerce.presentation.utils.toSearchEntity
 import com.example.mcommerce.type.ProductSortKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,7 +23,10 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val brandsUseCase: GetBrandsUseCase,
     private val homeProductsUseCase: GetBestSellersUseCase,
-    private val latestArrivalsUseCase: GetLatestArrivalsUseCase
+    private val latestArrivalsUseCase: GetLatestArrivalsUseCase,
+    private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
+    private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
 ): ViewModel(), HomeContract.HomeViewModel {
 
     private val _states = mutableStateOf(HomeContract.HomeState())
@@ -40,7 +49,7 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeContract.Action.ClickOnFavorite -> {
-
+                handleFavorite(action.product)
             }
         }
     }
@@ -116,6 +125,7 @@ class HomeViewModel @Inject constructor(
                             latestArrivals = result.data,
                             latestArrivalsLoading = false
                         )
+                        getFavorites()
                     }
                     is ApiResult.Failure -> {
                         _states.value = _states.value.copy(
@@ -127,6 +137,80 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun getFavorites(){
+        viewModelScope.launch(Dispatchers.IO) {
+            getFavoriteProductsUseCase().collect{ result ->
+                when(result){
+                    is ApiResult.Failure -> {
+                        _states.value = _states.value.copy(
+                            errorMessage = result.error.message
+                        )
+                        _events.value = HomeContract.Events.ShowError(result.error.message ?: "An error occurred")
+                    }
+                    is ApiResult.Loading -> {
+
+                    }
+                    is ApiResult.Success -> {
+                        val newLatestArrivals = _states.value.latestArrivals.map { product ->
+                            if(result.data.any { it.id == product.id }){
+                                product.copy(isFavorite = true)
+                            } else{
+                                product
+                            }
+                        }
+                        val newBestSellers = _states.value.bestSellersList.map { product ->
+                            if(result.data.any { it.id == product.id }){
+                                product.copy(isFavorite = true)
+                            } else{
+                                product
+                            }
+                        }
+                        _states.value = _states.value.copy(
+                            bestSellersList = newBestSellers,
+                            latestArrivals = newLatestArrivals
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleFavorite(product: ProductsContract.ProductUIModel){
+        viewModelScope.launch(Dispatchers.IO) {
+            if(product.isFavorite){
+                insertProductToFavoritesUseCase(product.toSearchEntity())
+                updateFavoriteState(product)
+            } else{
+                deleteFavoriteProductUseCase(product.id)
+                updateFavoriteState(product)
+            }
+        }
+    }
+
+    private fun updateFavoriteState(product: ProductsContract.ProductUIModel){
+        val currentState = _states.value
+        val updatedBestSellers = currentState.bestSellersList.map {
+            if (it.id == product.id) {
+                it.copy(isFavorite = !it.isFavorite)
+            }
+            else {
+                it
+            }
+        }
+        val updatedLatestArrivals = currentState.latestArrivals.map {
+            if (it.id == product.id) {
+                it.copy(isFavorite = !it.isFavorite)
+            }
+            else {
+                it
+            }
+        }
+        _states.value = _states.value.copy(
+            bestSellersList = updatedBestSellers,
+            latestArrivals = updatedLatestArrivals
+        )
     }
 
     fun resetEvent() {
