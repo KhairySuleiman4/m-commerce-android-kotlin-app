@@ -148,7 +148,7 @@ class ProductInfoViewModel @Inject constructor(
                               it
                           })
                             _states.value = ProductInfoContract.States.Success(newProduct)
-                            _events.value = ProductInfoContract.Events.ShowSnackbar("Success")
+                            _events.value = ProductInfoContract.Events.ShowSnackbar("Added to cart")
                         }
                     }
                 }
@@ -160,16 +160,16 @@ class ProductInfoViewModel @Inject constructor(
         when(action){
             is ProductInfoContract.Action.ClickOnAddToCart -> {
                addItemToCart(action.variant.id)
-                _events.value = ProductInfoContract.Events.ShowSnackbar("Added to cart")
             }
             is ProductInfoContract.Action.ClickOnAddToWishList -> {
-                _events.value = ProductInfoContract.Events.ShowSnackbar("Added to favorites")
                 viewModelScope.launch(Dispatchers.IO) {
                     if(action.product.isFavorite){
                         insertToFavoritesUseCase(action.product.toSearchEntity())
+                        _events.value = ProductInfoContract.Events.ShowSnackbar("Added to favorites")
                         _states.value = ProductInfoContract.States.Success(action.product)
                     } else {
                         deleteFavoriteProductUseCase(action.product.id)
+                        _events.value = ProductInfoContract.Events.ShowSnackbar("Removed from favorites")
                         _states.value = ProductInfoContract.States.Success(action.product)
                     }
                 }
