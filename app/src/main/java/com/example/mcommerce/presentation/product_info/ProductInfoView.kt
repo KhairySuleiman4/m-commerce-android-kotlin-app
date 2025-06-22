@@ -1,10 +1,11 @@
 package com.example.mcommerce.presentation.product_info
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,12 +23,11 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -77,17 +77,13 @@ fun ProductInfoScreen(
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is ProductInfoContract.Events.Idle -> {}
             is ProductInfoContract.Events.ShowSnackbar -> {
-                val result = snackbarHostState.showSnackbar(
+                snackbarHostState.showSnackbar(
                     message = event.message,
-                    actionLabel = "Undo"
+                    duration = SnackbarDuration.Short
                 )
-                if (result == SnackbarResult.ActionPerformed) {
-                    // undo adding or removing from wishlist or cart
-                    Log.d("snackbar", "undo clicked")
-                }
                 viewModel.resetEvent()
             }
 
@@ -123,16 +119,18 @@ fun ProductInfoScreenComposable(
     modifier: Modifier = Modifier
 ) {
 
-    when(state){
+    when (state) {
         is ProductInfoContract.States.Failure -> {
             // Show alert and back to the products screen
         }
+
         is ProductInfoContract.States.Idle -> {}
         is ProductInfoContract.States.Loading -> {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
+
         is ProductInfoContract.States.Success -> {
             ShowProductInfo(
                 state = state,
@@ -158,34 +156,24 @@ fun ShowProductInfo(
 ) {
     val product = state.product
     val tabs = listOf(
-        stringResource(R.string.overview),
-        stringResource(R.string.description),
+        stringResource(R.string.details),
         stringResource(R.string.add_to_cart)
     )
 
-    val selectedTab = remember {
-        mutableIntStateOf(0)
+    val selectedTab = remember { mutableIntStateOf(0) }
+
+    val imagesPagerState = rememberPagerState(pageCount = { product.images.size })
+
+    val isFavorite = remember { mutableStateOf(product.isFavorite) }
+
+    LaunchedEffect(product.isFavorite) {
+        isFavorite.value = product.isFavorite
     }
 
-    val imagesPagerState = rememberPagerState(pageCount = {
-        product.images.size
-    })
-
-    Scaffold(
-        bottomBar = {
-            BottomBar(
-                state = state,
-                price = String.format(Locale.US,"%.2f", (product.price * rate)),
-                priceUnit = currency,
-                onFavoriteClicked = onFavoriteClicked,
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = modifier.padding(padding)
-        ) {
+    Box {
+        Column {
             ConstraintLayout {
-                val (imagesCounter, imagesRef) = createRefs()
+                val (imagesCounter, imagesRef, favoriteBtn) = createRefs()
                 HorizontalPager(
                     state = imagesPagerState,
                     modifier = modifier
@@ -213,6 +201,24 @@ fun ShowProductInfo(
                             end.linkTo(parent.end)
                         }
                 )
+                IconButton(
+                    onClick = {
+                        isFavorite.value = !isFavorite.value
+                        val newProduct = product.copy(isFavorite = !product.isFavorite)
+                        onFavoriteClicked(newProduct)
+                    },
+                    modifier = modifier
+                        .constrainAs(favoriteBtn) {
+                            top.linkTo(parent.top, margin = 16.dp)
+                            end.linkTo(parent.end, margin = 16.dp)
+                        }
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                        tint = if (isFavorite.value) Color.Red else Color.DarkGray,
+                        contentDescription = stringResource(R.string.favorite_icon)
+                    )
+                }
             }
 
             TabRow(
@@ -241,9 +247,12 @@ fun ShowProductInfo(
                     productTitle = product.title,
                     productType = product.productType,
                     productVendor = product.vendor,
+                    priceUnit = currency,
+                    productPrice = String.format(Locale.US, "%.2f", (product.price * rate)),
+                    productDescription = product.description
                 )
-                1 -> DescriptionSection(product.description)
-                2 -> AddToCartSection(
+
+                1 -> AddToCartSection(
                     variants = product.variants,
                     onAddToCartClicked = onAddToCartClicked,
                     priceUnit = currency,
@@ -251,6 +260,10 @@ fun ShowProductInfo(
                 )
             }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
@@ -271,75 +284,88 @@ fun ProductDetailsSection(
     productTitle: String,
     productType: String,
     productVendor: String,
+    productPrice: String,
+    priceUnit: String,
+    productDescription: String,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
         item {
-            Box(
-                modifier = Modifier
+            Row(
+                modifier = modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                contentAlignment = Alignment.Center
+                    .padding(
+                        top = 16.dp
+                    ),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = productTitle,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center
+                    fontSize = 20.sp,
+                    maxLines = 2,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(
+                            top = 8.dp
+                        )
                 )
-            }
-        }
-
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
                 Text(
-                    text = productType,
-                    fontSize = 18.sp
-                )
-            }
-        }
-
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = productVendor,
+                    modifier = modifier
+                        .padding(horizontal = 4.dp),
+                    text = "$productPrice $priceUnit",
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
                 )
             }
         }
-    }
-}
 
-@Composable
-fun DescriptionSection(
-    description: String,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        modifier = modifier.fillMaxWidth()
-    ) {
         item {
             Text(
                 modifier = modifier
                     .padding(
-                        vertical = 16.dp,
-                        horizontal = 16.dp
+                        top = 8.dp
                     ),
-                text = description,
+                text = productType,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
+
+        item {
+            Text(
+                modifier = modifier
+                    .padding(
+                        top = 8.dp
+                    ),
+                text = productVendor,
+                fontSize = 18.sp
+            )
+        }
+
+        item {
+            Text(
+                modifier = modifier
+                    .padding(
+                        top = 8.dp
+                    ),
+                text = "Description",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Text(
+                modifier = modifier
+                    .padding(
+                        top = 4.dp
+                    ),
+                text = productDescription,
                 fontSize = 18.sp,
-                textAlign = TextAlign.Justify,
+                textAlign = TextAlign.Justify
             )
         }
     }
@@ -356,72 +382,12 @@ fun AddToCartSection(
     LazyColumn(
         modifier = modifier.fillMaxWidth()
     ) {
-        items(variants.size){
+        items(variants.size) {
             VariantRow(
                 variants[it],
                 onAddToCartClicked = onAddToCartClicked,
                 priceUnit = priceUnit,
                 rate = rate
-            )
-        }
-    }
-}
-
-@Composable
-fun BottomBar(
-    price: String,
-    priceUnit: String,
-    state: ProductInfoContract.States.Success,
-    onFavoriteClicked: (ProductInfoEntity) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val product = state.product
-    val isFavorite = remember { mutableStateOf(product.isFavorite) }
-
-    LaunchedEffect(product.isFavorite) {
-        isFavorite.value = product.isFavorite
-    }
-
-    ConstraintLayout (
-        modifier = modifier.fillMaxWidth()
-    ){
-        val (divider, priceRef, favoriteBtn) = createRefs()
-        HorizontalDivider(
-            modifier = modifier.constrainAs(divider){
-                top.linkTo(parent.top)
-            },
-            thickness = 1.dp,
-            color = Color.Gray
-        )
-
-        Text(
-            text = "$price $priceUnit",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = modifier.constrainAs(priceRef) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start, margin = 24.dp)
-            }
-        )
-
-        IconButton(
-            onClick = {
-                isFavorite.value = !isFavorite.value
-                val newProduct = product.copy(isFavorite = !product.isFavorite)
-                onFavoriteClicked(newProduct)
-            },
-            modifier = modifier
-                .constrainAs(favoriteBtn) {
-                    top.linkTo(priceRef.top)
-                    bottom.linkTo(priceRef.bottom)
-                    end.linkTo(parent.end, margin = 16.dp)
-                }
-        ) {
-            Icon(
-                imageVector = if (isFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
-                tint = if (isFavorite.value) Color.Red else Color.DarkGray,
-                contentDescription = stringResource(R.string.favorite_icon)
             )
         }
     }
@@ -442,7 +408,7 @@ fun VariantRow(
     ) {
         val (title, price, image, button) = createRefs()
         Text(
-            modifier = modifier.constrainAs(title){
+            modifier = modifier.constrainAs(title) {
                 start.linkTo(parent.start, margin = 24.dp)
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom, margin = 32.dp)
@@ -452,12 +418,18 @@ fun VariantRow(
             fontWeight = FontWeight.Bold
         )
         Text(
-            modifier = modifier.constrainAs(price){
+            modifier = modifier.constrainAs(price) {
                 start.linkTo(title.start)
                 top.linkTo(parent.top, margin = 32.dp)
                 bottom.linkTo(parent.bottom)
             },
-            text = "${String.format(Locale.US,"%.2f", (variant.price.toDouble() * rate))} $priceUnit",
+            text = "${
+                String.format(
+                    Locale.US,
+                    "%.2f",
+                    (variant.price.toDouble() * rate)
+                )
+            } $priceUnit",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
@@ -472,14 +444,14 @@ fun VariantRow(
             contentDescription = variant.title
         )
         Button(
-            modifier = modifier.constrainAs(button){
+            modifier = modifier.constrainAs(button) {
                 top.linkTo(image.bottom, margin = 8.dp)
-                bottom.linkTo(parent.bottom/*, margin = 8.dp*/)
+                bottom.linkTo(parent.bottom)
                 start.linkTo(image.start)
                 end.linkTo(image.end)
             },
             onClick = {
-                if(!variant.isSelected)
+                if (!variant.isSelected)
                     onAddToCartClicked(variant)
             },
             colors = ButtonColors(
@@ -492,11 +464,11 @@ fun VariantRow(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                if(variant.isSelected) "Added to Cart" else "Add to Cart",
+                if (variant.isSelected) "Added to Cart" else "Add to Cart",
                 color = Primary
             )
             Icon(
-                if(variant.isSelected) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
+                if (variant.isSelected) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
                 modifier = modifier.padding(start = 4.dp),
                 contentDescription = "Cart Icon"
             )

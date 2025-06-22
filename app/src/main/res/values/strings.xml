@@ -26,4 +26,5 @@
     <string name="favorite_icon">Favorite Icon</string>
     <string name="do_have_an_accout">Do you have an account?</string>
     <string name="add_to_cart">Add to cart</string>
+    <string name="details">Details</string>
 </resources>
