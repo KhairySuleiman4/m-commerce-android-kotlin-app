@@ -30,9 +30,6 @@ class FavoritesViewModel @Inject constructor(
 
     override fun invokeActions(action: FavoritesContract.Action) {
         when(action){
-            is FavoritesContract.Action.ClickOnAddToCart -> {
-
-            }
             is FavoritesContract.Action.ClickOnDeleteFromFavorite -> {
                 deleteProduct(action.productId)
             }

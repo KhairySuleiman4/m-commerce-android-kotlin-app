@@ -13,16 +13,16 @@ query GetOrders($customerAccessToken: String!) {
                         name,
                         phone
                     }
-                    totalPrice {
-                        amount
-                    }
-                    subtotalPrice{
-                        amount
-                    }
                     shippingDiscountAllocations{
                         allocatedAmount{
                             amount
                         }
+                    }
+                    subtotalPrice{
+                        amount
+                    }
+                    totalPrice {
+                        amount
                     }
                     lineItems(first: 5) {
                         edges {

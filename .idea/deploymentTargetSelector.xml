@@ -8,6 +8,7 @@
       <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-06-21T08:56:50.696042200Z">
+        <DropdownSelection timestamp="2025-06-19T11:36:17.185944500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\SHEREEN\.android\avd\Pixel_9_Pro_API_35.avd" />
@@ -18,7 +19,7 @@
       </SelectionState>
       <SelectionState runConfigName="OrdersListPreview">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-06-19T14:00:19.898328700Z">
+        <DropdownSelection timestamp="2025-06-17T22:29:02.770558300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\SHEREEN\.android\avd\Pixel_9_Pro_API_35.avd" />
@@ -29,6 +30,7 @@
       </SelectionState>
       <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2025-06-19T11:36:17.185944500Z">
         <DropdownSelection timestamp="2025-06-21T08:56:50.696042200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -37,6 +39,9 @@
           </Target>
         </DropdownSelection>
         <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="CartItemPrev">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>
