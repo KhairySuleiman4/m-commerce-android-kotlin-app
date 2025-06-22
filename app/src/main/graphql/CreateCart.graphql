@@ -11,9 +11,7 @@ mutation CreateCart($lines : [CartLineInput!],$customerToken : String!,$email :S
         cart {
             id
             checkoutUrl
-            createdAt
-            updatedAt
-            lines(first: 10) {
+            lines(first: 20) {
                 edges {
                     node {
                         id
@@ -24,15 +22,13 @@ mutation CreateCart($lines : [CartLineInput!],$customerToken : String!,$email :S
                                 title
                                 price {
                                     amount
-                                    currencyCode
                                 }
                                 product {
                                     title
-                                    handle
                                     featuredImage {
                                         url
-                                        altText
                                     }
+                                    vendor
                                 }
                             }
                         }
@@ -47,11 +43,9 @@ mutation CreateCart($lines : [CartLineInput!],$customerToken : String!,$email :S
             cost {
                 subtotalAmount {
                     amount
-                    currencyCode
                 }
                 totalAmount {
                     amount
-                    currencyCode
                 }
             }
         }

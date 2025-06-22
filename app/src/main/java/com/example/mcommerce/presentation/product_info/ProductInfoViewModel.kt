@@ -4,19 +4,33 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mcommerce.data.mappers.toSearchEntity
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
+import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
+import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import com.example.mcommerce.domain.usecases.GetProductByIdUseCase
+import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductInfoViewModel @Inject constructor(
-    private val useCase: GetProductByIdUseCase,
     private val addItemToCartUseCase: AddItemToCartUseCase,
     private val getCartUseCase: GetCartUseCase,
+    private val getProductUseCase: GetProductByIdUseCase,
+    private val insertToFavoritesUseCase: InsertProductToFavoritesUseCase,
+    private val getFavoritesUseCase: GetFavoriteProductsUseCase,
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
+    private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
 ) : ViewModel(), ProductInfoContract.ProductInfoViewModel {
 
     private val _states = mutableStateOf<ProductInfoContract.States>(ProductInfoContract.States.Loading)
@@ -29,7 +43,7 @@ class ProductInfoViewModel @Inject constructor(
 
     fun getProductById(id: String){
         viewModelScope.launch {
-            useCase(id).collect{ result ->
+            getProductUseCase(id).collect{ result ->
                 when(result){
                     is ApiResult.Failure -> {
                         _states.value = ProductInfoContract.States.Failure(result.error.message.toString())
@@ -43,6 +57,7 @@ class ProductInfoViewModel @Inject constructor(
                         } else{
                             _states.value = ProductInfoContract.States.Success(result.data)
                             getCart()
+                            getFavorites()
                         }
                     }
                 }
@@ -81,8 +96,40 @@ class ProductInfoViewModel @Inject constructor(
         }
     }
 
-    private fun addItemToCart(id: String){
+    private fun getFavorites(){
+        viewModelScope.launch(Dispatchers.IO){
+            getFavoritesUseCase().collect{ result ->
+                when(result){
+                    is ApiResult.Failure -> {
+
+                    }
+                    is ApiResult.Loading -> {
+
+                    }
+                    is ApiResult.Success -> {
+                        val favoriteIds = result.data.map { it.id }.toSet()
+                        if (_states.value is ProductInfoContract.States.Success) {
+                            val product = (_states.value as ProductInfoContract.States.Success).product
+                            val isFavorite = favoriteIds.contains(product.id)
+                            val newProduct = product.copy(isFavorite = isFavorite)
+                            _states.value = ProductInfoContract.States.Success(newProduct)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun getCurrency(){
         viewModelScope.launch {
+            val currency = getCurrencyUseCase()
+            val rate = getCurrentExchangeRateUseCase()
+            _events.value = ProductInfoContract.Events.ShowCurrency(currency, rate)
+        }
+    }
+
+    private fun addItemToCart(id: String){
+        viewModelScope.launch(Dispatchers.IO) {
             addItemToCartUseCase(id,1).collect{
                 when(it){
                     is ApiResult.Failure -> {
@@ -101,7 +148,7 @@ class ProductInfoViewModel @Inject constructor(
                               it
                           })
                             _states.value = ProductInfoContract.States.Success(newProduct)
-                            _events.value = ProductInfoContract.Events.ShowSnackbar("Success")
+                            _events.value = ProductInfoContract.Events.ShowSnackbar("Added to cart")
                         }
                     }
                 }
@@ -115,7 +162,17 @@ class ProductInfoViewModel @Inject constructor(
                addItemToCart(action.variant.id)
             }
             is ProductInfoContract.Action.ClickOnAddToWishList -> {
-                _events.value = ProductInfoContract.Events.ShowSnackbar("Success")
+                viewModelScope.launch(Dispatchers.IO) {
+                    if(action.product.isFavorite){
+                        insertToFavoritesUseCase(action.product.toSearchEntity())
+                        _events.value = ProductInfoContract.Events.ShowSnackbar("Added to favorites")
+                        _states.value = ProductInfoContract.States.Success(action.product)
+                    } else {
+                        deleteFavoriteProductUseCase(action.product.id)
+                        _events.value = ProductInfoContract.Events.ShowSnackbar("Removed from favorites")
+                        _states.value = ProductInfoContract.States.Success(action.product)
+                    }
+                }
             }
         }
     }

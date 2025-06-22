@@ -1,6 +1,7 @@
 package com.example.mcommerce.data.remote.auth.firebase
 
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -11,8 +12,10 @@ interface Firebase {
     fun isMeLoggedIn(): Boolean
     fun logout()
     fun isUserVerified(): Boolean
-    fun getCustomerAccessToken(): String
+    suspend fun getCustomerAccessToken(): String
     fun getEmail(): String
     fun isGuestMode(): Boolean
-
+    suspend fun insertProductToFavorites(product: ProductSearchEntity)
+    suspend fun getFavoriteProducts(): Flow<ApiResult<List<ProductSearchEntity>>>
+    suspend fun deleteProduct(id: String)
 }

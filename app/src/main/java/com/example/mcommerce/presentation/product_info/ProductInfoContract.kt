@@ -26,5 +26,7 @@ interface ProductInfoContract {
     sealed interface Events{
         data object Idle: Events
         data class ShowSnackbar(val message: String): Events
+        data class ShowCurrency(val currency: String, val rate: Double): Events
+
     }
 }

@@ -36,6 +36,7 @@ import androidx.navigation.toRoute
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.auth.login.LoginScreen
 import com.example.mcommerce.presentation.auth.signup.SignupScreen
+import com.example.mcommerce.presentation.cart.view.CartScreen
 import com.example.mcommerce.presentation.categories.CategoriesScreen
 import com.example.mcommerce.presentation.favorites.FavoritesScreen
 import com.example.mcommerce.presentation.home.HomeScreen
@@ -75,7 +76,7 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(Screens.SearchScreen)
                             },
                             onCartClick = {
-                                //navController.navigate(Screens.CartScreen)
+                                navController.navigate(Screens.Cart)
                             }
                         )
                     }
@@ -146,7 +147,9 @@ fun NavHostContainer(
             }
             composable<Screens.Favorite> {
                 changeRoute(2)
-                FavoritesScreen()
+                FavoritesScreen{
+                    navController.navigate(it)
+                }
             }
             composable<Screens.Profile> {
                 changeRoute(3)
@@ -165,8 +168,7 @@ fun NavHostContainer(
             composable<Screens.Products>{ backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
                 ProductsScreen(
-                    collectionId = value.brandId,
-                    brandName = value.brandName
+                    collectionId = value.brandId
                 ){
                     navController.navigate(it)
                 }
@@ -179,6 +181,9 @@ fun NavHostContainer(
             composable<Screens.ProductDetails> { backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.ProductDetails>()
                 ProductInfoScreen(productId = value.productId)
+            }
+            composable<Screens.Cart> {
+                CartScreen()
             }
             composable<Screens.OrdersScreen> {
                 OrdersScreen(){

@@ -16,9 +16,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,7 +51,10 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CouponEntity
+import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.products.ProductCard
+import com.example.mcommerce.presentation.products.ProductsContract
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 
@@ -56,79 +63,130 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     navigateTo: (Screens) -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.getBrands()
-    }
-
     val event = viewModel.events.value
+
     LaunchedEffect(event) {
-        when(event){
-            HomeContract.Events.Idle -> {}
+        when (event) {
+            is HomeContract.Events.Idle -> {}
+
             is HomeContract.Events.NavigateToBrandProducts -> {
                 navigateTo(Screens.Products(event.brandId, event.brandName))
                 viewModel.resetEvent()
             }
+
+            is HomeContract.Events.NavigateToProductDetails -> {
+                navigateTo(Screens.ProductDetails(event.productId))
+                viewModel.resetEvent()
+            }
+
+            is HomeContract.Events.ShowError -> {
+
+            }
         }
     }
 
-    val adsList = listOf(
-        CouponEntity(
-            id = "1",
-            title = "Big Sale Event",
-            description = "Up to 70% off on selected items",
-            imageRes = R.drawable.ad_placeholder
-        ),
-        CouponEntity(
-            id = "2",
-            title = "New Collection",
-            description = "Explore our newest arrivals",
-            imageRes = R.drawable.ad_placeholder
-        ),
-        CouponEntity(
-            id = "3",
-            title = "Weekend Special",
-            description = "Exclusive weekend deals just for you",
-            imageRes = R.drawable.ad_placeholder
-        )
-    )
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        AdsCarousel(couponsList = adsList)
-        Brands(
-            state = viewModel.states.value,
-            onBrandClick = { brandId, brandName ->
-                viewModel.invokeActions(HomeContract.Action.ClickOnBrand(brandId, brandName))
-            }
-        )
+    LaunchedEffect(Unit) {
+        viewModel.invokeActions(HomeContract.Action.LoadHomeData)
     }
-
-
+    
+    HomeItems(
+        viewModel = viewModel,
+        currency = "EGP",
+        rate = 1.0
+    )
 }
 
 @Composable
-fun Brands(
-    modifier: Modifier = Modifier,
-    state: HomeContract.States,
-    onBrandClick: (String, String) -> Unit
-    ){
-    when(state){
-        is HomeContract.States.Failure -> {
-            //show alert
+fun HomeItems(
+    viewModel: HomeViewModel,
+
+    currency: String,
+    rate: Double
+    ) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val adsList = listOf(
+            CouponEntity(
+                id = "1",
+                title = "Big Sale Event",
+                description = "Up to 70% off on selected items",
+                imageRes = R.drawable.ad_placeholder
+            ),
+            CouponEntity(
+                id = "2",
+                title = "New Collection",
+                description = "Explore our newest arrivals",
+                imageRes = R.drawable.ad_placeholder
+            ),
+            CouponEntity(
+                id = "3",
+                title = "Weekend Special",
+                description = "Exclusive weekend deals just for you",
+                imageRes = R.drawable.ad_placeholder
+            )
+        )
+        val state = viewModel.states.value
+        
+        item{
+            AdsCarousel(couponsList = adsList)
         }
-        HomeContract.States.Idle -> { }
-        HomeContract.States.Loading -> {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+        when{
+            state.errorMessage != null -> {
+
             }
-        }
-        is HomeContract.States.Success -> {
-            BrandList(
-                brandsList = state.brandsList,
-                onBrandClick = onBrandClick
-                )
+            state.brandsLoading -> {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+            else -> {
+                item {
+                    BrandList(
+                        brandsList = state.brandsList,
+                        onBrandClick = { id, name ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(id, name))
+                        }
+                    )
+                }
+                item {
+                    BestSellersList(
+                        title = "Best Sellers",
+                        products = state.bestSellersList,
+                        isLoading = state.bestSellersLoading,
+                        onProductClick = { productId ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
+                        },
+                        onFavoriteClick = { product ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
+                        },
+                        currency = currency,
+                        rate = rate
+                    )
+                }
+                item {
+                    LatestArrivalsList(
+                        title = "Latest Arrivals",
+                        products = state.latestArrivals,
+                        isLoading = state.latestArrivalsLoading,
+                        onProductClick = { productId ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
+                        },
+                        onFavoriteClick = { product ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
+                        },
+                        currency = currency,
+                        rate = rate
+                    )
+                }
+            }
+
         }
     }
-
 }
 
 @Composable
@@ -136,7 +194,7 @@ fun BrandList(
     modifier: Modifier = Modifier,
     brandsList: List<CollectionsEntity>,
     onBrandClick: (String, String) -> Unit
-    ) {
+) {
     Column {
         Text(
             "Top Brands",
@@ -145,20 +203,15 @@ fun BrandList(
             color = Color.Black,
             modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        LazyRow(
+            contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp, start = 4.dp, end = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = modifier.fillMaxSize()
         ) {
             items(brandsList) { brand ->
                 BrandsCard(
-                    imageUrl = brand.imageUrl,
-                    title = brand.title,
-                    modifier = modifier.clickable {
-                        onBrandClick(brand.id, brand.title)
-                    }
+                    brand = brand,
+                    onBrandClick = onBrandClick
                 )
             }
         }
@@ -168,21 +221,138 @@ fun BrandList(
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun BrandsCard(
-    imageUrl: String,
-    title: String,
-    modifier: Modifier = Modifier
+    brand: CollectionsEntity,
+    onBrandClick: (String, String) -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .size(100.dp)
+            .clickable { onBrandClick(brand.id, brand.title) }
     ) {
-        GlideImage(
-            model = imageUrl,
-            contentDescription = title,
-            modifier = modifier
-                .size(70.dp)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            GlideImage(
+                model = brand.imageUrl,
+                contentDescription = brand.title,
+                modifier = Modifier.size(70.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
+}
+
+@Composable
+fun BestSellersList(
+    title: String,
+    products: List<ProductsEntity>,
+    isLoading: Boolean,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
+    onProductClick: (String) -> Unit,
+    currency: String,
+    rate: Double
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            else -> {
+                LazyRow(
+                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(products) { product ->
+                        ProductCard(
+                            product = ProductsContract.ProductUIModel(
+                                id = product.id,
+                                title = product.title,
+                                imageUrl = product.imageUrl,
+                                price = product.price,
+                                isFavorite = product.isFavorite,
+                                productType = product.productType,
+                                brand = product.brand
+                            ),
+                            onFavoriteClick = {
+                                onFavoriteClick(it)
+                            },
+                            onProductClick = { productId -> onProductClick(productId) },
+                            currency = currency,
+                            rate = rate
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LatestArrivalsList(
+    title: String,
+    products: List<ProductsEntity>,
+    isLoading: Boolean,
+    onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
+    currency: String,
+    rate: Double
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            else -> {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(800.dp)) {
+                    CustomLazyVerticalGrid(
+                        content = {
+                            items(products) { product ->
+                                ProductCard(
+                                    product = ProductsContract.ProductUIModel(
+                                        id = product.id,
+                                        title = product.title,
+                                        imageUrl = product.imageUrl,
+                                        price = product.price,
+                                        isFavorite = product.isFavorite,
+                                        productType = product.productType,
+                                        brand = product.brand
+                                    ),
+                                    onFavoriteClick = {
+                                        onFavoriteClick(it)
+                                    },
+                                    onProductClick = { productId -> onProductClick(productId) },
+                                    currency = currency,
+                                    rate = rate
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -370,5 +540,17 @@ private fun CouponsCardPreview() {
             description = "Discover the latest trends in summer fashion with exclusive discounts",
             imageRes = R.drawable.ad_placeholder
         )
+    )
+}
+
+@Composable
+fun CustomLazyVerticalGrid(modifier: Modifier = Modifier, content: LazyGridScope.() -> Unit) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier.fillMaxSize(),
+        content = content
     )
 }

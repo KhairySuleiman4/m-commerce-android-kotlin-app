@@ -6,9 +6,7 @@ mutation RemoveItemFromCart($cartid : ID!,$varients : [ID!]!) {
         cart {
             id
             checkoutUrl
-            createdAt
-            updatedAt
-            lines(first: 10) {
+            lines(first: 20) {
                 edges {
                     node {
                         id
@@ -19,15 +17,13 @@ mutation RemoveItemFromCart($cartid : ID!,$varients : [ID!]!) {
                                 title
                                 price {
                                     amount
-                                    currencyCode
                                 }
                                 product {
                                     title
-                                    handle
                                     featuredImage {
                                         url
-                                        altText
                                     }
+                                    vendor
                                 }
                             }
                         }
@@ -42,11 +38,9 @@ mutation RemoveItemFromCart($cartid : ID!,$varients : [ID!]!) {
             cost {
                 subtotalAmount {
                     amount
-                    currencyCode
                 }
                 totalAmount {
                     amount
-                    currencyCode
                 }
             }
         }

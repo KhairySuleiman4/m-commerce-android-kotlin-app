@@ -12,9 +12,8 @@ interface ProductsContract {
 
     sealed interface Action{
         data class ClickOnProduct(val productId: String): Action
-        data class ClickOnFavorite(val productId: String): Action
+        data class ClickOnFavorite(val product: ProductUIModel): Action
         data class OnTypeSelected(val productType: String?): Action
-        data class ClickOnAddToCart(val variantId: String): Action
     }
 
     sealed interface States{
@@ -31,6 +30,7 @@ interface ProductsContract {
     sealed interface Events{
         data object Idle: Events
         data class NavigateToProductDetails(val productId: String): Events
+        data class ChangeCurrency(val currency: String, val rate: Double): Events
         data class ShowSnackbar(val message: String) : Events
     }
 
@@ -39,9 +39,8 @@ interface ProductsContract {
         val title: String,
         val imageUrl: String,
         val productType: String,
+        val brand: String,
         val price: String,
-        val variantId: String,
-        val isFavorite: Boolean = false,
-        val isInCart: Boolean = false
+        val isFavorite: Boolean = false
     )
 }
