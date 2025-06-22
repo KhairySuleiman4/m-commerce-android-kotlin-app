@@ -53,7 +53,7 @@ fun ProfileScreen(
     val tabItems = listOf(
         ProfileItem(R.drawable.profile_icon,"Personal Information", Screens.Profile),
         ProfileItem(R.drawable.favourites_icon,"Favourites", Screens.Profile),
-        ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.Profile),
+        ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.OrdersScreen),
         ProfileItem(R.drawable.credit_icon,"Payment method", Screens.Profile),
         ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
         ProfileItem(R.drawable.info_icon,"About us", Screens.Maps),

@@ -7,5 +7,6 @@ interface OrdersContract {
         val orderTime: String,
         val orderPrice: String,
         val currencyCode: String,
+       // val imageUrl: String,
     )
 }

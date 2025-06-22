@@ -43,6 +43,8 @@ import com.example.mcommerce.presentation.home.HomeScreen
 import com.example.mcommerce.presentation.map.view.MapScreen
 import com.example.mcommerce.presentation.navigation.Constants
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.order_details.OrderDetailsScreen
+import com.example.mcommerce.presentation.orders.OrdersScreen
 import com.example.mcommerce.presentation.product_info.ProductInfoScreen
 import com.example.mcommerce.presentation.products.ProductsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
@@ -182,6 +184,15 @@ fun NavHostContainer(
             }
             composable<Screens.Cart> {
                 CartScreen()
+            }
+            composable<Screens.OrdersScreen> {
+                OrdersScreen(){
+                    navController.navigate(it)
+                }
+            }
+            composable<Screens.OrderDetailsScreen> { backStackEntry ->
+                val value = backStackEntry.toRoute<Screens.OrderDetailsScreen>()
+                OrderDetailsScreen(orderId = value.orderId)
             }
         }
     )
