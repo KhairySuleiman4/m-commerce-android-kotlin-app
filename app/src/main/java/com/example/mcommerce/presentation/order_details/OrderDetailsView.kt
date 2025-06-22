@@ -26,12 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mcommerce.R
-import com.example.mcommerce.presentation.cart.models.LineItem
-import com.example.mcommerce.presentation.orders.OrdersScreen
 
 @Composable
 fun OrderDetailsScreen(modifier: Modifier = Modifier, orderId: String) {
@@ -325,23 +322,4 @@ fun CartInfo(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun OrdersScreenPrev() {
-//    OrderDetailsScreen()
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//private fun CartItemPrev() {
-//    CartItem(
-//        item = LineItem(
-//            name = "VANS | SK8-HI DECON (CUTOUT)| LEAVES/WHITE",
-//            brand = "Vans",
-//            size = "4 / white",
-//            quantity = 1,
-//            price = 179.95
-//        ),
-//        currency = "EGP"
-//    )
-//}
+data class LineItem(val name: String, val brand: String, val size: String, val quantity: Int, val price: Double)

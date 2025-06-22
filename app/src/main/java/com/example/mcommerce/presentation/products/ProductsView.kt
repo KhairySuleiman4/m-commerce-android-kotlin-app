@@ -186,7 +186,6 @@ fun ProductsList(
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
-
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
