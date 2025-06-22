@@ -67,7 +67,7 @@ fun ProfileScreen(
     val loggedTabItems = listOf(
         ProfileItem(R.drawable.profile_icon,"Personal Information", Screens.PersonalInfo),
         ProfileItem(R.drawable.adress_icon,"My Addresses", Screens.Addresses),
-        ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.Profile),
+        ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.OrdersScreen),
         ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
         ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
         ProfileItem(R.drawable.logout_icon,"Logout", Screens.Login),

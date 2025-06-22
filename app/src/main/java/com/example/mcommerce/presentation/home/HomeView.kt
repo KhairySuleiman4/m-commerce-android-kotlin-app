@@ -161,8 +161,8 @@ fun HomeItems(
                         onProductClick = { productId ->
                             viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
                         },
-                        onFavoriteClick = { productId ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(productId))
+                        onFavoriteClick = { product ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
                         },
                         currency = currency,
                         rate = rate
@@ -175,6 +175,9 @@ fun HomeItems(
                         isLoading = state.latestArrivalsLoading,
                         onProductClick = { productId ->
                             viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
+                        },
+                        onFavoriteClick = { product ->
+                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
                         },
                         currency = currency,
                         rate = rate
@@ -248,7 +251,7 @@ fun BestSellersList(
     title: String,
     products: List<ProductsEntity>,
     isLoading: Boolean,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onProductClick: (String) -> Unit,
     currency: String,
     rate: Double
@@ -278,10 +281,13 @@ fun BestSellersList(
                                 title = product.title,
                                 imageUrl = product.imageUrl,
                                 price = product.price,
-                                isFavorite = false,
+                                isFavorite = product.isFavorite,
                                 productType = product.productType,
+                                brand = product.brand
                             ),
-                            onFavoriteClick = { productId -> onFavoriteClick(productId) },
+                            onFavoriteClick = {
+                                onFavoriteClick(it)
+                            },
                             onProductClick = { productId -> onProductClick(productId) },
                             currency = currency,
                             rate = rate
@@ -299,6 +305,7 @@ fun LatestArrivalsList(
     products: List<ProductsEntity>,
     isLoading: Boolean,
     onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     currency: String,
     rate: Double
 ) {
@@ -329,12 +336,12 @@ fun LatestArrivalsList(
                                         title = product.title,
                                         imageUrl = product.imageUrl,
                                         price = product.price,
-                                        isFavorite = false,
+                                        isFavorite = product.isFavorite,
                                         productType = product.productType,
-                                        //    variantId = product.variantId
+                                        brand = product.brand
                                     ),
                                     onFavoriteClick = {
-                                        //handle onFavorite click
+                                        onFavoriteClick(it)
                                     },
                                     onProductClick = { productId -> onProductClick(productId) },
                                     currency = currency,

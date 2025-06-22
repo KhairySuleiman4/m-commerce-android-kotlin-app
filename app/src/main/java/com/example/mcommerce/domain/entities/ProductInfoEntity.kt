@@ -9,5 +9,6 @@ data class ProductInfoEntity (
     val productType: String,
     val vendor: String,
     val description: String,
-    val variants: List<ProductVariantEntity>
+    val variants: List<ProductVariantEntity>,
+    val isFavorite: Boolean
 )

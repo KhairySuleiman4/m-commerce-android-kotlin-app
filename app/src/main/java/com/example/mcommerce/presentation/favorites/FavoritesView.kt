@@ -1,6 +1,5 @@
 package com.example.mcommerce.presentation.favorites
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,12 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -50,7 +46,6 @@ import java.util.Locale
 @Composable
 fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier,
     navigationTo: (Screens)-> Unit
 ) {
     val currency = remember { mutableStateOf("EGP") }
@@ -88,9 +83,6 @@ fun FavoritesScreen(
         },
         onDeleteFromFavoriteClick = { id ->
             viewModel.invokeActions(FavoritesContract.Action.ClickOnDeleteFromFavorite(id))
-        },
-        onAddToCartClick = { id ->
-            viewModel.invokeActions(FavoritesContract.Action.ClickOnAddToCart(id))
         }
     )
 }
@@ -102,7 +94,6 @@ fun Products(
     rate: Double,
     onProductClick: (String) -> Unit,
     onDeleteFromFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when(state){
@@ -119,8 +110,7 @@ fun Products(
                 currency = currency,
                 rate = rate,
                 onProductClick = onProductClick,
-                onDeleteFromFavoriteClick = onDeleteFromFavoriteClick,
-                onAddToCartClick = onAddToCartClick
+                onDeleteFromFavoriteClick = onDeleteFromFavoriteClick
             )
         }
     }
@@ -133,7 +123,6 @@ fun ProductsList(
     rate: Double,
     onProductClick: (String) -> Unit,
     onDeleteFromFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box {
@@ -150,8 +139,7 @@ fun ProductsList(
                     currency = currency,
                     rate = rate,
                     onProductClick = onProductClick,
-                    onDeleteFromFavoriteClick = onDeleteFromFavoriteClick,
-                    onAddToCartClick = onAddToCartClick
+                    onDeleteFromFavoriteClick = onDeleteFromFavoriteClick
                 )
             }
         }
@@ -166,12 +154,8 @@ fun ProductCard(
     rate: Double,
     onProductClick: (String) -> Unit,
     onDeleteFromFavoriteClick: (String) -> Unit,
-    onAddToCartClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isAddedToCart = remember {
-        mutableStateOf(false)
-    }
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -232,21 +216,6 @@ fun ProductCard(
                     fontSize = 18.sp
                 )
                 Spacer(modifier.weight(1f))
-                IconButton(
-                    onClick = {
-                        isAddedToCart.value = !isAddedToCart.value
-                        onAddToCartClick(product.id)
-                    },
-                    modifier = modifier
-                        .background(Color(0xFF795548), shape = CircleShape)
-                        .size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = if (isAddedToCart.value) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart,
-                        contentDescription = "cart",
-                        tint = Color.White
-                    )
-                }
             }
             Spacer(modifier.height(8.dp))
         }

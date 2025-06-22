@@ -32,4 +32,8 @@ sealed class Screens {
     data class ProductDetails(val productId: String): Screens()
     @Serializable
     data object SearchScreen: Screens()
+    @Serializable
+    data object OrdersScreen: Screens()
+    @Serializable
+    data class OrderDetailsScreen(val orderId: String): Screens()
 }

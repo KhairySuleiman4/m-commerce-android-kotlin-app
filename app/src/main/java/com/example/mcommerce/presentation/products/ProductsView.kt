@@ -19,7 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,14 +33,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
+import com.example.mcommerce.R
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
@@ -101,13 +103,13 @@ fun ProductsScreen(
        onProductClick = { productId ->
            viewModel.invokeActions(ProductsContract.Action.ClickOnProduct(productId))
        },
-       onFavoriteClick = { productId ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(productId))
+       onFavoriteClick = { product ->
+           viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(product))
        },
        onFilterTypeSelected = { productType ->
            viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
        },
-       snackbarHostState = snackbarHostState
+       snackbarHostState = snackbarHostState,
    )
 
 }
@@ -119,7 +121,7 @@ fun Products(
     currency: String,
     rate: Double,
     onProductClick: (String) -> Unit,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
     snackbarHostState: SnackbarHostState
     ) {
@@ -147,7 +149,7 @@ fun Products(
                         productsList = state.filteredProductsList,
                         currency = currency,
                         rate = rate,
-                        onProductClick =onProductClick,
+                        onProductClick = onProductClick,
                         onFavoriteClick = onFavoriteClick,
                         snackbarHostState = snackbarHostState
                     )
@@ -162,7 +164,7 @@ fun ProductsList(
     currency: String,
     rate: Double,
     onProductClick: (String) -> Unit,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     Box{
@@ -184,7 +186,6 @@ fun ProductsList(
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
-
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -194,9 +195,16 @@ fun ProductCard(
     product: ProductsContract.ProductUIModel,
     currency: String,
     rate: Double,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onProductClick: (String) -> Unit
 ) {
+
+    val isFavorite = remember { mutableStateOf(product.isFavorite) }
+
+    LaunchedEffect(product.isFavorite) {
+        isFavorite.value = product.isFavorite
+    }
+
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
@@ -218,14 +226,18 @@ fun ProductCard(
                     contentScale = ContentScale.Crop
                 )
                 IconButton(
-                    onClick = { onFavoriteClick(product.id) },
+                    onClick = {
+                        isFavorite.value = !isFavorite.value
+                        val newProduct = product.copy(isFavorite = !product.isFavorite)
+                        onFavoriteClick(newProduct)
+                    },
                     modifier = modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
-                        imageVector = if (product.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
                         modifier = modifier.size(30.dp),
-                        tint = Color(0xFFD32F2F)
+                        imageVector = if (isFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                        tint = if (isFavorite.value) Color.Red else Color.DarkGray,
+                        contentDescription = stringResource(R.string.favorite_icon)
                     )
                 }
             }
