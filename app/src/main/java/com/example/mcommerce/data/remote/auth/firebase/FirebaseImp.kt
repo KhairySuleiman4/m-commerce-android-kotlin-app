@@ -51,6 +51,16 @@ class FirebaseImp(
             true
         }
 
+    override fun updateName(name: String): Flow<ApiResult<String>> = executeAPI {
+        auth.currentUser?.updateProfile(
+            UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .build()
+        )?.await()
+        auth.currentUser?.reload()?.await()
+        auth.currentUser?.displayName ?: ""
+    }
+
     override fun isMeLoggedIn(): Boolean = auth.currentUser != null
 
     override fun logout() =
@@ -64,6 +74,8 @@ class FirebaseImp(
         return auth.currentUser?.photoUrl.toString()
     }
     override fun getEmail(): String = auth.currentUser?.email ?: ""
+
+    override fun getName(): String = auth.currentUser?.displayName ?: ""
 
     override fun isGuestMode(): Boolean = auth.currentUser == null
 

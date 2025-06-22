@@ -1,7 +1,7 @@
 package com.example.mcommerce.presentation.map.view
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,12 +10,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -26,6 +39,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +49,7 @@ import com.example.mcommerce.domain.entities.AddressEntity
 import com.example.mcommerce.presentation.map.MapContract
 import com.example.mcommerce.presentation.map.viewmodel.MapViewModel
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.Primary
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -47,6 +63,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
@@ -56,6 +73,12 @@ fun MapScreen(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0), 10f)
     }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false,
+    )
+
     LaunchedEffect(Unit) {
         viewModel.getSelectedLocation(30.1,32.3)
     }
@@ -65,30 +88,71 @@ fun MapScreen(
         when(event){
             is MapContract.Events.ChangedAddress -> {
                 address.value = event.address
-                cameraPositionState.position =  CameraPosition.fromLatLngZoom(LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0), 10f)
+                cameraPositionState.position =  CameraPosition.fromLatLngZoom(LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0), cameraPositionState.position.zoom)
             }
             MapContract.Events.Idle -> {
 
             }
             is MapContract.Events.ShowError -> {
+                snackbarHostState.showSnackbar(message = event.errorMessage)
+            }
+
+            MapContract.Events.SavedAddress -> {
 
             }
         }
     }
-    MapPage(
-        modifier = modifier,
-        state = viewModel.states.value,
-        address = LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0),
-        cameraPositionState = cameraPositionState,
-        searchAction = {
-          viewModel.invokeActions(  MapContract.Action.SearchPlace(it) )
-                       },
-        selectMapAction = { latitude, longitude ->
-            viewModel.invokeActions(MapContract.Action.ClickOnMapLocation(latitude, longitude))
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                showBottomSheet.value = true
+                          },
+                containerColor = Primary,
+                contentColor = Background
+                ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+            }
         }
+    ) { padding ->
+        MapPage(
+            modifier = modifier.padding(1.dp),
+            state = viewModel.states.value,
+            address = LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0),
+            cameraPositionState = cameraPositionState,
+            searchAction = {
+                viewModel.invokeActions(  MapContract.Action.SearchPlace(it) )
+            },
+            selectMapAction = { latitude, longitude ->
+                viewModel.invokeActions(MapContract.Action.ClickOnMapLocation(latitude, longitude))
+            }
         ) {
-        viewModel.invokeActions(MapContract.Action.ClickOnResult(it))
+            viewModel.invokeActions(MapContract.Action.ClickOnResult(it))
+        }
+        if (showBottomSheet.value){
+            ModalBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = {
+                    showBottomSheet.value = false
+                }
+            ){
+                SheetDesignInput(
+                    addressEntity = address.value,
+                    saveAction = {
+                        viewModel.invokeActions(MapContract.Action.ClickOnSave(it))
+                    },
+                    dismissAction = {
+                        showBottomSheet.value = false
+                    }
+                )
+            }
+        }
+
     }
+
 
 }
 
@@ -100,7 +164,7 @@ fun MapPage(
     cameraPositionState: CameraPositionState,
     searchAction: (String)-> Unit,
     selectMapAction: (Double, Double)-> Unit,
-    selectAction: (AddressEntity)-> Unit
+    selectAction: (String)-> Unit
 ) {
     val markerState = rememberUpdatedMarkerState(position = address)
     val text = remember { mutableStateOf("") }
@@ -119,7 +183,7 @@ fun MapPage(
         )
     }
 
-    LazyColumn(
+    /*LazyColumn(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,17 +209,17 @@ fun MapPage(
                     SearchResult(
                         modifier = Modifier
                             .clickable {
-                                selectAction(state.addressList[it])
+                                selectAction(state.addressList[it].first)
                                 text.value=""
                             },
-                        title = state.addressList[it].name,
-                        subtitle = state.addressList[it].country
+                        title = state.addressList[it].second,
+                        subtitle = state.addressList[it].third
                     )
                 }
             }
         }
 
-    }
+    }*/
 }
 
 @OptIn(FlowPreview::class)
@@ -232,8 +296,267 @@ fun SearchResult(
     }
 }
 
+@Composable
+fun SheetDesignInput(
+    modifier: Modifier = Modifier,
+    addressEntity: AddressEntity?,
+    saveAction: (AddressEntity) -> Unit,
+    dismissAction: () -> Unit
+) {
+    val address1 = remember { mutableStateOf(addressEntity?.name ?: "") }
+    val address2 = remember { mutableStateOf(addressEntity?.subName ?: "") }
+    val city = remember { mutableStateOf(addressEntity?.city ?: "") }
+    val country = remember { mutableStateOf(addressEntity?.country ?: "") }
+    val zip = remember { mutableStateOf(addressEntity?.zip ?: "") }
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(
+                            top = 16.dp,
+                            start = 16.dp
+                        ),
+                    fontWeight = FontWeight.Bold,
+                    text = "Street",
+                    fontSize = 18.sp
+                )
+
+                OutlinedTextField(
+                    value = address1.value,
+                    onValueChange = {
+                        address1.value = it
+                    },
+                    modifier = modifier
+                        .padding(
+                            top = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                        .fillMaxWidth(),
+                    placeholder = {
+                        Text(
+                            "Enter Your Street here!",
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+
+        item {
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(
+                            top = 16.dp,
+                            start = 16.dp
+                        ),
+                    fontWeight = FontWeight.Bold,
+                    text = "Area",
+                    fontSize = 18.sp
+                )
+
+                OutlinedTextField(
+                    value = address2.value,
+                    onValueChange = {
+                        address2.value = it
+                    },
+                    modifier = modifier
+                        .padding(
+                            top = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                        .fillMaxWidth(),
+                    placeholder = {
+                        Text(
+                            "Enter Your Area here!",
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+
+        item {
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(
+                            top = 16.dp,
+                            start = 16.dp
+                        ),
+                    fontWeight = FontWeight.Bold,
+                    text = "City",
+                    fontSize = 18.sp
+                )
+
+                OutlinedTextField(
+                    value = city.value,
+                    onValueChange = {
+                        city.value = it
+                    },
+                    modifier = modifier
+                        .padding(
+                            top = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                        .fillMaxWidth(),
+                    placeholder = {
+                        Text(
+                            "Enter Your City here!",
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+        item {
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(
+                            top = 16.dp,
+                            start = 16.dp
+                        ),
+                    fontWeight = FontWeight.Bold,
+                    text = "Country",
+                    fontSize = 18.sp
+                )
+
+                OutlinedTextField(
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    value = country.value,
+                    onValueChange = {
+                        country.value = it
+                    },
+                    modifier = modifier
+                        .padding(
+                            top = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                        .fillMaxWidth(),
+                    placeholder = {
+                        Text(
+                            "Enter Your Street here!",
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+        item {
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(
+                            top = 16.dp,
+                            start = 16.dp
+                        ),
+                    fontWeight = FontWeight.Bold,
+                    text = "ZIP",
+                    fontSize = 18.sp
+                )
+
+                OutlinedTextField(
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    value = zip.value,
+                    onValueChange = {
+                        zip.value = it
+                    },
+                    modifier = modifier
+                        .padding(
+                            top = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                        .fillMaxWidth(),
+                    placeholder = {
+                        Text(
+                            "Enter Your ZIP here!",
+                            color = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+
+        item {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = {
+                        val data = AddressEntity(
+                            name = address1.value,
+                            id = "",
+                            subName = address2.value,
+                            country = country.value,
+                            city = city.value,
+                            zip = zip.value,
+                            latitude = addressEntity?.latitude ?: 0.0,
+                            longitude = addressEntity?.latitude ?: 0.0,
+                        )
+                        saveAction(data)
+                        dismissAction()
+
+                    },
+                    enabled =( address1.value.isNotBlank() && address2.value.isNotBlank() && zip.value.isNotBlank() && city.value.isNotBlank() && country.value.isNotBlank()),
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = Primary,
+                        contentColor = Background,
+                    ),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20))
+                        .fillMaxWidth(0.5f)
+                ) {
+                    Text("Save")
+                }
+                OutlinedButton (
+                    onClick = {
+                        dismissAction()
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors().copy(
+                        contentColor = Primary,
+                    ),
+                    border = BorderStroke(2.dp, Primary),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20))
+                        .fillMaxWidth(0.9f)
+                ) {
+                    Text("Cancel")
+                }
+            }
+        }
+
+    }
+
+
+
+}
+
 @Preview
 @Composable
 private fun PreviewMapPage() {
-    MapScreen()
 }

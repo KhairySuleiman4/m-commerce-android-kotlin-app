@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     // Google Maps
     implementation(libs.maps.compose)
+    implementation(libs.places)
     // Navigation
     implementation(libs.androidx.navigation.compose)
     // Glide

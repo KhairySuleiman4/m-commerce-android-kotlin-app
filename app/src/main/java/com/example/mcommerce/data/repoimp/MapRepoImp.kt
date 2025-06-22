@@ -7,8 +7,8 @@ import com.example.mcommerce.domain.repoi.MapRepo
 import kotlinx.coroutines.flow.Flow
 
 class MapRepoImp(private val mapRemoteDataSource: MapRemoteDataSource): MapRepo {
-    override fun getAddressesByPlaceName(place: String): Flow<ApiResult<List<AddressEntity>?>> = mapRemoteDataSource.getAddressesByPlaceName(place)
-
+    override fun getAddressesByPlaceName(place: String): Flow<ApiResult<List<Triple<String, String, String>>?>> = mapRemoteDataSource.getAddressesByPlaceName(place)
+    override fun getAddressByPlaceId(placeId: String): Flow<ApiResult<AddressEntity?>> = mapRemoteDataSource.getAddressByPlaceId(placeId)
     override fun getAddressesByPlaceCoordinates(
         latitude: Double,
         longitude: Double

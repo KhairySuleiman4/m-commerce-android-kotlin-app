@@ -5,7 +5,11 @@ import com.example.mcommerce.AddCartDiscountMutation
 import com.example.mcommerce.AddItemToCartMutation
 import com.example.mcommerce.CreateCartMutation
 import com.example.mcommerce.CustomerAccessTokenCreateMutation
+import com.example.mcommerce.CustomerAddressCreateMutation
+import com.example.mcommerce.CustomerAddressDeleteMutation
 import com.example.mcommerce.CustomerCreateMutation
+import com.example.mcommerce.CustomerDefaultAddressUpdateMutation
+import com.example.mcommerce.GetAddressesQuery
 import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
@@ -16,6 +20,7 @@ import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.RemoveItemFromCartMutation
 import com.example.mcommerce.UpdateItemCountMutation
+import com.example.mcommerce.data.models.AddressModel
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.type.ProductSortKeys
 
@@ -35,4 +40,8 @@ interface GraphQLService {
     suspend fun changeQuantityOfItemInCart(cartId: String, quantity: Int, itemId: String): ApolloResponse<UpdateItemCountMutation.Data>
     suspend fun addDiscountCodeToCart(cartId: String, code:String): ApolloResponse<AddCartDiscountMutation.Data>
     suspend fun getHomeProducts(sortKey: ProductSortKeys, reverse: Boolean): ApolloResponse<GetHomeProductsQuery.Data>
+    suspend fun getAddresses(accessToken: String): ApolloResponse<GetAddressesQuery.Data>
+    suspend fun addAddress(accessToken: String, address:AddressModel): ApolloResponse<CustomerAddressCreateMutation.Data>
+    suspend fun removeAddress(accessToken: String, addressId: String): ApolloResponse<CustomerAddressDeleteMutation.Data>
+    suspend fun changeDefaultAddress(accessToken: String, addressId: String): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data>
 }

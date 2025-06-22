@@ -3,6 +3,7 @@ package com.example.mcommerce.data.mappers
 import com.example.mcommerce.AddCartDiscountMutation
 import com.example.mcommerce.AddItemToCartMutation
 import com.example.mcommerce.CreateCartMutation
+import com.example.mcommerce.GetAddressesQuery
 import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
@@ -12,6 +13,7 @@ import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.RemoveItemFromCartMutation
 import com.example.mcommerce.UpdateItemCountMutation
+import com.example.mcommerce.data.models.AddressModel
 import com.example.mcommerce.data.models.CartModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
@@ -297,6 +299,22 @@ fun GetHomeProductsQuery.Data.toModel(): List<ProductsModel>{
             imageUrl = it.node.featuredImage?.url.toString(),
             productType = it.node.productType,
             price = it.node.priceRange.maxVariantPrice.amount.toString(),
+        )
+    }
+}
+
+fun GetAddressesQuery.Data.toModel(): List<AddressModel>?{
+    return this.customer?.addresses?.edges?.map {
+        AddressModel(
+            id = it.node.id,
+            name = it.node.address1 ?: "",
+            subName = it.node.address2 ?: "",
+            country = it.node.country ?: "",
+            city = it.node.city ?: "",
+            zip = it.node.zip ?: "",
+            latitude = it.node.latitude ?: 0.0,
+            longitude = it.node.longitude ?: 0.0,
+            isDefault = customer.defaultAddress?.id == it.node.id
         )
     }
 }

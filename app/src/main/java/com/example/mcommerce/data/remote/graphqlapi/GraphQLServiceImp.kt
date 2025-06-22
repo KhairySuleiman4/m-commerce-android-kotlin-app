@@ -7,7 +7,11 @@ import com.example.mcommerce.AddCartDiscountMutation
 import com.example.mcommerce.AddItemToCartMutation
 import com.example.mcommerce.CreateCartMutation
 import com.example.mcommerce.CustomerAccessTokenCreateMutation
+import com.example.mcommerce.CustomerAddressCreateMutation
+import com.example.mcommerce.CustomerAddressDeleteMutation
 import com.example.mcommerce.CustomerCreateMutation
+import com.example.mcommerce.CustomerDefaultAddressUpdateMutation
+import com.example.mcommerce.GetAddressesQuery
 import com.example.mcommerce.GetAllProductsQuery
 import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
@@ -18,10 +22,12 @@ import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.RemoveItemFromCartMutation
 import com.example.mcommerce.UpdateItemCountMutation
+import com.example.mcommerce.data.models.AddressModel
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.type.CartLineUpdateInput
 import com.example.mcommerce.type.CustomerAccessTokenCreateInput
 import com.example.mcommerce.type.CustomerCreateInput
+import com.example.mcommerce.type.MailingAddressInput
 import com.example.mcommerce.type.ProductSortKeys
 
 class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
@@ -83,5 +89,31 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
         sortKey: ProductSortKeys,
         reverse: Boolean
     ): ApolloResponse<GetHomeProductsQuery.Data> = client.query(GetHomeProductsQuery(Optional.present(sortKey), Optional.present(reverse))).execute()
+
+    override suspend fun getAddresses(accessToken: String): ApolloResponse<GetAddressesQuery.Data> = client.query(GetAddressesQuery(accessToken)).execute()
+
+    override suspend fun addAddress(
+        accessToken: String,
+        address: AddressModel
+    ): ApolloResponse<CustomerAddressCreateMutation.Data> = client.mutation(CustomerAddressCreateMutation(
+        MailingAddressInput(
+           address1 =  Optional.present(address.name),
+           address2 =  Optional.present(address.subName),
+           country = Optional.present(address.country),
+            zip = Optional.present(address.zip),
+            city = Optional.present(address.city)
+            ),
+        customerAccessToken = accessToken
+    )).execute()
+
+    override suspend fun removeAddress(
+        accessToken: String,
+        addressId: String
+    ): ApolloResponse<CustomerAddressDeleteMutation.Data> = client.mutation(CustomerAddressDeleteMutation(accessToken,addressId)).execute()
+
+    override suspend fun changeDefaultAddress(
+        accessToken: String,
+        addressId: String
+    ): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data> = client.mutation(CustomerDefaultAddressUpdateMutation(addressId,accessToken)).execute()
 
 }
