@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: MapViewModel = hiltViewModel(),
+    popup:() -> Unit
     ) {
     val address = remember { mutableStateOf<AddressEntity?>(null) }
     val cameraPositionState = rememberCameraPositionState {
@@ -98,7 +99,7 @@ fun MapScreen(
             }
 
             MapContract.Events.SavedAddress -> {
-
+                popup()
             }
         }
     }

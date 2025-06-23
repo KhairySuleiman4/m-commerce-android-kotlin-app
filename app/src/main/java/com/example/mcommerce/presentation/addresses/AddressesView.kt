@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -136,6 +137,11 @@ fun AddressPage(
                     horizontalArrangement = if(states.data.size == 1) Arrangement.Center else Arrangement.spacedBy(20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (states.data.size>1){
+                        item{
+                            Spacer(Modifier.width(25.dp))
+                        }
+                    }
                     items(states.data.size) {
                         val address = states.data[it]
                         AddressItem(
@@ -148,6 +154,11 @@ fun AddressPage(
                                 changeAddress(it)
                             }
                         )
+                    }
+                    if (states.data.size>1){
+                        item{
+                            Spacer(Modifier.width(25.dp))
+                        }
                     }
                 }
 

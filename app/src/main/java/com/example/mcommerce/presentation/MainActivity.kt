@@ -169,7 +169,9 @@ fun NavHostContainer(
                 SettingsScreen()
             }
             composable<Screens.Maps> {
-                MapScreen()
+                MapScreen{
+                    navController.popBackStack()
+                }
             }
             composable<Screens.PersonalInfo> {
                 PersonalInfoScreen()
