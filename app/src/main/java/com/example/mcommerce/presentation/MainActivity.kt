@@ -199,7 +199,11 @@ fun NavHostContainer(
                 ProductInfoScreen(productId = value.productId)
             }
             composable<Screens.Cart> {
-                CartScreen()
+                CartScreen{
+                    navController.navigate(Screens.Home){
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             }
             composable<Screens.OrdersScreen> {
                 OrdersScreen(){

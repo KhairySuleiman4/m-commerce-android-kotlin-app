@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.cart
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.State
 import com.example.mcommerce.domain.entities.CartEntity
 
@@ -16,7 +17,7 @@ interface CartContract {
         data class ClickOnMinusItem(val variantId: String, val quantity: Int): Action
         data class ClickOnRemoveItem(val variantId: String): Action
         data class ClickOnApplyDiscount(val code: String): Action
-        data object ClickOnSubmit: Action
+        data class ClickOnSubmit(val activity: ComponentActivity): Action
     }
 
     sealed interface Events{

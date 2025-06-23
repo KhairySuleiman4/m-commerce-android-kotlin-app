@@ -35,6 +35,8 @@ android {
         buildConfigField("String", "STORE_ACCESS_TOKEN", "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\"")
         buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${properties.getProperty("EXCHANGE_RATE_API_KEY")}\"")
         buildConfigField("String", "MAP_API_KEY", "\"${properties.getProperty("MAP_API_KEY")}\"")
+        buildConfigField("String", "ADMIN_URL", "\"${properties.getProperty("ADMIN_URL")}\"")
+        buildConfigField("String", "ADMIN_ACCESS_TOKEN", "\"${properties.getProperty("ADMIN_ACCESS_TOKEN")}\"")
         resValue("string", "google_maps_key","\"${properties.getProperty("MAP_API_KEY")}\"")
 
     }
@@ -62,7 +64,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -105,6 +106,8 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.firestore.ktx)
+    // Payment
+    implementation(libs.checkout.sheet.kit)
 }
 
 kapt {
