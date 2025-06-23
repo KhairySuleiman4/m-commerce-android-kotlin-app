@@ -68,6 +68,7 @@ fun ProductInfoScreen(
 ) {
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
+    val isGuest = remember { mutableStateOf(false) }
 
     val event = viewModel.events.value
     val state = viewModel.states.value
@@ -77,6 +78,7 @@ fun ProductInfoScreen(
     LaunchedEffect(Unit) {
         viewModel.getProductById(productId)
         viewModel.getCurrency()
+        isGuest.value = viewModel.isGuest()
     }
 
     LaunchedEffect(event) {
@@ -107,7 +109,8 @@ fun ProductInfoScreen(
         onFavoriteClicked = { product ->
             viewModel.invokeActions(ProductInfoContract.Action.ClickOnAddToWishList(product))
         },
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        isGuest = isGuest.value
     )
 }
 
@@ -116,6 +119,7 @@ fun ProductInfoScreenComposable(
     state: ProductInfoContract.States,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
     onFavoriteClicked: (ProductInfoEntity) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -141,7 +145,8 @@ fun ProductInfoScreenComposable(
                 rate = rate,
                 onAddToCartClicked = onAddToCartClicked,
                 onFavoriteClicked = onFavoriteClicked,
-                snackbarHostState = snackbarHostState
+                snackbarHostState = snackbarHostState,
+                isGuest = isGuest
             )
         }
     }
@@ -153,6 +158,7 @@ fun ShowProductInfo(
     state: ProductInfoContract.States.Success,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onAddToCartClicked: (ProductVariantEntity) -> Unit,
     onFavoriteClicked: (ProductInfoEntity) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -182,7 +188,8 @@ fun ShowProductInfo(
                     } else{
                         onFavoriteClicked(it)
                     }
-                }
+                },
+                isGuest = isGuest
             )
 
             TabRow(
@@ -251,6 +258,7 @@ fun ShowProductInfo(
 @Composable
 fun ProductImageSection(
     product: ProductInfoEntity,
+    isGuest: Boolean,
     onFavoriteClick: (ProductInfoEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -294,9 +302,13 @@ fun ProductImageSection(
         )
         IconButton(
             onClick = {
-                isFavorite.value = !isFavorite.value
-                val newProduct = product.copy(isFavorite = !product.isFavorite)
-                onFavoriteClick(newProduct)
+                if(!isGuest){
+                    isFavorite.value = !isFavorite.value
+                    val newProduct = product.copy(isFavorite = !product.isFavorite)
+                    onFavoriteClick(newProduct)
+                } else {
+                    onFavoriteClick(product.copy(isFavorite = true))
+                }
             },
             modifier = modifier
                 .constrainAs(favoriteBtn) {

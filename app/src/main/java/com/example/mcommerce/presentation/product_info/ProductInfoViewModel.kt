@@ -16,6 +16,7 @@ import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import com.example.mcommerce.domain.usecases.GetProductByIdUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
+import com.example.mcommerce.domain.usecases.IsGuestModeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,16 +31,15 @@ class ProductInfoViewModel @Inject constructor(
     private val getFavoritesUseCase: GetFavoriteProductsUseCase,
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
     private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
-    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
+    private val isGuestModeUseCase: IsGuestModeUseCase
 ) : ViewModel(), ProductInfoContract.ProductInfoViewModel {
 
     private val _states = mutableStateOf<ProductInfoContract.States>(ProductInfoContract.States.Loading)
     private val _events = mutableStateOf<ProductInfoContract.Events>(ProductInfoContract.Events.Idle)
 
-    override val states: State<ProductInfoContract.States>
-        get() = _states
-    override val events: State<ProductInfoContract.Events>
-        get() = _events
+    override val states: State<ProductInfoContract.States> get() = _states
+    override val events: State<ProductInfoContract.Events> get() = _events
 
     fun getProductById(id: String){
         viewModelScope.launch {
@@ -56,8 +56,10 @@ class ProductInfoViewModel @Inject constructor(
                             _states.value = ProductInfoContract.States.Failure("Product Not Found")
                         } else{
                             _states.value = ProductInfoContract.States.Success(result.data)
-                            getCart()
-                            getFavorites()
+                            if(!isGuestModeUseCase()){
+                                getCart()
+                                getFavorites()
+                            }
                         }
                     }
                 }
@@ -162,20 +164,26 @@ class ProductInfoViewModel @Inject constructor(
                addItemToCart(action.variant.id)
             }
             is ProductInfoContract.Action.ClickOnAddToWishList -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    if(action.product.isFavorite){
-                        insertToFavoritesUseCase(action.product.toSearchEntity())
-                        _events.value = ProductInfoContract.Events.ShowSnackbar("Added to favorites")
-                        _states.value = ProductInfoContract.States.Success(action.product)
-                    } else {
-                        deleteFavoriteProductUseCase(action.product.id)
-                        _events.value = ProductInfoContract.Events.ShowSnackbar("Removed from favorites")
-                        _states.value = ProductInfoContract.States.Success(action.product)
+                if(isGuest()){
+                    _events.value = ProductInfoContract.Events.ShowSnackbar("Login first so you can add to favorites")
+                } else{
+                    viewModelScope.launch(Dispatchers.IO) {
+                        if(action.product.isFavorite){
+                            insertToFavoritesUseCase(action.product.toSearchEntity())
+                            _events.value = ProductInfoContract.Events.ShowSnackbar("Added to favorites")
+                            _states.value = ProductInfoContract.States.Success(action.product)
+                        } else {
+                            deleteFavoriteProductUseCase(action.product.id)
+                            _events.value = ProductInfoContract.Events.ShowSnackbar("Removed from favorites")
+                            _states.value = ProductInfoContract.States.Success(action.product)
+                        }
                     }
                 }
             }
         }
     }
+
+    fun isGuest(): Boolean = isGuestModeUseCase()
 
     fun resetEvent(){
         _events.value = ProductInfoContract.Events.Idle

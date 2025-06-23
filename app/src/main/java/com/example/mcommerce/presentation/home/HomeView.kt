@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -70,6 +71,7 @@ fun HomeScreen(
     navigateTo: (Screens) -> Unit
 ) {
     val event = viewModel.events.value
+    val isGuest = remember { mutableStateOf(false) }
 
     LaunchedEffect(event) {
         when (event) {
@@ -86,26 +88,27 @@ fun HomeScreen(
             }
 
             is HomeContract.Events.ShowError -> {
-
             }
         }
     }
 
     LaunchedEffect(Unit) {
         viewModel.invokeActions(HomeContract.Action.LoadHomeData)
+        isGuest.value = viewModel.isGuest()
     }
     
     HomeItems(
         viewModel = viewModel,
         currency = "EGP",
-        rate = 1.0
+        rate = 1.0,
+        isGuest = isGuest.value
     )
 }
 
 @Composable
 fun HomeItems(
     viewModel: HomeViewModel,
-
+    isGuest: Boolean,
     currency: String,
     rate: Double
     ) {
@@ -171,7 +174,8 @@ fun HomeItems(
                             viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
                         },
                         currency = currency,
-                        rate = rate
+                        rate = rate,
+                        isGuest = isGuest
                     )
                 }
                 item {
@@ -186,7 +190,8 @@ fun HomeItems(
                             viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
                         },
                         currency = currency,
-                        rate = rate
+                        rate = rate,
+                        isGuest = isGuest
                     )
                 }
             }
@@ -257,6 +262,7 @@ fun BestSellersList(
     title: String,
     products: List<ProductsEntity>,
     isLoading: Boolean,
+    isGuest: Boolean,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onProductClick: (String) -> Unit,
     currency: String,
@@ -306,7 +312,8 @@ fun BestSellersList(
                             },
                             onProductClick = { productId -> onProductClick(productId) },
                             currency = currency,
-                            rate = rate
+                            rate = rate,
+                            isGuest = isGuest
                         )
                     }
                 }
@@ -347,6 +354,7 @@ fun LatestArrivalsList(
     title: String,
     products: List<ProductsEntity>,
     isLoading: Boolean,
+    isGuest: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     currency: String,
@@ -388,7 +396,8 @@ fun LatestArrivalsList(
                                     },
                                     onProductClick = { productId -> onProductClick(productId) },
                                     currency = currency,
-                                    rate = rate
+                                    rate = rate,
+                                    isGuest = isGuest
                                 )
                             }
                         }

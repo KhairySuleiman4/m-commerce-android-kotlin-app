@@ -48,7 +48,11 @@ class ProductsViewModel @Inject constructor(
             }
 
             is ProductsContract.Action.ClickOnFavorite -> {
-                toggleFavorite(action.product)
+                if(isGuest()){
+                    _events.value = ProductsContract.Events.ShowSnackbar("Login first so you can add to favorites")
+                } else{
+                    toggleFavorite(action.product)
+                }
             }
         }
     }
@@ -80,7 +84,7 @@ class ProductsViewModel @Inject constructor(
                         }
                         _states.value = ProductsContract.States.Success(products, products)
                         allProducts = products
-                        if (!isGuestModeUseCase()){
+                        if (!isGuest()){
                             getFavorites()
                         }
                     }
@@ -157,8 +161,10 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if(product.isFavorite){
                 insertProductToFavoritesUseCase(product.toSearchEntity())
+                _events.value = ProductsContract.Events.ShowSnackbar("Added to favorites")
             } else{
                 deleteFavoriteProductUseCase(product.id)
+                _events.value = ProductsContract.Events.ShowSnackbar("Removed from favorites")
             }
         }
         val currentState = _states.value
@@ -190,6 +196,8 @@ class ProductsViewModel @Inject constructor(
             _events.value = ProductsContract.Events.ShowSnackbar(message)
         }
     }
+
+    fun isGuest(): Boolean = isGuestModeUseCase()
 
     fun resetEvent() {
         _events.value = ProductsContract.Events.Idle

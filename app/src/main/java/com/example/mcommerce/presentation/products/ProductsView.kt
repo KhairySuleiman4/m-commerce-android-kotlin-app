@@ -68,6 +68,7 @@ fun ProductsScreen(
 
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
+    val isGuest = remember { mutableStateOf(false) }
 
     val event = viewModel.events.value
     val state = viewModel.states.value
@@ -77,6 +78,7 @@ fun ProductsScreen(
     LaunchedEffect(Unit) {
         viewModel.getProducts(collectionId)
         viewModel.getCurrency()
+        isGuest.value = viewModel.isGuest()
     }
 
     LaunchedEffect(event) {
@@ -116,6 +118,7 @@ fun ProductsScreen(
             viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
         },
         snackbarHostState = snackbarHostState,
+        isGuest = isGuest.value
     )
 
 }
@@ -126,6 +129,7 @@ fun Products(
     state: ProductsContract.States,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
@@ -159,7 +163,8 @@ fun Products(
                     rate = rate,
                     onProductClick = onProductClick,
                     onFavoriteClick = onFavoriteClick,
-                    snackbarHostState = snackbarHostState
+                    snackbarHostState = snackbarHostState,
+                    isGuest = isGuest
                 )
             }
         }
@@ -172,6 +177,7 @@ fun ProductsList(
     productsList: List<ProductsContract.ProductUIModel>,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     snackbarHostState: SnackbarHostState
@@ -197,7 +203,8 @@ fun ProductsList(
                         },
                         onProductClick = onProductClick,
                         currency = currency,
-                        rate = rate
+                        rate = rate,
+                        isGuest = isGuest
                     )
                 }
             }
@@ -244,6 +251,7 @@ fun ProductCard(
     product: ProductsContract.ProductUIModel,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onProductClick: (String) -> Unit
 ) {
@@ -276,9 +284,13 @@ fun ProductCard(
                 )
                 IconButton(
                     onClick = {
-                        val newProduct = product.copy(isFavorite = !product.isFavorite)
-                        onFavoriteClick(newProduct)
-                        isFavorite.value = !isFavorite.value
+                        if(!isGuest){
+                            isFavorite.value = !isFavorite.value
+                            val newProduct = product.copy(isFavorite = !product.isFavorite)
+                            onFavoriteClick(newProduct)
+                        } else {
+                            onFavoriteClick(product.copy(isFavorite = true))
+                        }
                     },
                     modifier = modifier.align(Alignment.TopEnd)
                 ) {
