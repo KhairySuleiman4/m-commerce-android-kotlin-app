@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +40,14 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     navigationTo: (Screens)-> Unit
 ) {
-
+    val isGuest = remember { mutableStateOf(true) }
+    val email = remember { mutableStateOf("") }
+    val name = remember { mutableStateOf("") }
     val event = viewModel.events.value
+
+    LaunchedEffect(Unit) {
+        viewModel.setup()
+    }
 
     LaunchedEffect(event) {
         when(event){
@@ -47,19 +55,54 @@ fun ProfileScreen(
             is ProfileContract.Event.Logout -> {
                 viewModel.resetEvent()
             }
+
+            is ProfileContract.Event.UpdateData -> {
+                isGuest.value = event.isGuest
+                email.value = event.email
+                name.value = event.name
+            }
         }
     }
 
-    val tabItems = listOf(
-        ProfileItem(R.drawable.profile_icon,"Personal Information", Screens.Profile),
-        ProfileItem(R.drawable.favourites_icon,"Favourites", Screens.Profile),
+    val loggedTabItems = listOf(
+        ProfileItem(R.drawable.profile_icon,"Personal Information", Screens.PersonalInfo),
+        ProfileItem(R.drawable.adress_icon,"My Addresses", Screens.Addresses),
         ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.OrdersScreen),
-        ProfileItem(R.drawable.credit_icon,"Payment method", Screens.Profile),
         ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
-        ProfileItem(R.drawable.info_icon,"About us", Screens.Maps),
+        ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
         ProfileItem(R.drawable.logout_icon,"Logout", Screens.Login),
     )
 
+    val guestTabItems = listOf(
+        ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
+        ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
+        ProfileItem(R.drawable.profile_icon,"Login", Screens.Login),
+    )
+
+    ProfilePage(
+        modifier,
+        !isGuest.value,
+        email.value,
+        name.value,
+        if (isGuest.value) guestTabItems else loggedTabItems,
+        {
+            viewModel.invokeActions(ProfileContract.Action.ClickOnLogout)
+        },
+        navigationTo
+    )
+
+}
+
+@Composable
+private fun ProfilePage(
+    modifier: Modifier,
+    isLoggedIn: Boolean,
+    email: String,
+    name: String,
+    tabItems: List<ProfileItem>,
+    logoutAction: () -> Unit,
+    navigationTo: (Screens) -> Unit
+) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize(),
@@ -67,14 +110,17 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            UserInfo(email = "example@gmail.com", name = "Full Name")
+            if (isLoggedIn)
+                UserInfo(email = email, name = name)
+            else
+                UserInfo(email = "", name = "Guest")
         }
 
-        items(tabItems.size){
+        items(tabItems.size) {
             ProfileTab(
                 modifier = Modifier.clickable {
-                    if(tabItems[it].text == "Logout"){
-                        viewModel.invokeActions(ProfileContract.Action.ClickOnLogout)
+                    if (tabItems[it].route == Screens.Login) {
+                        logoutAction()
                     }
                     navigationTo(tabItems[it].route)
                 },
@@ -83,7 +129,6 @@ fun ProfileScreen(
             )
         }
     }
-
 }
 
 @Composable

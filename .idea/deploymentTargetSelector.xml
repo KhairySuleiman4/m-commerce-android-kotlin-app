@@ -5,7 +5,7 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MainActivity">
+      <SelectionState runConfigName="PreviewPersonalInfoPage">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-06-21T08:56:50.696042200Z">
         <DropdownSelection timestamp="2025-06-19T11:36:17.185944500Z">
@@ -17,7 +17,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="OrdersListPreview">
+      <SelectionState runConfigName="PreviewMapPage">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-06-17T22:29:02.770558300Z">
           <Target type="DEFAULT_BOOT">
@@ -28,7 +28,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="MainActivity">
+      <SelectionState runConfigName="PreviewAddressItem">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-06-19T11:36:17.185944500Z">
         <DropdownSelection timestamp="2025-06-21T08:56:50.696042200Z">

@@ -12,6 +12,8 @@ import com.example.mcommerce.data.datastore.ExchangeDataStore
 import com.example.mcommerce.data.datastore.ExchangeDataStoreImp
 import com.example.mcommerce.data.local.cartcache.CartCache
 import com.example.mcommerce.data.local.cartcache.CartCacheImp
+import com.example.mcommerce.data.remote.addresses.AddressesRemoteDataSource
+import com.example.mcommerce.data.remote.addresses.AddressesRemoteDataSourceImp
 import com.example.mcommerce.data.remote.brands.BrandsRemoteDataSource
 import com.example.mcommerce.data.remote.brands.BrandsRemoteDataSourceImpl
 import com.example.mcommerce.data.remote.cart.CartRemoteDataSource
@@ -26,6 +28,7 @@ import com.example.mcommerce.data.remote.map.MapRemoteDataSource
 import com.example.mcommerce.data.remote.map.MapRemoteDataSourceImp
 import com.example.mcommerce.data.remote.products.ProductsRemoteDataSource
 import com.example.mcommerce.data.remote.products.ProductsRemoteDataSourceImpl
+import com.example.mcommerce.data.repoimp.AddressesRepoImp
 import com.example.mcommerce.data.repoimp.AuthenticationRepoImp
 import com.example.mcommerce.data.repoimp.BrandsRepoImpl
 import com.example.mcommerce.data.repoimp.CartRepoImp
@@ -33,6 +36,7 @@ import com.example.mcommerce.data.repoimp.CategoriesRepoImpl
 import com.example.mcommerce.data.repoimp.CurrencyRepoImp
 import com.example.mcommerce.data.repoimp.MapRepoImp
 import com.example.mcommerce.data.repoimp.ProductsRepoImpl
+import com.example.mcommerce.domain.repoi.AddressesRepo
 import com.example.mcommerce.domain.repoi.AuthenticationRepo
 import com.example.mcommerce.domain.repoi.BrandsRepo
 import com.example.mcommerce.domain.repoi.CartRepo
@@ -40,6 +44,7 @@ import com.example.mcommerce.domain.repoi.CategoriesRepo
 import com.example.mcommerce.domain.repoi.CurrencyRepo
 import com.example.mcommerce.domain.repoi.MapRepo
 import com.example.mcommerce.domain.repoi.ProductsRepo
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -125,7 +130,13 @@ object RepositoriesModule{
 
     @Provides
     @Singleton
-    fun provideMapRemoteDataSource(geocoder: Geocoder): MapRemoteDataSource = MapRemoteDataSourceImp(geocoder)
+    fun provideMapRemoteDataSource(
+        geocoder: Geocoder,
+        placesClient: PlacesClient
+    ): MapRemoteDataSource = MapRemoteDataSourceImp(
+        placesClient,
+        geocoder
+    )
 
     @Provides
     @Singleton
@@ -147,4 +158,11 @@ object RepositoriesModule{
         cartCache: CartCache
     ): CartRepo = CartRepoImp(remoteDataSource, firebase, cartCache)
 
+    @Provides
+    @Singleton
+    fun provideAddressesRemoteDataSource(graphQLService: GraphQLService): AddressesRemoteDataSource = AddressesRemoteDataSourceImp(graphQLService)
+
+    @Provides
+    @Singleton
+    fun provideAddressesRepository(addressesRemoteDataSource: AddressesRemoteDataSource): AddressesRepo = AddressesRepoImp(addressesRemoteDataSource)
 }
