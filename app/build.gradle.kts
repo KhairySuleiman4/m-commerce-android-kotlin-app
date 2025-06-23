@@ -32,8 +32,16 @@ android {
         val properties = Properties()
         properties.load(project.rootProject.file("local.properties").inputStream())
         buildConfigField("String", "STORE_URL", "\"${properties.getProperty("STORE_URL")}\"")
-        buildConfigField("String", "STORE_ACCESS_TOKEN", "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\"")
-        buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${properties.getProperty("EXCHANGE_RATE_API_KEY")}\"")
+        buildConfigField(
+            "String",
+            "STORE_ACCESS_TOKEN",
+            "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\""
+        )
+        buildConfigField(
+            "String",
+            "EXCHANGE_RATE_API_KEY",
+            "\"${properties.getProperty("EXCHANGE_RATE_API_KEY")}\""
+        )
         buildConfigField("String", "MAP_API_KEY", "\"${properties.getProperty("MAP_API_KEY")}\"")
         buildConfigField("String", "ADMIN_URL", "\"${properties.getProperty("ADMIN_URL")}\"")
         buildConfigField("String", "ADMIN_ACCESS_TOKEN", "\"${properties.getProperty("ADMIN_ACCESS_TOKEN")}\"")
@@ -108,6 +116,9 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     // Payment
     implementation(libs.checkout.sheet.kit)
+    // Lottie Animations
+    implementation(libs.lottie.compose)
+
 }
 
 kapt {

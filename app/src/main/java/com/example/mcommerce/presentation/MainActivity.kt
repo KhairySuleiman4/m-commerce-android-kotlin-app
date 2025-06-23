@@ -17,8 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +36,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.mcommerce.R
+import com.example.mcommerce.data.utils.ConnectivityObserver
 import com.example.mcommerce.presentation.addresses.AddressesScreen
+import com.example.mcommerce.presentation.auth.SplashScreen
 import com.example.mcommerce.presentation.auth.login.LoginScreen
 import com.example.mcommerce.presentation.auth.signup.SignupScreen
 import com.example.mcommerce.presentation.cart.view.CartScreen
@@ -52,13 +56,21 @@ import com.example.mcommerce.presentation.products.ProductsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
 import com.example.mcommerce.presentation.search.SearchScreen
 import com.example.mcommerce.presentation.settings.view.SettingsScreen
+import com.example.mcommerce.presentation.theme.Primary
+import com.example.mcommerce.presentation.utils.NoNetworkScreen
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var connectivityObserver: ConnectivityObserver
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val isConnected by connectivityObserver.isConnected.collectAsState()
+
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.getScreenRoute() ?: ""
@@ -70,16 +82,28 @@ class MainActivity : ComponentActivity() {
             val showBottomBar = currentRoute in bottomBarRoutes
             val showTopBar = currentRoute in topBarRoutes
 
+            val title = remember {
+                mutableStateOf("Pick'n Pay")
+            }
+            val isUser = remember {
+                mutableStateOf(false)
+            }
+
             Scaffold(
                 topBar = {
-                    if(showTopBar){
+                    if (showTopBar) {
                         MyAppBar(
                             onSearchClick = {
                                 navController.navigate(Screens.SearchScreen)
                             },
                             onCartClick = {
-                                navController.navigate(Screens.Cart)
-                            }
+                                if (isUser.value) {
+                                    navController.navigate(Screens.Cart)
+                                } else {
+                                    //alert to login
+                                }
+                            },
+                            title = title.value
                         )
                     }
                 },
@@ -88,14 +112,18 @@ class MainActivity : ComponentActivity() {
                         BottomNavigationBar(
                             navController = navController,
                             currentRoute = navDest.intValue,
+                            isGuest = !isUser.value
                         )
                     }
                 },
                 content = { padding ->
                     NavHostContainer(
                         navController = navController,
-                        padding = padding
-                    ){
+                        padding = padding,
+                        isConnected = isConnected,
+                        changeName = { title.value = it },
+                        changeGuest = { isUser.value = it }
+                    ) {
                         navDest.intValue = it
                     }
                 }
@@ -108,19 +136,31 @@ class MainActivity : ComponentActivity() {
 fun NavHostContainer(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
+    isConnected: Boolean,
     navController: NavHostController,
-    changeRoute: (Int) -> Unit,
+    changeGuest: (Boolean) -> Unit,
+    changeName: (String) -> Unit,
+    changeRoute: (Int) -> Unit
 ) {
     NavHost(
         modifier = modifier.fillMaxSize().padding(paddingValues = padding),
         navController = navController,
-        startDestination = Screens.Signup,
+        startDestination = Screens.Splash,
         builder = {
+            composable<Screens.Splash> {
+                SplashScreen(navigateTo = {
+                    navController.navigate(it) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+                )
+            }
             composable<Screens.Signup> {
                 SignupScreen(navigateToLogin = {
                     navController.navigate(it)
-                }){
-                    navController.navigate(it){
+                }) { screen, value ->
+                    changeGuest(value)
+                    navController.navigate(screen) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
@@ -129,90 +169,155 @@ fun NavHostContainer(
                 LoginScreen(navigateToSignup = {
                     navController.navigate(it)
                 }
-                ){
-                    navController.navigate(it){
+                ) { screen, value ->
+                    changeGuest(value)
+                    navController.navigate(screen) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
             }
             composable<Screens.Home> {
                 changeRoute(0)
-                HomeScreen{
-                    navController.navigate(it)
+                changeName("Pick'n Pay")
+                if (isConnected) {
+                    HomeScreen {
+                        navController.navigate(it)
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.Categories> {
                 changeRoute(1)
-                CategoriesScreen{
-                    navController.navigate(it)
+                changeName("Categories")
+                if (isConnected) {
+                    CategoriesScreen {
+                        navController.navigate(it)
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.Favorite> {
                 changeRoute(2)
-                FavoritesScreen{
-                    navController.navigate(it)
+                changeName("Wishlist")
+                if (isConnected) {
+                    FavoritesScreen {
+                        navController.navigate(it)
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.Profile> {
                 changeRoute(3)
-                ProfileScreen{
-                    if (it != Screens.Login)
-                        navController.navigate(it)
-                    else
-                        navController.navigate(it){
-                            popUpTo(0) { inclusive = true }
-                        }
+                changeName("My profile")
+                if (isConnected) {
+                    ProfileScreen {
+                        if (it != Screens.Login)
+                            navController.navigate(it)
+                        else
+                            navController.navigate(it) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.Settings> {
                 changeRoute(3)
-                SettingsScreen()
+                changeName("Settings")
+                if (isConnected) {
+                    SettingsScreen()
+                } else {
+                    NoNetworkScreen()
+                }
             }
             composable<Screens.Maps> {
-                MapScreen{
-                    navController.popBackStack()
+                if (isConnected) {
+                    MapScreen {
+                        navController.popBackStack()
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
+
             }
             composable<Screens.PersonalInfo> {
-                PersonalInfoScreen()
-            }
-            composable<Screens.Addresses> {
-                AddressesScreen {
-                    navController.navigate(Screens.Maps)
+                if (isConnected) {
+                    PersonalInfoScreen()
+                } else {
+                    NoNetworkScreen()
                 }
             }
-            composable<Screens.Products>{ backStackEntry ->
+            composable<Screens.Addresses> {
+                if (isConnected) {
+                    AddressesScreen {
+                        navController.navigate(Screens.Maps)
+                    }
+                } else {
+                    NoNetworkScreen()
+                }
+            }
+            composable<Screens.Products> { backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
-                ProductsScreen(
-                    collectionId = value.brandId
-                ){
-                    navController.navigate(it)
+                changeName.invoke(value.collectionName)
+                if (isConnected) {
+                    ProductsScreen(
+                        collectionId = value.collectionId,
+                    ) {
+                        navController.navigate(it)
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.SearchScreen> {
-                SearchScreen{
-                    navController.navigate(it)
+                if (isConnected) {
+                    SearchScreen {
+                        navController.navigate(it)
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.ProductDetails> { backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.ProductDetails>()
-                ProductInfoScreen(productId = value.productId)
+                if (isConnected) {
+                    ProductInfoScreen(productId = value.productId)
+                } else {
+                    NoNetworkScreen()
+                }
             }
             composable<Screens.Cart> {
-                CartScreen{
-                    navController.navigate(Screens.Home){
-                        popUpTo(0) { inclusive = true }
+
+                if (isConnected) {
+                    CartScreen{
+                        navController.navigate(Screens.Home){
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.OrdersScreen> {
-                OrdersScreen(){
-                    navController.navigate(it)
+                if (isConnected) {
+                    OrdersScreen {
+                        navController.navigate(it)
+                    }
+                } else {
+                    NoNetworkScreen()
                 }
             }
             composable<Screens.OrderDetailsScreen> { backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.OrderDetailsScreen>()
-                OrderDetailsScreen(orderId = value.orderId)
+                if (isConnected) {
+                    OrderDetailsScreen(orderId = value.orderId)
+                } else {
+                    NoNetworkScreen()
+                }
             }
         }
     )
@@ -222,16 +327,23 @@ fun NavHostContainer(
 fun BottomNavigationBar(
     navController: NavHostController,
     currentRoute: Int,
-    ) {
-    NavigationBar{
+    isGuest: Boolean
+) {
+    NavigationBar {
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
             NavigationBarItem(
-                selected = index==currentRoute,
+                selected = index == currentRoute,
                 onClick = {
-                    if (index != currentRoute)
-                    navController.navigate(navItem.route){
-                        launchSingleTop = true
+                    if (index != currentRoute) {
+                        if (index == 2 && isGuest) {
+                            //alert to login
+                        } else {
+                            navController.navigate(navItem.route) {
+                                launchSingleTop = true
+                            }
+                        }
                     }
+
                 },
                 alwaysShowLabel = true,
                 icon = {
@@ -239,9 +351,9 @@ fun BottomNavigationBar(
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,
-                    unselectedIconColor = Color.Black,
+                    unselectedIconColor = Primary,
                     selectedTextColor = Color.White,
-                    indicatorColor = Color.Black
+                    indicatorColor = Primary
                 )
             )
         }
@@ -251,13 +363,14 @@ fun BottomNavigationBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyAppBar(
+    title: String,
     onSearchClick: () -> Unit,
     onCartClick: () -> Unit
 ) {
     TopAppBar(
         title = {
             Text(
-                text = "Shopping App",
+                text = title,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )

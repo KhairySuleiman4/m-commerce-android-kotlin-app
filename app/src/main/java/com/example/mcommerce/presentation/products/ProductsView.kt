@@ -23,6 +23,7 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,10 +32,11 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,21 +50,25 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
 import com.example.mcommerce.R
+import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
+import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
+import com.example.mcommerce.presentation.utils.toProductsEntity
 import java.util.Locale
 
 @Composable
 fun ProductsScreen(
     viewModel: ProductsViewModel = hiltViewModel(),
     collectionId: String,
-    navigationTo: (Screens)-> Unit,
+    navigationTo: (Screens) -> Unit
 ) {
 
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
+    val isGuest = remember { mutableStateOf(false) }
 
     val event = viewModel.events.value
     val state = viewModel.states.value
@@ -72,15 +78,17 @@ fun ProductsScreen(
     LaunchedEffect(Unit) {
         viewModel.getProducts(collectionId)
         viewModel.getCurrency()
+        isGuest.value = viewModel.isGuest()
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             ProductsContract.Events.Idle -> {}
             is ProductsContract.Events.NavigateToProductDetails -> {
                 navigationTo(Screens.ProductDetails(event.productId))
                 viewModel.resetEvent()
             }
+
             is ProductsContract.Events.ShowSnackbar -> {
                 snackbarHostState.showSnackbar(
                     message = event.message,
@@ -96,21 +104,22 @@ fun ProductsScreen(
         }
     }
 
-   Products(
-       state = state,
-       currency = currency.value,
-       rate = rate.doubleValue,
-       onProductClick = { productId ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnProduct(productId))
-       },
-       onFavoriteClick = { product ->
-           viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(product))
-       },
-       onFilterTypeSelected = { productType ->
-           viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
-       },
-       snackbarHostState = snackbarHostState,
-   )
+    Products(
+        state = state,
+        currency = currency.value,
+        rate = rate.doubleValue,
+        onProductClick = { productId ->
+            viewModel.invokeActions(ProductsContract.Action.ClickOnProduct(productId))
+        },
+        onFavoriteClick = { product ->
+            viewModel.invokeActions(ProductsContract.Action.ClickOnFavorite(product))
+        },
+        onFilterTypeSelected = { productType ->
+            viewModel.invokeActions(ProductsContract.Action.OnTypeSelected(productType))
+        },
+        snackbarHostState = snackbarHostState,
+        isGuest = isGuest.value
+    )
 
 }
 
@@ -120,63 +129,82 @@ fun Products(
     state: ProductsContract.States,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onFilterTypeSelected: (String?) -> Unit,
     snackbarHostState: SnackbarHostState
-    ) {
-    when(state){
+) {
+    when (state) {
         is ProductsContract.States.Failure -> {
             //show alert
         }
+
         ProductsContract.States.Idle -> {}
         ProductsContract.States.Loading -> {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
-        is ProductsContract.States.Success -> {
-                Column(
-                    modifier = modifier.fillMaxSize()
-                ) {
-                    ProductTypeFilterChips(
-                        selectedProductType = state.selectedProductType,
-                        onTypeSelected = onFilterTypeSelected
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
 
-                    ProductsList(
-                        productsList = state.filteredProductsList,
-                        currency = currency,
-                        rate = rate,
-                        onProductClick = onProductClick,
-                        onFavoriteClick = onFavoriteClick,
-                        snackbarHostState = snackbarHostState
-                    )
-                }
+        is ProductsContract.States.Success -> {
+            Column(
+                modifier = modifier.fillMaxSize()
+            ) {
+                ProductTypeFilterChips(
+                    selectedProductType = state.selectedProductType,
+                    onTypeSelected = onFilterTypeSelected
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ProductsList(
+                    productsList = state.filteredProductsList,
+                    currency = currency,
+                    rate = rate,
+                    onProductClick = onProductClick,
+                    onFavoriteClick = onFavoriteClick,
+                    snackbarHostState = snackbarHostState,
+                    isGuest = isGuest
+                )
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsList(
     productsList: List<ProductsContract.ProductUIModel>,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-    Box{
+
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val selectedProduct = remember { mutableStateOf<ProductsEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
+    Box {
         CustomLazyVerticalGrid(
             content = {
                 items(productsList) { product ->
                     ProductCard(
                         product = product,
-                        onFavoriteClick = onFavoriteClick,
+                        onFavoriteClick = {
+                            if(!it.isFavorite){
+                                selectedProduct.value = it.toProductsEntity()
+                                showBottomSheet.value = true
+                            } else{
+                                onFavoriteClick(it)
+                            }
+                        },
                         onProductClick = onProductClick,
                         currency = currency,
-                        rate = rate
+                        rate = rate,
+                        isGuest = isGuest
                     )
                 }
             }
@@ -185,6 +213,33 @@ fun ProductsList(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+        if (showBottomSheet.value && selectedProduct.value != null) {
+            FavoriteDeleteBottomSheet(
+                productId = selectedProduct.value!!.id,
+                onConfirmDelete = {
+                    selectedProduct.value?.let { product ->
+                        onFavoriteClick(
+                            ProductsContract.ProductUIModel(
+                                id = product.id,
+                                title = product.title,
+                                imageUrl = product.imageUrl,
+                                productType = product.productType,
+                                brand = product.brand,
+                                price = product.price,
+                                isFavorite = product.isFavorite
+                            )
+                        )
+                    }
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                onCancel = {
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                sheetState = sheetState
+            )
+        }
     }
 }
 
@@ -195,6 +250,7 @@ fun ProductCard(
     product: ProductsContract.ProductUIModel,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onProductClick: (String) -> Unit
 ) {
@@ -214,8 +270,8 @@ fun ProductCard(
             .clickable { onProductClick(product.id) },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Column{
-            Box{
+        Column {
+            Box {
                 GlideImage(
                     model = product.imageUrl,
                     contentDescription = product.title,
@@ -227,9 +283,13 @@ fun ProductCard(
                 )
                 IconButton(
                     onClick = {
-                        isFavorite.value = !isFavorite.value
-                        val newProduct = product.copy(isFavorite = !product.isFavorite)
-                        onFavoriteClick(newProduct)
+                        if(!isGuest){
+                            isFavorite.value = !isFavorite.value
+                            val newProduct = product.copy(isFavorite = !product.isFavorite)
+                            onFavoriteClick(newProduct)
+                        } else {
+                            onFavoriteClick(product.copy(isFavorite = true))
+                        }
                     },
                     modifier = modifier.align(Alignment.TopEnd)
                 ) {
@@ -262,7 +322,13 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price.toDouble() * rate))}",
+                    text = "$currency ${
+                        String.format(
+                            Locale.US,
+                            "%.2f",
+                            (product.price.toDouble() * rate)
+                        )
+                    }",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 16.sp
                 )

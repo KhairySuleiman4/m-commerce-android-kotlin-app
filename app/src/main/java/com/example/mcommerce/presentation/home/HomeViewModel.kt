@@ -12,6 +12,7 @@ import com.example.mcommerce.domain.usecases.GetDiscountCodesUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetLatestArrivalsUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
+import com.example.mcommerce.domain.usecases.IsGuestModeUseCase
 import com.example.mcommerce.presentation.products.ProductsContract
 import com.example.mcommerce.presentation.utils.toSearchEntity
 import com.example.mcommerce.type.ProductSortKeys
@@ -29,6 +30,7 @@ class HomeViewModel @Inject constructor(
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
     private val getDiscountCodesUseCase: GetDiscountCodesUseCase
+    private val isGuestModeUseCase: IsGuestModeUseCase
 ): ViewModel(), HomeContract.HomeViewModel {
 
     private val _states = mutableStateOf(HomeContract.HomeState())
@@ -51,7 +53,11 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeContract.Action.ClickOnFavorite -> {
-                handleFavorite(action.product)
+                if(isGuest()){
+                    //_events.value = HomeContract.Events.ShowSnackbar("Login first so you can add to favorites")
+                } else {
+                    handleFavorite(action.product)
+                }
             }
         }
     }
@@ -154,7 +160,9 @@ class HomeViewModel @Inject constructor(
                             latestArrivals = result.data,
                             latestArrivalsLoading = false
                         )
-                        getFavorites()
+                        if(!isGuest()){
+                            getFavorites()
+                        }
                     }
                     is ApiResult.Failure -> {
                         _states.value = _states.value.copy(
@@ -241,6 +249,8 @@ class HomeViewModel @Inject constructor(
             latestArrivals = updatedLatestArrivals
         )
     }
+
+    fun isGuest(): Boolean = isGuestModeUseCase()
 
     fun resetEvent() {
         _events.value = HomeContract.Events.Idle

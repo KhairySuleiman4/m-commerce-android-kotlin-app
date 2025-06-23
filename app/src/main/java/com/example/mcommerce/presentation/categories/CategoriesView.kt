@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.categories
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,11 +33,12 @@ import com.example.mcommerce.data.utils.imagesMapper
 import com.example.mcommerce.domain.entities.CategoriesEntity
 import com.example.mcommerce.presentation.navigation.Screens
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CategoriesScreen(
     viewModel: CategoriesViewModel = hiltViewModel(),
-    navigateTo: (Screens) -> Unit
-    ) {
+    navigateTo: (Screens) -> Unit,
+) {
     val event = viewModel.events.value
     val state = viewModel.states.value
 
@@ -46,39 +47,42 @@ fun CategoriesScreen(
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             CategoriesContract.Events.Idle -> {}
             is CategoriesContract.Events.NavigateToCategoryProducts -> {
-                navigateTo(Screens.Products(event.categoryId))
+                navigateTo(Screens.Products(event.collectionId, event.collectionName))
                 viewModel.resetEvent()
             }
         }
     }
-
     Categories(
         state = state,
-        onCategoryClick = {categoryId ->
-            viewModel.invokeActions(CategoriesContract.Action.ClickOnCategory(categoryId))
+        onCategoryClick = { id, name ->
+            viewModel.invokeActions(CategoriesContract.Action.ClickOnCategory(id, name))
         }
     )
+
+
 }
 
 @Composable
 fun Categories(
     modifier: Modifier = Modifier,
     state: CategoriesContract.States,
-    onCategoryClick: (String) -> Unit,
-    ) {
-    when(state){
+    onCategoryClick: (String, String) -> Unit,
+) {
+    when (state) {
         is CategoriesContract.States.Failure -> {
             //show alert
         }
+
         CategoriesContract.States.Idle -> {}
         CategoriesContract.States.Loading -> {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
+
         is CategoriesContract.States.Success -> {
             CategoriesList(
                 categoriesList = state.categoriesList,
@@ -92,13 +96,13 @@ fun Categories(
 fun CategoriesList(
     modifier: Modifier = Modifier,
     categoriesList: List<CategoriesEntity>,
-    onCategoryClick: (String) -> Unit
+    onCategoryClick: (String, String) -> Unit
 ) {
     LazyColumn(
         contentPadding = PaddingValues(8.dp),
         modifier = modifier.fillMaxSize()
     ) {
-        items(categoriesList){ category ->
+        items(categoriesList) { category ->
             CategoriesCard(
                 category = category,
                 onCategoryClick = onCategoryClick
@@ -112,20 +116,21 @@ fun CategoriesList(
 fun CategoriesCard(
     modifier: Modifier = Modifier,
     category: CategoriesEntity,
-    onCategoryClick: (String) -> Unit
+    onCategoryClick: (String, String) -> Unit
 ) {
-    Card (
+    Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(Color(0xFFd1b9b1)),
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(180.dp)
-            .clickable { onCategoryClick(category.id) },
+            .clickable { onCategoryClick(category.id, category.title) },
         elevation = CardDefaults.cardElevation(3.dp)
-    ){
+    ) {
         Row(
             modifier =
-            modifier.fillMaxSize()
+            modifier
+                .fillMaxSize()
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -135,7 +140,9 @@ fun CategoriesCard(
                 fontSize = 20.sp,
                 color = Color.White,
                 maxLines = 2,
-                modifier = modifier.align(Alignment.CenterVertically).width(120.dp)
+                modifier = modifier
+                    .align(Alignment.CenterVertically)
+                    .width(120.dp)
             )
             GlideImage(
                 model = imagesMapper(category.imageUrl),
@@ -148,17 +155,4 @@ fun CategoriesCard(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun CategoriesCardPreview() {
-    CategoriesCard(
-        category = CategoriesEntity(
-            id = "1",
-            title = "WOMEN",
-            description = "Collection for women",
-            imageUrl = "https://cdn.shopify.com/s/files/1/0935/5981/6465/collections/custom_collections_2.jpg?v=1748952969"
-        )
-    ) { }
 }

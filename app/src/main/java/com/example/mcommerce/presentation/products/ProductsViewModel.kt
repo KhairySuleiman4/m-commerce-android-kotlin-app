@@ -11,6 +11,7 @@ import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetProductsUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
+import com.example.mcommerce.domain.usecases.IsGuestModeUseCase
 import com.example.mcommerce.presentation.utils.toSearchEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,8 @@ class ProductsViewModel @Inject constructor(
     private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
-    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
+    private val isGuestModeUseCase: IsGuestModeUseCase
 ) : ViewModel(), ProductsContract.ProductsViewModel {
 
     private val _states = mutableStateOf<ProductsContract.States>(ProductsContract.States.Idle)
@@ -46,7 +48,11 @@ class ProductsViewModel @Inject constructor(
             }
 
             is ProductsContract.Action.ClickOnFavorite -> {
-                toggleFavorite(action.product)
+                if(isGuest()){
+                    _events.value = ProductsContract.Events.ShowSnackbar("Login first so you can add to favorites")
+                } else{
+                    toggleFavorite(action.product)
+                }
             }
         }
     }
@@ -76,9 +82,11 @@ class ProductsViewModel @Inject constructor(
                                 brand = it.brand
                             )
                         }
-                        _states.value = ProductsContract.States.Success(products)
+                        _states.value = ProductsContract.States.Success(products, products)
                         allProducts = products
-                        getFavorites()
+                        if (!isGuest()){
+                            getFavorites()
+                        }
                     }
                 }
             }
@@ -153,8 +161,10 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if(product.isFavorite){
                 insertProductToFavoritesUseCase(product.toSearchEntity())
+                _events.value = ProductsContract.Events.ShowSnackbar("Added to favorites")
             } else{
                 deleteFavoriteProductUseCase(product.id)
+                _events.value = ProductsContract.Events.ShowSnackbar("Removed from favorites")
             }
         }
         val currentState = _states.value
@@ -186,6 +196,8 @@ class ProductsViewModel @Inject constructor(
             _events.value = ProductsContract.Events.ShowSnackbar(message)
         }
     }
+
+    fun isGuest(): Boolean = isGuestModeUseCase()
 
     fun resetEvent() {
         _events.value = ProductsContract.Events.Idle
