@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
-    private val getDiscountCodesUseCase: GetDiscountCodesUseCase
+    private val getDiscountCodesUseCase: GetDiscountCodesUseCase,
     private val isGuestModeUseCase: IsGuestModeUseCase
 ): ViewModel(), HomeContract.HomeViewModel {
 
