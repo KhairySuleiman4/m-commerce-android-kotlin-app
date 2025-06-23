@@ -121,7 +121,7 @@ fun SettingsPage(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            SettingTabInfo(text = "Notification", image = R.drawable.notifications_bell_icon)
+            SettingTabInfo(text = "Currency", image = R.drawable.currency_icon)
             CurrencyDisplay(text = selectedCurrency)
         }
         Row(

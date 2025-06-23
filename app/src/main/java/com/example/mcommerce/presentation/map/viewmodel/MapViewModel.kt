@@ -5,15 +5,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.entities.AddressEntity
+import com.example.mcommerce.domain.usecases.AddAddressUseCase
 import com.example.mcommerce.domain.usecases.GetAddressesUseCase
+import com.example.mcommerce.domain.usecases.GetUserAccessTokenUseCase
 import com.example.mcommerce.presentation.map.MapContract
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val useCase: GetAddressesUseCase
+    private val useCase: GetAddressesUseCase,
+    private val addAddressUseCase: AddAddressUseCase,
+    private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase
 ): ViewModel(),MapContract.MapViewModel {
     private val _states = mutableStateOf<MapContract.States>(MapContract.States.Idle)
     private val _events = mutableStateOf<MapContract.Events>(MapContract.Events.Idle)
@@ -27,11 +35,14 @@ class MapViewModel @Inject constructor(
                 getSelectedLocation(action.latitude,action.longitude)
             }
             is MapContract.Action.ClickOnResult -> {
-                _events.value = MapContract.Events.ChangedAddress(action.addressEntity)
-                _states.value = MapContract.States.Idle
+                getSearchLocation(placeId = action.addressId)
             }
             is MapContract.Action.SearchPlace -> {
                 getSearchResult(action.place)
+            }
+
+            is MapContract.Action.ClickOnSave -> {
+                addAddress(action.address)
             }
         }
     }
@@ -50,6 +61,61 @@ class MapViewModel @Inject constructor(
                       _states.value = MapContract.States.Success(it.data?: listOf())
                   }
               }
+            }
+        }
+    }
+
+    private fun getSearchLocation(placeId: String){
+        viewModelScope.launch {
+            useCase.getAddressByPlaceId(placeId).collect {
+                when (it) {
+                    is ApiResult.Failure -> {
+                        _events.value = MapContract.Events.ShowError(it.error.message.toString())
+                    }
+
+                    is ApiResult.Loading -> {
+                    }
+
+                    is ApiResult.Success -> {
+                        if (it.data != null) {
+                            _events.value = MapContract.Events.ChangedAddress(it.data)
+                            _states.value = MapContract.States.Idle
+                        } else {
+                            _events.value = MapContract.Events.ShowError("Couldn't get the address")
+                            _states.value = MapContract.States.Idle
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addAddress(address: AddressEntity){
+        viewModelScope.launch {
+            val accessToken = getUserAccessTokenUseCase()
+            val json = Gson().fromJson(accessToken, JsonObject::class.java)
+            val access = json.get("token")?.asString
+            addAddressUseCase(access?: "", address).collect{
+                when(it){
+                    is ApiResult.Failure -> {
+                        _events.value = MapContract.Events.ShowError(it.error.message.toString())
+
+                    }
+                    is ApiResult.Loading -> {
+                        _events.value = MapContract.Events.ShowError("Saving...")
+
+                    }
+                    is ApiResult.Success -> {
+                        if (it.data){
+                            _events.value = MapContract.Events.ShowError("Saved Successfully")
+                            delay(1500)
+                            _events.value = MapContract.Events.SavedAddress
+                        }
+                        else{
+                            _events.value = MapContract.Events.ShowError("The Address couldn't be saved")
+                        }
+                    }
+                }
             }
         }
     }

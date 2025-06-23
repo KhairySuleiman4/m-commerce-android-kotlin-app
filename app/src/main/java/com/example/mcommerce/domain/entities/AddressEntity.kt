@@ -1,9 +1,13 @@
 package com.example.mcommerce.domain.entities
 
 data class AddressEntity(
-    val name: String,
-    val country: String,
-    val zip: String,
+    val id: String,
+    var name: String,
+    var subName: String,
+    var country: String,
+    var city: String,
+    var zip: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    var isDefault: Boolean = false
 )

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetAddressesUseCase @Inject constructor(private val mapRepo: MapRepo) {
-    operator fun invoke(place: String): Flow<ApiResult<List<AddressEntity>?>> = mapRepo.getAddressesByPlaceName(place)
+    operator fun invoke(place: String): Flow<ApiResult<List<Triple<String, String, String>>?>> = mapRepo.getAddressesByPlaceName(place)
+    fun getAddressByPlaceId(placeId: String): Flow<ApiResult<AddressEntity?>> = mapRepo.getAddressByPlaceId(placeId)
     operator fun invoke(latitude: Double, longitude: Double): Flow<ApiResult<AddressEntity?>> = mapRepo.getAddressesByPlaceCoordinates(latitude,longitude)
 }

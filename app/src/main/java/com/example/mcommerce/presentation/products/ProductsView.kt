@@ -241,7 +241,6 @@ fun ProductsList(
             )
         }
     }
-
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)

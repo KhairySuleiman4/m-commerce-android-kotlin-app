@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.mcommerce.R
+import com.example.mcommerce.presentation.addresses.AddressesScreen
 import com.example.mcommerce.presentation.auth.login.LoginScreen
 import com.example.mcommerce.presentation.auth.signup.SignupScreen
 import com.example.mcommerce.presentation.cart.view.CartScreen
@@ -43,6 +44,9 @@ import com.example.mcommerce.presentation.home.HomeScreen
 import com.example.mcommerce.presentation.map.view.MapScreen
 import com.example.mcommerce.presentation.navigation.Constants
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.personalinfo.PersonalInfoScreen
+import com.example.mcommerce.presentation.order_details.OrderDetailsScreen
+import com.example.mcommerce.presentation.orders.OrdersScreen
 import com.example.mcommerce.presentation.product_info.ProductInfoScreen
 import com.example.mcommerce.presentation.products.ProductsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
@@ -152,7 +156,12 @@ fun NavHostContainer(
             composable<Screens.Profile> {
                 changeRoute(3)
                 ProfileScreen{
-                    navController.navigate(it)
+                    if (it != Screens.Login)
+                        navController.navigate(it)
+                    else
+                        navController.navigate(it){
+                            popUpTo(0) { inclusive = true }
+                        }
                 }
             }
             composable<Screens.Settings> {
@@ -160,8 +169,17 @@ fun NavHostContainer(
                 SettingsScreen()
             }
             composable<Screens.Maps> {
-                changeRoute(3)
-                MapScreen()
+                MapScreen{
+                    navController.popBackStack()
+                }
+            }
+            composable<Screens.PersonalInfo> {
+                PersonalInfoScreen()
+            }
+            composable<Screens.Addresses> {
+                AddressesScreen {
+                    navController.navigate(Screens.Maps)
+                }
             }
             composable<Screens.Products>{ backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.Products>()
@@ -182,6 +200,15 @@ fun NavHostContainer(
             }
             composable<Screens.Cart> {
                 CartScreen()
+            }
+            composable<Screens.OrdersScreen> {
+                OrdersScreen(){
+                    navController.navigate(it)
+                }
+            }
+            composable<Screens.OrderDetailsScreen> { backStackEntry ->
+                val value = backStackEntry.toRoute<Screens.OrderDetailsScreen>()
+                OrderDetailsScreen(orderId = value.orderId)
             }
         }
     )
