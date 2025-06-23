@@ -8,9 +8,11 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.GetEmailUseCase
 import com.example.mcommerce.domain.usecases.GetUserNameUseCase
 import com.example.mcommerce.domain.usecases.UpdateUserNameUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class PersonalInfoViewModel @Inject constructor(
     private val getUserNameUseCase: GetUserNameUseCase,
     private val getEmailUseCase: GetEmailUseCase,

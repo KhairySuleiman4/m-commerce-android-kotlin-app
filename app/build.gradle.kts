@@ -32,10 +32,18 @@ android {
         val properties = Properties()
         properties.load(project.rootProject.file("local.properties").inputStream())
         buildConfigField("String", "STORE_URL", "\"${properties.getProperty("STORE_URL")}\"")
-        buildConfigField("String", "STORE_ACCESS_TOKEN", "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\"")
-        buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${properties.getProperty("EXCHANGE_RATE_API_KEY")}\"")
+        buildConfigField(
+            "String",
+            "STORE_ACCESS_TOKEN",
+            "\"${properties.getProperty("STORE_ACCESS_TOKEN")}\""
+        )
+        buildConfigField(
+            "String",
+            "EXCHANGE_RATE_API_KEY",
+            "\"${properties.getProperty("EXCHANGE_RATE_API_KEY")}\""
+        )
         buildConfigField("String", "MAP_API_KEY", "\"${properties.getProperty("MAP_API_KEY")}\"")
-        resValue("string", "google_maps_key","\"${properties.getProperty("MAP_API_KEY")}\"")
+        resValue("string", "google_maps_key", "\"${properties.getProperty("MAP_API_KEY")}\"")
 
     }
 
@@ -105,6 +113,9 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.firestore.ktx)
+    //lottie animations
+    implementation(libs.lottie.compose)
+
 }
 
 kapt {

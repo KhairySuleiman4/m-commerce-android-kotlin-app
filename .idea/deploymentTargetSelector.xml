@@ -41,6 +41,7 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="CartItemPrev">
+      <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

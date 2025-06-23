@@ -22,7 +22,7 @@ class LoginViewModel @Inject constructor(
     override fun invokeActions(action: AuthContract.LoginAction) {
         when(action){
             is AuthContract.LoginAction.ClickOnContinueAsGuest -> {
-                _events.value = AuthContract.Events.NavigateToHome
+                _events.value = AuthContract.Events.NavigateToHomeGuest
             }
             is AuthContract.LoginAction.ClickOnNavigateToSignup -> {
                 _events.value = AuthContract.Events.NavigateToSignup
@@ -68,7 +68,7 @@ class LoginViewModel @Inject constructor(
                         )
                     }
                     is ApiResult.Success -> {
-                        _events.value = AuthContract.Events.NavigateToHome
+                        _events.value = AuthContract.Events.NavigateToHomeUser
                     }
                 }
 

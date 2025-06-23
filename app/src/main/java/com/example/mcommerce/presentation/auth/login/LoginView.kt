@@ -47,7 +47,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToSignup: (Screens) -> Unit,
-    navigateToHome: (Screens)->Unit,
+    navigateToHome: (Screens, Boolean)->Unit,
 ) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
@@ -56,8 +56,12 @@ fun LoginScreen(
     LaunchedEffect(event) {
         when(event){
             is AuthContract.Events.Idle -> {}
-            is AuthContract.Events.NavigateToHome -> {
-                navigateToHome(Screens.Home)
+            is AuthContract.Events.NavigateToHomeGuest -> {
+                navigateToHome(Screens.Home, false)
+                viewModel.resetEvent()
+            }
+            AuthContract.Events.NavigateToHomeUser -> {
+                navigateToHome(Screens.Home, true)
                 viewModel.resetEvent()
             }
             is AuthContract.Events.NavigateToLogin -> {}
