@@ -63,7 +63,7 @@ import java.util.Locale
 fun ProductsScreen(
     viewModel: ProductsViewModel = hiltViewModel(),
     collectionId: String,
-    navigationTo: (Screens) -> Unit,
+    navigationTo: (Screens) -> Unit
 ) {
 
     val currency = remember { mutableStateOf("EGP") }

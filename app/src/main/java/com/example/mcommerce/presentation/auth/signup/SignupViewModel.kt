@@ -25,19 +25,7 @@ class SignupViewModel @Inject constructor (
     private val _events = mutableStateOf<AuthContract.Events>(AuthContract.Events.Idle)
     override val events: State<AuthContract.Events> get() = _events
 
-    init {
-        keepMeLoggedIn()
-    }
-
-    private fun keepMeLoggedIn(){
-        viewModelScope.launch {
-            _events.value = AuthContract.Events.ShowLoading
-            when(keepMeLoggedInUseCase()){
-                true -> _events.value = AuthContract.Events.NavigateToHome
-                false -> resetEvent()
-            }
-        }
-    }
+    suspend fun keepMeLoggedIn(): Boolean = keepMeLoggedInUseCase()
 
     override fun invokeActions(action: AuthContract.SignupAction) {
         when(action){
@@ -49,7 +37,7 @@ class SignupViewModel @Inject constructor (
             }
 
             is AuthContract.SignupAction.ClickOnContinueAsGuest -> {
-                _events.value = AuthContract.Events.NavigateToHome
+                _events.value = AuthContract.Events.NavigateToHomeGuest
             }
         }
     }
@@ -149,7 +137,7 @@ class SignupViewModel @Inject constructor (
                 )
             }
             is ApiResult.Success -> {
-                _events.value = AuthContract.Events.NavigateToHome
+                _events.value = AuthContract.Events.NavigateToHomeUser
             }
         }
     }

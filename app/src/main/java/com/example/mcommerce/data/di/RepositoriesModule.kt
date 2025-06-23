@@ -36,6 +36,7 @@ import com.example.mcommerce.data.repoimp.CategoriesRepoImpl
 import com.example.mcommerce.data.repoimp.CurrencyRepoImp
 import com.example.mcommerce.data.repoimp.MapRepoImp
 import com.example.mcommerce.data.repoimp.ProductsRepoImpl
+import com.example.mcommerce.data.utils.ConnectivityObserver
 import com.example.mcommerce.domain.repoi.AddressesRepo
 import com.example.mcommerce.domain.repoi.AuthenticationRepo
 import com.example.mcommerce.domain.repoi.BrandsRepo
@@ -165,4 +166,8 @@ object RepositoriesModule{
     @Provides
     @Singleton
     fun provideAddressesRepository(addressesRemoteDataSource: AddressesRemoteDataSource): AddressesRepo = AddressesRepoImp(addressesRemoteDataSource)
+
+    @Provides
+    @Singleton
+    fun provideConnectivityObserver(@ApplicationContext context: Context): ConnectivityObserver = ConnectivityObserver(context)
 }
