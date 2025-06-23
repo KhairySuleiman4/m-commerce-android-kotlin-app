@@ -13,6 +13,7 @@ import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
+import com.example.mcommerce.domain.usecases.IsGuestModeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,8 @@ class SearchViewModel @Inject constructor(
     private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
-    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
+    private val isGuestModeUseCase: IsGuestModeUseCase
 ): ViewModel(), SearchContract.SearchViewModel {
 
     private val _state = MutableStateFlow(SearchContract.ProductState())
@@ -62,7 +64,9 @@ class SearchViewModel @Inject constructor(
                                 isLoading = false
                             )
                         }
-                        getFavorites()
+                        if(!isGuest()){
+                            getFavorites()
+                        }
                         brandsUseCase().collect{ brands ->
                             when(brands){
                                 is ApiResult.Failure -> {
@@ -181,13 +185,19 @@ class SearchViewModel @Inject constructor(
             }
 
             is SearchContract.Action.ClickOnFavoriteIcon -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    if(action.product.isFavorite){
-                        insertProductToFavoritesUseCase(action.product)
-                        updateFavoriteState(action.product)
-                    } else{
-                        deleteFavoriteProductUseCase(action.product.id)
-                        updateFavoriteState(action.product)
+                if(isGuest()){
+                    _events.value = SearchContract.Events.ShowSnackbar("Login first so you can add to favorites")
+                } else {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        if(action.product.isFavorite){
+                            insertProductToFavoritesUseCase(action.product)
+                            _events.value = SearchContract.Events.ShowSnackbar("Added to favorites")
+                            updateFavoriteState(action.product)
+                        } else{
+                            deleteFavoriteProductUseCase(action.product.id)
+                            _events.value = SearchContract.Events.ShowSnackbar("Removed from favorites")
+                            updateFavoriteState(action.product)
+                        }
                     }
                 }
             }
@@ -241,4 +251,9 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    fun isGuest(): Boolean = isGuestModeUseCase()
+
+    fun resetEvent() {
+        _events.value = SearchContract.Events.Idle
+    }
 }

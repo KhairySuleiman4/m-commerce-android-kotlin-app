@@ -1,14 +1,18 @@
 package com.example.mcommerce.data.remote
 
 
+import android.content.Context
 import com.apollographql.apollo.ApolloClient
 import com.example.mcommerce.BuildConfig
 import com.example.mcommerce.data.remote.exchangerateapi.ExchangeService
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLService
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLServiceImp
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -49,4 +53,9 @@ object ApisManager {
     @Singleton
     fun getGraphQLService(
         apolloClient: ApolloClient): GraphQLService = GraphQLServiceImp(apolloClient)
+
+    @Provides
+    @Singleton
+    fun providePlacesClient(@ApplicationContext context: Context): PlacesClient = Places.createClient(context)
+
 }

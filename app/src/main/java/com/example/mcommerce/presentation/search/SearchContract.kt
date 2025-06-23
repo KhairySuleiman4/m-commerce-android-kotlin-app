@@ -24,6 +24,7 @@ interface SearchContract {
     sealed interface Events{
         data object Idle: Events
         data class ShowCurrency(val currency: String, val rate: Double): Events
+        data class ShowSnackbar(val msg: String): Events
     }
 
     data class ProductState(

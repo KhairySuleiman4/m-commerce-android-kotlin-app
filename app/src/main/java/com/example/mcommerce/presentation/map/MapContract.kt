@@ -12,13 +12,14 @@ interface MapContract {
 
     sealed interface Action{
         data class SearchPlace(val place: String): Action
-        data class ClickOnResult(val addressEntity: AddressEntity): Action
+        data class ClickOnResult(val addressId: String): Action
         data class ClickOnMapLocation(val latitude: Double, val longitude: Double): Action
+        data class ClickOnSave(val address: AddressEntity): Action
     }
 
     sealed interface States{
         data object Loading: States
-        data class Success(val addressList: List<AddressEntity>): States
+        data class Success(val addressList: List<Triple<String, String, String>>): States
         data class Failure(val errorMessage: String): States
         data object Idle: States
     }
@@ -26,6 +27,7 @@ interface MapContract {
     sealed interface Events{
         data class ChangedAddress(val address: AddressEntity): Events
         data class ShowError(val errorMessage: String): Events
+        data object SavedAddress: Events
         data object Idle: Events
     }
 }

@@ -95,23 +95,44 @@ fun UserCredentialsEntity.toCustomerEntity(): CustomerEntity {
 
 fun Address.toModel(): AddressModel{
     return AddressModel(
-        name = this.getAddressLine(0),
+        id = "",
+        name = this.featureName,
+        subName = "",
         country = this.countryName,
         zip = this.postalCode,
         latitude = this.latitude,
-        longitude = this.longitude
+        longitude = this.longitude,
+        city = this.adminArea
     )
 }
 
 fun AddressModel.toEntity(): AddressEntity{
     return AddressEntity(
+        id = this.id,
         name = this.name,
+        subName = this.subName,
         country = this.country,
+        city = this.city,
         zip = this.zip,
         latitude = this.latitude,
-        longitude = this.longitude
+        longitude = this.longitude,
+        isDefault = this.isDefault
     )
 }
+
+fun AddressEntity.toModel(): AddressModel{
+    return AddressModel(
+        id = this.id,
+        name = this.name,
+        subName = this.subName,
+        country = this.country,
+        city = this.city,
+        zip = this.zip,
+        latitude = this.latitude,
+        longitude = this.longitude,
+    )
+}
+
 
 fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
     return ProductSearchEntity(

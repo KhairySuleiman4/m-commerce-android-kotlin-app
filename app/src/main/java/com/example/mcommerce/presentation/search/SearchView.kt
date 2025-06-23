@@ -23,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,8 +32,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,6 +60,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductSearchEntity
+import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
@@ -67,25 +73,37 @@ fun SearchScreen(
 ) {
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
+    val isGuest = remember { mutableStateOf(false) }
 
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getAllProductsAndBrands()
         viewModel.getCurrency()
+        isGuest.value = viewModel.isGuest()
     }
 
     val event = viewModel.events.value
 
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             SearchContract.Events.Idle -> {
 
             }
+
             is SearchContract.Events.ShowCurrency -> {
                 currency.value = event.currency
                 rate.doubleValue = event.rate
+            }
+
+            is SearchContract.Events.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(
+                    message = event.msg,
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.resetEvent()
             }
         }
     }
@@ -128,30 +146,20 @@ fun SearchScreen(
             viewModel.invokeActions(SearchContract.Action.OnSearchQueryChanged(query))
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = modifier.fillMaxSize()
-        ) {
-            items(state.filteredProducts.size) { index ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                ) {
-                    ProductCard(
-                        product = state.filteredProducts[index],
-                        currency = currency.value,
-                        rate = rate.doubleValue,
-                        onProductClick = {
-                            navigateTo(Screens.ProductDetails(it))
-                        },
-                        onFavoriteClick = {
-                            viewModel.invokeActions(SearchContract.Action.ClickOnFavoriteIcon(it))
-                        }
-                    )
-                }
-            }
-        }
+        ProductsList(
+            filteredProducts = state.filteredProducts,
+            currency = currency.value,
+            rate = rate.doubleValue,
+            onProductClick = {
+                navigateTo(Screens.ProductDetails(it))
+            },
+            onFavoriteClick = {
+                viewModel.invokeActions(SearchContract.Action.ClickOnFavoriteIcon(it))
+            },
+            isGuest = isGuest.value,
+            snackbarHostState = snackbarHostState
+        )
+
     }
 }
 
@@ -338,21 +346,92 @@ fun SearchBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductsList(
+    filteredProducts: List<ProductSearchEntity>,
+    currency: String,
+    rate: Double,
+    onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductSearchEntity) -> Unit,
+    isGuest: Boolean,
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier
+) {
+
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val selectedProduct = remember { mutableStateOf<ProductSearchEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
+    Box {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = modifier.fillMaxSize()
+        ) {
+            items(filteredProducts.size) { index ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    ProductCard(
+                        product = filteredProducts[index],
+                        currency = currency,
+                        rate = rate,
+                        onProductClick = onProductClick,
+                        onFavoriteClick = {
+                            if (!it.isFavorite) {
+                                selectedProduct.value = it
+                                showBottomSheet.value = true
+                            } else {
+                                onFavoriteClick(it)
+                            }
+                        },
+                        isGuest = isGuest
+                    )
+                }
+            }
+        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+        if (showBottomSheet.value && selectedProduct.value != null) {
+            FavoriteDeleteBottomSheet(
+                productId = selectedProduct.value!!.id,
+                onConfirmDelete = {
+                    selectedProduct.value?.let { product ->
+                        onFavoriteClick(product)
+                    }
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                onCancel = {
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                sheetState = sheetState
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ProductCard(
     product: ProductSearchEntity,
     currency: String,
     rate: Double,
+    isGuest: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductSearchEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    val isAddedToFavorite = remember { mutableStateOf(product.isFavorite) }
+    val isFavorite = remember { mutableStateOf(product.isFavorite) }
 
     LaunchedEffect(product.isFavorite) {
-        isAddedToFavorite.value = product.isFavorite
+        isFavorite.value = product.isFavorite
     }
 
     Card(
@@ -376,16 +455,20 @@ fun ProductCard(
                 )
                 IconButton(
                     onClick = {
-                        isAddedToFavorite.value = !isAddedToFavorite.value
-                        val newProduct = product.copy(isFavorite = !product.isFavorite)
-                        onFavoriteClick(newProduct)
+                        if (!isGuest) {
+                            isFavorite.value = !isFavorite.value
+                            val newProduct = product.copy(isFavorite = !product.isFavorite)
+                            onFavoriteClick(newProduct)
+                        } else {
+                            onFavoriteClick(product.copy(isFavorite = true))
+                        }
                     },
                     modifier = modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
                         modifier = modifier.size(30.dp),
-                        imageVector = if (isAddedToFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
-                        tint = if (isAddedToFavorite.value) Color.Red else Color.DarkGray,
+                        imageVector = if (isFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                        tint = if (isFavorite.value) Color.Red else Color.DarkGray,
                         contentDescription = stringResource(R.string.favorite_icon)
                     )
                 }
@@ -411,7 +494,7 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price * rate))}",
+                    text = "$currency ${String.format(Locale.US, "%.2f", (product.price * rate))}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )

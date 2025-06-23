@@ -16,5 +16,6 @@ interface ProfileContract {
     sealed interface Event{
         data object Logout: Event
         data object Idle: Event
+        data class UpdateData(val isGuest: Boolean, val email: String, val  name: String): Event
     }
 }

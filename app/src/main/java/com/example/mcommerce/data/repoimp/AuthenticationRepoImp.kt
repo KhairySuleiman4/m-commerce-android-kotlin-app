@@ -18,6 +18,8 @@ class AuthenticationRepoImp(
     override suspend fun createAccountOnFirebase(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>> =
         firebase.createNewAccount(credentials)
 
+    override fun updateNameOnAccount(name: String): Flow<ApiResult<String>> = firebase.updateName(name)
+
     override suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>> =
         firebase.login(email, password)
 
@@ -35,4 +37,8 @@ class AuthenticationRepoImp(
 
     override fun isGuestMode(): Boolean =
         firebase.isGuestMode()
+
+    override fun getUserEmail(): String = firebase.getEmail()
+
+    override fun getUserName(): String = firebase.getName()
 }
