@@ -23,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +34,7 @@ import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,8 +57,11 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductSearchEntity
+import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.products.ProductsContract
 import com.example.mcommerce.presentation.theme.Primary
+import com.example.mcommerce.presentation.utils.toProductsEntity
 import java.util.Locale
 
 @Composable
@@ -128,30 +133,17 @@ fun SearchScreen(
             viewModel.invokeActions(SearchContract.Action.OnSearchQueryChanged(query))
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = modifier.fillMaxSize()
-        ) {
-            items(state.filteredProducts.size) { index ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                ) {
-                    ProductCard(
-                        product = state.filteredProducts[index],
-                        currency = currency.value,
-                        rate = rate.doubleValue,
-                        onProductClick = {
-                            navigateTo(Screens.ProductDetails(it))
-                        },
-                        onFavoriteClick = {
-                            viewModel.invokeActions(SearchContract.Action.ClickOnFavoriteIcon(it))
-                        }
-                    )
-                }
+        ProductsList(
+            filteredProducts = state.filteredProducts,
+            currency = currency.value,
+            rate = rate.doubleValue,
+            onProductClick = {
+                navigateTo(Screens.ProductDetails(it))
+            },
+            onFavoriteClick = {
+                viewModel.invokeActions(SearchContract.Action.ClickOnFavoriteIcon(it))
             }
-        }
+        )
     }
 }
 
@@ -336,6 +328,67 @@ fun SearchBar(
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductsList(
+    filteredProducts: List<ProductSearchEntity>,
+    currency: String,
+    rate: Double,
+    onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductSearchEntity) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val selectedProduct = remember { mutableStateOf<ProductSearchEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = modifier.fillMaxSize()
+    ) {
+        items(filteredProducts.size) { index ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+            ) {
+                ProductCard(
+                    product = filteredProducts[index],
+                    currency = currency,
+                    rate = rate,
+                    onProductClick = onProductClick,
+                    onFavoriteClick = {
+                        if(!it.isFavorite){
+                            selectedProduct.value = it
+                            showBottomSheet.value = true
+                        } else{
+                            onFavoriteClick(it)
+                        }
+                    }
+                )
+            }
+        }
+    }
+    if (showBottomSheet.value && selectedProduct.value != null) {
+        FavoriteDeleteBottomSheet(
+            productId = selectedProduct.value!!.id,
+            onConfirmDelete = {
+                selectedProduct.value?.let { product ->
+                    onFavoriteClick(product)
+                }
+                selectedProduct.value = null
+                showBottomSheet.value = false
+            },
+            onCancel = {
+                selectedProduct.value = null
+                showBottomSheet.value = false
+            },
+            sheetState = sheetState
+        )
+    }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)

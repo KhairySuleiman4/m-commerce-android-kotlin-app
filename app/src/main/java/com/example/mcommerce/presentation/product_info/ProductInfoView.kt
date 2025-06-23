@@ -23,6 +23,7 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarDuration
@@ -33,6 +34,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -54,6 +56,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
+import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
 
@@ -144,6 +147,7 @@ fun ProductInfoScreenComposable(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowProductInfo(
     state: ProductInfoContract.States.Success,
@@ -162,64 +166,24 @@ fun ShowProductInfo(
 
     val selectedTab = remember { mutableIntStateOf(0) }
 
-    val imagesPagerState = rememberPagerState(pageCount = { product.images.size })
-
-    val isFavorite = remember { mutableStateOf(product.isFavorite) }
-
-    LaunchedEffect(product.isFavorite) {
-        isFavorite.value = product.isFavorite
-    }
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val selectedProduct = remember { mutableStateOf<ProductInfoEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     Box {
         Column {
-            ConstraintLayout {
-                val (imagesCounter, imagesRef, favoriteBtn) = createRefs()
-                HorizontalPager(
-                    state = imagesPagerState,
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .constrainAs(imagesRef) {
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                        }
-                )
-                {
-                    ProductImage(product.images[it])
+
+            ProductImageSection(
+                product = product,
+                onFavoriteClick = {
+                    if(!it.isFavorite){
+                        selectedProduct.value = it
+                        showBottomSheet.value = true
+                    } else{
+                        onFavoriteClicked(it)
+                    }
                 }
-                Text(
-                    "${imagesPagerState.currentPage + 1}/${product.images.size}",
-                    color = Color.White,
-                    modifier = modifier
-                        .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
-                        .padding(
-                            horizontal = 12.dp,
-                            vertical = 6.dp
-                        )
-                        .constrainAs(imagesCounter) {
-                            bottom.linkTo(imagesRef.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
-                )
-                IconButton(
-                    onClick = {
-                        isFavorite.value = !isFavorite.value
-                        val newProduct = product.copy(isFavorite = !product.isFavorite)
-                        onFavoriteClicked(newProduct)
-                    },
-                    modifier = modifier
-                        .constrainAs(favoriteBtn) {
-                            top.linkTo(parent.top, margin = 16.dp)
-                            end.linkTo(parent.end, margin = 16.dp)
-                        }
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
-                        tint = if (isFavorite.value) Color.Red else Color.DarkGray,
-                        contentDescription = stringResource(R.string.favorite_icon)
-                    )
-                }
-            }
+            )
 
             TabRow(
                 contentColor = Primary,
@@ -264,6 +228,88 @@ fun ShowProductInfo(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+        if (showBottomSheet.value && selectedProduct.value != null) {
+            FavoriteDeleteBottomSheet(
+                productId = selectedProduct.value!!.id,
+                onConfirmDelete = {
+                    selectedProduct.value?.let { product ->
+                        onFavoriteClicked(product)
+                    }
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                onCancel = {
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                sheetState = sheetState
+            )
+        }
+    }
+}
+
+@Composable
+fun ProductImageSection(
+    product: ProductInfoEntity,
+    onFavoriteClick: (ProductInfoEntity) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    val imagesPagerState = rememberPagerState(pageCount = { product.images.size })
+
+    val isFavorite = remember { mutableStateOf(product.isFavorite) }
+
+    LaunchedEffect(product.isFavorite) {
+        isFavorite.value = product.isFavorite
+    }
+
+    ConstraintLayout {
+        val (imagesCounter, imagesRef, favoriteBtn) = createRefs()
+        HorizontalPager(
+            state = imagesPagerState,
+            modifier = modifier
+                .fillMaxWidth()
+                .constrainAs(imagesRef) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
+        )
+        {
+            ProductImage(product.images[it])
+        }
+        Text(
+            "${imagesPagerState.currentPage + 1}/${product.images.size}",
+            color = Color.White,
+            modifier = modifier
+                .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+                .padding(
+                    horizontal = 12.dp,
+                    vertical = 6.dp
+                )
+                .constrainAs(imagesCounter) {
+                    bottom.linkTo(imagesRef.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        )
+        IconButton(
+            onClick = {
+                isFavorite.value = !isFavorite.value
+                val newProduct = product.copy(isFavorite = !product.isFavorite)
+                onFavoriteClick(newProduct)
+            },
+            modifier = modifier
+                .constrainAs(favoriteBtn) {
+                    top.linkTo(parent.top, margin = 16.dp)
+                    end.linkTo(parent.end, margin = 16.dp)
+                }
+        ) {
+            Icon(
+                imageVector = if (isFavorite.value) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                tint = if (isFavorite.value) Color.Red else Color.DarkGray,
+                contentDescription = stringResource(R.string.favorite_icon)
+            )
+        }
     }
 }
 

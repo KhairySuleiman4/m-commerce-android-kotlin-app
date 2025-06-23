@@ -11,6 +11,7 @@ import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetProductsUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
+import com.example.mcommerce.domain.usecases.IsGuestModeUseCase
 import com.example.mcommerce.presentation.utils.toSearchEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,8 @@ class ProductsViewModel @Inject constructor(
     private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
-    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase
+    private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
+    private val isGuestModeUseCase: IsGuestModeUseCase
 ) : ViewModel(), ProductsContract.ProductsViewModel {
 
     private val _states = mutableStateOf<ProductsContract.States>(ProductsContract.States.Idle)
@@ -76,9 +78,11 @@ class ProductsViewModel @Inject constructor(
                                 brand = it.brand
                             )
                         }
-                        _states.value = ProductsContract.States.Success(products)
+                        _states.value = ProductsContract.States.Success(products, products)
                         allProducts = products
-                        getFavorites()
+                        if (!isGuestModeUseCase()){
+                            getFavorites()
+                        }
                     }
                 }
             }
