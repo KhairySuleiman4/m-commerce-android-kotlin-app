@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.favorites
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +18,19 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -34,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,12 +50,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
 
 @Composable
 fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
-    navigationTo: (Screens)-> Unit
+    navigationTo: (Screens) -> Unit
 ) {
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
@@ -60,7 +71,7 @@ fun FavoritesScreen(
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is FavoritesContract.Events.Idle -> {}
             is FavoritesContract.Events.NavigateToProductInfo -> {
                 navigationTo(Screens.ProductDetails(event.productId))
@@ -96,7 +107,7 @@ fun Products(
     onDeleteFromFavoriteClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when(state){
+    when (state) {
         is FavoritesContract.States.Failure -> {}
         is FavoritesContract.States.Idle -> {}
         is FavoritesContract.States.Loading -> {
@@ -104,6 +115,7 @@ fun Products(
                 CircularProgressIndicator()
             }
         }
+
         is FavoritesContract.States.Success -> {
             ProductsList(
                 productsList = state.products,
@@ -116,6 +128,7 @@ fun Products(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsList(
     productsList: List<ProductSearchEntity>,
@@ -125,6 +138,10 @@ fun ProductsList(
     onDeleteFromFavoriteClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val selectedProduct = remember { mutableStateOf<ProductSearchEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
     Box {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -133,15 +150,33 @@ fun ProductsList(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = modifier.fillMaxSize()
         ) {
-            items(productsList.size){ index ->
+            items(productsList.size) { index ->
                 ProductCard(
                     product = productsList[index],
                     currency = currency,
                     rate = rate,
                     onProductClick = onProductClick,
-                    onDeleteFromFavoriteClick = onDeleteFromFavoriteClick
+                    onDeleteFromFavoriteClick = {
+                        selectedProduct.value = productsList[index]
+                        showBottomSheet.value = true
+                    }
                 )
             }
+        }
+        if (showBottomSheet.value && selectedProduct.value != null) {
+            FavoriteDeleteBottomSheet(
+                productId = selectedProduct.value!!.id,
+                onConfirmDelete = {
+                    onDeleteFromFavoriteClick(it)
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                onCancel = {
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                sheetState = sheetState
+            )
         }
     }
 }
@@ -211,13 +246,74 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
-                    text = "$currency ${String.format(Locale.US,"%.2f", (product.price * rate))}",
+                    text = "$currency ${String.format(Locale.US, "%.2f", (product.price * rate))}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
                 )
                 Spacer(modifier.weight(1f))
             }
             Spacer(modifier.height(8.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FavoriteDeleteBottomSheet(
+    productId: String,
+    onConfirmDelete: (String) -> Unit,
+    onCancel: () -> Unit,
+    sheetState: SheetState,
+    modifier: Modifier = Modifier
+) {
+
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = onCancel
+    ) {
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Are you sure you want to delete this product from favorites?",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = {
+                        onConfirmDelete(productId)
+                    },
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = Primary,
+                        contentColor = Background,
+                    ),
+                    modifier = modifier
+                        .clip(RoundedCornerShape(20))
+                        .fillMaxWidth(0.5f)
+                ) {
+                    Text("Delete")
+                }
+                OutlinedButton(
+                    onClick = onCancel,
+                    colors = ButtonDefaults.outlinedButtonColors().copy(
+                        contentColor = Primary,
+                    ),
+                    border = BorderStroke(2.dp, Primary),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20))
+                        .fillMaxWidth(0.9f)
+                ) {
+                    Text("Cancel")
+                }
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,10 +30,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,9 +57,11 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CouponEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.products.ProductCard
 import com.example.mcommerce.presentation.products.ProductsContract
+import com.example.mcommerce.presentation.utils.toProductsEntity
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 
@@ -64,6 +71,7 @@ fun HomeScreen(
     navigateTo: (Screens) -> Unit
 ) {
     val event = viewModel.events.value
+    val isGuest = remember { mutableStateOf(false) }
 
     LaunchedEffect(event) {
         when (event) {
@@ -80,26 +88,27 @@ fun HomeScreen(
             }
 
             is HomeContract.Events.ShowError -> {
-
             }
         }
     }
 
     LaunchedEffect(Unit) {
         viewModel.invokeActions(HomeContract.Action.LoadHomeData)
+        isGuest.value = viewModel.isGuest()
     }
     
     HomeItems(
         viewModel = viewModel,
         currency = "EGP",
-        rate = 1.0
+        rate = 1.0,
+        isGuest = isGuest.value
     )
 }
 
 @Composable
 fun HomeItems(
     viewModel: HomeViewModel,
-
+    isGuest: Boolean,
     currency: String,
     rate: Double
     ) {
@@ -165,7 +174,8 @@ fun HomeItems(
                             viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
                         },
                         currency = currency,
-                        rate = rate
+                        rate = rate,
+                        isGuest = isGuest
                     )
                 }
                 item {
@@ -180,11 +190,11 @@ fun HomeItems(
                             viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
                         },
                         currency = currency,
-                        rate = rate
+                        rate = rate,
+                        isGuest = isGuest
                     )
                 }
             }
-
         }
     }
 }
@@ -246,16 +256,23 @@ fun BrandsCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BestSellersList(
     title: String,
     products: List<ProductsEntity>,
     isLoading: Boolean,
+    isGuest: Boolean,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     onProductClick: (String) -> Unit,
     currency: String,
     rate: Double
 ) {
+
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val selectedProduct = remember { mutableStateOf<ProductsEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
@@ -286,15 +303,48 @@ fun BestSellersList(
                                 brand = product.brand
                             ),
                             onFavoriteClick = {
-                                onFavoriteClick(it)
+                                if(!it.isFavorite){
+                                    selectedProduct.value = it.toProductsEntity()
+                                    showBottomSheet.value = true
+                                } else{
+                                    onFavoriteClick(it)
+                                }
                             },
                             onProductClick = { productId -> onProductClick(productId) },
                             currency = currency,
-                            rate = rate
+                            rate = rate,
+                            isGuest = isGuest
                         )
                     }
                 }
             }
+        }
+        if(showBottomSheet.value && selectedProduct.value != null){
+            FavoriteDeleteBottomSheet(
+                productId = selectedProduct.value!!.id,
+                onConfirmDelete = {
+                    selectedProduct.value?.let { product ->
+                        onFavoriteClick(
+                            ProductsContract.ProductUIModel(
+                                id = product.id,
+                                title = product.title,
+                                imageUrl = product.imageUrl,
+                                productType = product.productType,
+                                brand = product.brand,
+                                price = product.price,
+                                isFavorite = product.isFavorite
+                            )
+                        )
+                    }
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                onCancel = {
+                    selectedProduct.value = null
+                    showBottomSheet.value = false
+                },
+                sheetState = sheetState
+            )
         }
     }
 }
@@ -304,6 +354,7 @@ fun LatestArrivalsList(
     title: String,
     products: List<ProductsEntity>,
     isLoading: Boolean,
+    isGuest: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
     currency: String,
@@ -345,7 +396,8 @@ fun LatestArrivalsList(
                                     },
                                     onProductClick = { productId -> onProductClick(productId) },
                                     currency = currency,
-                                    rate = rate
+                                    rate = rate,
+                                    isGuest = isGuest
                                 )
                             }
                         }
