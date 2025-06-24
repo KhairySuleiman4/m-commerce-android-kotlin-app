@@ -62,6 +62,7 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
 
@@ -184,7 +185,11 @@ fun TypesFilter(
                 onClick = {
                     onTypeSelected(type)
                 },
-                label = { Text(type) },
+                label = {
+                    Text(
+                        fontFamily = PoppinsFontFamily, text = type
+                    )
+                },
                 colors = SelectableChipColors(
                     containerColor = Color.White,
                     labelColor = Primary,
@@ -246,7 +251,8 @@ fun PriceFilter(
 
             )
         Text(
-            "Min: ${(sliderPosition.value.start * rate).toInt()} $currency - Max: ${(sliderPosition.value.endInclusive * rate).toInt()} $currency",
+            fontFamily = PoppinsFontFamily,
+            text = "Min: ${(sliderPosition.value.start * rate).toInt()} $currency - Max: ${(sliderPosition.value.endInclusive * rate).toInt()} $currency",
             fontSize = 20.sp
         )
     }
@@ -279,7 +285,9 @@ fun BrandDropdownMenu(
                 expanded = true
             }
         ) {
-            Text(text = selectedBrand ?: "Select Brand")
+            Text(
+                fontFamily = PoppinsFontFamily, text = selectedBrand ?: "Select Brand"
+            )
         }
 
         DropdownMenu(
@@ -294,7 +302,9 @@ fun BrandDropdownMenu(
                     expanded = false
                 },
                 text = {
-                    Text("All Brands")
+                    Text(
+                        fontFamily = PoppinsFontFamily, text = "All Brands"
+                    )
                 }
             )
 

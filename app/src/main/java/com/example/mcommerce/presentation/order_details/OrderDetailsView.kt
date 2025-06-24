@@ -1,7 +1,6 @@
 package com.example.mcommerce.presentation.order_details
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +21,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,8 +41,10 @@ import com.example.mcommerce.data.utils.formatDateTime
 import com.example.mcommerce.domain.entities.LineItemEntity
 import com.example.mcommerce.domain.entities.OrderEntity
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import kotlinx.serialization.json.Json
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -49,7 +53,13 @@ fun OrderDetailsScreen(
     order: String,
     navigateTo: (Screens) -> Unit
 ) {
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(0.0) }
     val event = viewModel.events.value
+
+    LaunchedEffect(Unit) {
+        viewModel.getCurrency()
+    }
 
     LaunchedEffect(event) {
         when (event) {
@@ -58,11 +68,20 @@ fun OrderDetailsScreen(
                 navigateTo(Screens.ProductDetails(event.productId))
                 viewModel.resetEvent()
             }
+
+            is OrderDetailsContract.Events.ShowCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+                viewModel.resetEvent()
+
+            }
         }
     }
 
     OrderDetails(
         order = order,
+        currency = currency.value,
+        rate = rate.doubleValue,
         onItemClick = { id ->
             viewModel.invokeActions(OrderDetailsContract.Action.ClickOnItem(id))
         }
@@ -73,13 +92,16 @@ fun OrderDetailsScreen(
 @Composable
 fun OrderDetails(
     order: String,
+    currency: String,
+    rate: Double,
     onItemClick: (String) -> Unit,
 ) {
     val orderObj = Json.decodeFromString<OrderEntity>(order)
-    Log.i("OrderDetailsScreen", ": $orderObj")
     OrderDetailsUI(
         order = orderObj,
-        onItemClick
+        currency = currency,
+        rate = rate,
+        onItemClick = onItemClick,
     )
 }
 
@@ -87,6 +109,8 @@ fun OrderDetails(
 @Composable
 fun OrderDetailsUI(
     order: OrderEntity,
+    currency: String,
+    rate: Double,
     onItemClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -101,6 +125,7 @@ fun OrderDetailsUI(
                 modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "Order ID ",
                     fontSize = 20.sp,
                     modifier = modifier.padding(bottom = 12.dp)
@@ -109,29 +134,34 @@ fun OrderDetailsUI(
                 Spacer(modifier.width(8.dp))
 
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = order.name,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
         }
-         item{
-             DeliveryStatusCard(order = order)
-         }
+        item {
+            DeliveryStatusCard(order = order)
+        }
 
-        item{
+        item {
             PersonalInfoCard(order = order)
         }
 
-        item{
+        item {
             ItemsList(
                 itemsList = order.lineItems,
                 onItemClick = onItemClick
             )
         }
 
-        item{
-            PriceDetailsCard(order = order)
+        item {
+            PriceDetailsCard(
+                order = order,
+                currency = currency,
+                rate = rate
+            )
         }
     }
 }
@@ -149,20 +179,24 @@ fun PersonalInfoCard(modifier: Modifier = Modifier, order: OrderEntity) {
             modifier = modifier.padding(16.dp)
         ) {
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = "Delivery address",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = modifier.padding(bottom = 8.dp)
             )
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = order.customerName,
                 fontSize = 16.sp,
             )
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = "${order.city}, ${order.shippingAddress}",
                 fontSize = 16.sp,
             )
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = order.phone,
                 fontSize = 16.sp,
             )
@@ -187,18 +221,22 @@ fun DeliveryStatusCard(modifier: Modifier = Modifier, order: OrderEntity) {
                 painter = painterResource(R.drawable.delivery_icon),
                 contentDescription = "delivered",
                 tint = Primary,
-                modifier = modifier.size(40.dp).padding(end = 8.dp)
+                modifier = modifier
+                    .size(40.dp)
+                    .padding(end = 8.dp)
             )
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "Delivered",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
                 val (date, time) = formatDateTime(order.processedAt)
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "on $date $time",
                     fontSize = 16.sp,
                 )
@@ -230,7 +268,12 @@ fun ItemsList(
 }
 
 @Composable
-fun PriceDetailsCard(modifier: Modifier = Modifier, order: OrderEntity) {
+fun PriceDetailsCard(
+    modifier: Modifier = Modifier,
+    order: OrderEntity,
+    currency: String,
+    rate: Double,
+) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(12.dp),
@@ -248,13 +291,20 @@ fun PriceDetailsCard(modifier: Modifier = Modifier, order: OrderEntity) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "Subtotal",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray
                 )
                 Text(
-                    text = "${order.subtotalPrice} EGP",
+                    fontFamily = PoppinsFontFamily,
+                    text = "${
+                        String.format(
+                            Locale.US,
+                            "%.2f", (order.subtotalPrice.toDouble() * rate)
+                        )
+                    } $currency",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray
@@ -265,12 +315,19 @@ fun PriceDetailsCard(modifier: Modifier = Modifier, order: OrderEntity) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "Total",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${order.totalPrice} EGP",
+                    fontFamily = PoppinsFontFamily,
+                    text = "${
+                        String.format(
+                            Locale.US,
+                            "%.2f", (order.totalPrice.toDouble() * rate)
+                        )
+                    } $currency",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -330,7 +387,8 @@ fun ItemCardInfo(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            name.split('|')[1].trim(),
+            fontFamily = PoppinsFontFamily,
+            text = name.split('|')[1].trim(),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
@@ -339,12 +397,14 @@ fun ItemCardInfo(
             modifier = modifier.fillMaxWidth()
         ) {
             Text(
-                brand.split('|')[0],
+                fontFamily = PoppinsFontFamily,
+                text = brand.split('|')[0],
                 fontSize = 16.sp,
                 color = Color.Black.copy(alpha = 0.7f),
             )
             Text(
-                size,
+                fontFamily = PoppinsFontFamily,
+                text = size,
                 fontSize = 14.sp,
                 color = Color.Black
             )
@@ -354,13 +414,15 @@ fun ItemCardInfo(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                currency,
+                fontFamily = PoppinsFontFamily,
+                text = currency,
                 color = Color.Black.copy(alpha = 0.7f),
                 fontSize = 16.sp
             )
 
             Text(
-                price,
+                fontFamily = PoppinsFontFamily,
+                text = price,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )

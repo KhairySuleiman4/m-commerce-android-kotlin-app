@@ -36,7 +36,7 @@ fun CollectionsModel.toEntity(): CollectionsEntity {
 
 fun ExchangeResponse.toEntity(): ExchangeRateEntity = ExchangeRateEntity(rates)
 
-fun ProductsModel.toEntity(): ProductsEntity{
+fun ProductsModel.toEntity(): ProductsEntity {
     return ProductsEntity(
         id = this.id,
         title = this.title,
@@ -45,18 +45,6 @@ fun ProductsModel.toEntity(): ProductsEntity{
         price = this.price,
         brand = this.brand,
         isFavorite = false
-    )
-}
-
-fun CategoriesModel.toEntity(): CategoriesEntity{
-fun ProductsEntity.toModel(): ProductsModel {
-    return ProductsModel(
-        id = this.id,
-        title = this.title,
-        imageUrl = this.imageUrl,
-        productType = this.productType,
-        price = this.price,
-        brand = this.brand
     )
 }
 
@@ -164,7 +152,7 @@ fun OrderModel.toEntity(): OrderEntity {
     )
 }
 
-fun LineItemModel.toEntity(): LineItemEntity{
+fun LineItemModel.toEntity(): LineItemEntity {
     return LineItemEntity(
         quantity = this.quantity,
         variantTitle = this.variantTitle,

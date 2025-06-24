@@ -58,6 +58,7 @@ import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
 import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
 
@@ -208,7 +209,11 @@ fun ShowProductInfo(
                     Tab(
                         selected = selectedTab.intValue == index,
                         onClick = { selectedTab.intValue = index },
-                        text = { Text(title) }
+                        text = {
+                            Text(
+                                fontFamily = PoppinsFontFamily, text = title
+                            )
+                        }
                     )
                 }
             }
@@ -286,7 +291,8 @@ fun ProductImageSection(
             ProductImage(product.images[it])
         }
         Text(
-            "${imagesPagerState.currentPage + 1}/${product.images.size}",
+            fontFamily = PoppinsFontFamily,
+            text = "${imagesPagerState.currentPage + 1}/${product.images.size}",
             color = Color.White,
             modifier = modifier
                 .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
@@ -363,6 +369,7 @@ fun ProductDetailsSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = productTitle,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -374,6 +381,7 @@ fun ProductDetailsSection(
                         )
                 )
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = modifier
                         .padding(horizontal = 4.dp),
                     text = "$productPrice $priceUnit",
@@ -385,6 +393,7 @@ fun ProductDetailsSection(
 
         item {
             Text(
+                fontFamily = PoppinsFontFamily,
                 modifier = modifier
                     .padding(
                         top = 8.dp
@@ -397,6 +406,7 @@ fun ProductDetailsSection(
 
         item {
             Text(
+                fontFamily = PoppinsFontFamily,
                 modifier = modifier
                     .padding(
                         top = 8.dp
@@ -408,6 +418,7 @@ fun ProductDetailsSection(
 
         item {
             Text(
+                fontFamily = PoppinsFontFamily,
                 modifier = modifier
                     .padding(
                         top = 8.dp
@@ -417,6 +428,7 @@ fun ProductDetailsSection(
                 fontSize = 20.sp
             )
             Text(
+                fontFamily = PoppinsFontFamily,
                 modifier = modifier
                     .padding(
                         top = 4.dp
@@ -466,6 +478,7 @@ fun VariantRow(
     ) {
         val (title, price, image, button) = createRefs()
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier.constrainAs(title) {
                 start.linkTo(parent.start, margin = 24.dp)
                 top.linkTo(parent.top)
@@ -476,6 +489,7 @@ fun VariantRow(
             fontWeight = FontWeight.Bold
         )
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier.constrainAs(price) {
                 start.linkTo(title.start)
                 top.linkTo(parent.top, margin = 32.dp)
@@ -522,7 +536,8 @@ fun VariantRow(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                if (variant.isSelected) "Added to Cart" else "Add to Cart",
+                fontFamily = PoppinsFontFamily,
+                text = if (variant.isSelected) "Added to Cart" else "Add to Cart",
                 color = Primary
             )
             Icon(

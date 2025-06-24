@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +49,7 @@ import com.example.mcommerce.domain.entities.AddressEntity
 import com.example.mcommerce.presentation.errors.AddressEmptyScreen
 import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
@@ -191,7 +193,8 @@ fun AddressPage(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    "Are you sure you want to delete this?",
+                                    fontFamily = PoppinsFontFamily,
+                                    text = "Are you sure you want to delete this?",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -213,7 +216,10 @@ fun AddressPage(
                                             .clip(RoundedCornerShape(20))
                                             .fillMaxWidth(0.5f)
                                     ) {
-                                        Text("Delete")
+                                        Text(
+                                            fontFamily = PoppinsFontFamily,
+                                            text = "Delete"
+                                        )
                                     }
                                     OutlinedButton(
                                         onClick = {
@@ -227,7 +233,10 @@ fun AddressPage(
                                             .clip(RoundedCornerShape(20))
                                             .fillMaxWidth(0.9f)
                                     ) {
-                                        Text("Cancel")
+                                        Text(
+                                            fontFamily = PoppinsFontFamily,
+                                            text = "Cancel"
+                                        )
                                     }
                                 }
                             }
@@ -258,8 +267,10 @@ fun AddressItem(
     ) {
         if (address.isDefault) {
             Text(
-                "Any Upcoming Order will be delivered to This Location",
+                fontFamily = PoppinsFontFamily,
+                text = "Any Upcoming Order!\nwill be delivered to This Location",
                 fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
                 fontSize = 18.sp
             )
         }
@@ -281,20 +292,44 @@ fun AddressItem(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("Street:", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(address.name)
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Street:",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = address.name
+                    )
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("Country:", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(address.country)
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Country:",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = address.country
+                    )
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("ZIP:", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(address.zip)
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "ZIP:",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = address.zip
+                    )
                 }
                 Button(
                     onClick = {
@@ -312,9 +347,15 @@ fun AddressItem(
                         .fillMaxWidth()
                 ) {
                     if (address.isDefault)
-                        Text("Current Default")
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text = "Current Default"
+                        )
                     else
-                        Text("Set to Default")
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text = "Set to Default"
+                        )
                 }
             }
             Column(
@@ -324,20 +365,44 @@ fun AddressItem(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("Area:", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(address.subName)
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Area:",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = address.subName
+                    )
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("City:", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(address.city)
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "City:",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = address.city
+                    )
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text("")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = ""
+                    )
                 }
                 OutlinedButton(
                     onClick = {
@@ -352,8 +417,10 @@ fun AddressItem(
                         .clip(RoundedCornerShape(20))
                         .fillMaxWidth()
                 ) {
-                    Text("Delete")
-
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Delete"
+                    )
                 }
             }
         }

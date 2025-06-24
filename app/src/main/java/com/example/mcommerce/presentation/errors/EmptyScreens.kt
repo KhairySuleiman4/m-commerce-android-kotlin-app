@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mcommerce.R
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
@@ -35,14 +36,16 @@ fun AddressEmptyScreen(modifier: Modifier = Modifier) {
             contentScale = ContentScale.FillBounds
         )
         Text(
-            "No Address Yet",
+            fontFamily = PoppinsFontFamily,
+            text = "No Address Yet",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Primary
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "Please add your address for your better experience",
+            fontFamily = PoppinsFontFamily,
+            text = "Please add your address for your better experience",
             modifier = Modifier.padding(start = 8.dp),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
@@ -66,14 +69,16 @@ fun OrderEmptyScreen(modifier: Modifier = Modifier) {
             contentScale = ContentScale.FillBounds
         )
         Text(
-            "Empty Orders",
+            fontFamily = PoppinsFontFamily,
+            text = "Empty Orders",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Primary
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "You haven't placed any orders yet. \n" +
+            fontFamily = PoppinsFontFamily,
+            text = "You haven't placed any orders yet. \n" +
                     "Start shopping now and enjoy a great experience!",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
@@ -97,14 +102,16 @@ fun CartEmptyScreen(modifier: Modifier = Modifier) {
             contentScale = ContentScale.FillBounds
         )
         Text(
-            "Your Cart is Empty",
+            fontFamily = PoppinsFontFamily,
+            text = "Your Cart is Empty",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Primary
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "Looks like you haven’t added anything to your cart yet.",
+            fontFamily = PoppinsFontFamily,
+            text = "Looks like you haven’t added anything to your cart yet.",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -127,14 +134,16 @@ fun FavoriteEmptyScreen(modifier: Modifier = Modifier) {
             contentScale = ContentScale.FillBounds
         )
         Text(
-            "No favorites",
+            fontFamily = PoppinsFontFamily,
+            text = "No favorites",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Primary
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "You have nothing on your list yet. \n" +
+            fontFamily = PoppinsFontFamily,
+            text = "You have nothing on your wishlist yet. \n" +
                     "It's never too late to change it :)",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,

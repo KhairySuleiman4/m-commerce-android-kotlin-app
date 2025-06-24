@@ -49,6 +49,7 @@ import com.example.mcommerce.domain.entities.AddressEntity
 import com.example.mcommerce.presentation.map.MapContract
 import com.example.mcommerce.presentation.map.viewmodel.MapViewModel
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -263,7 +264,10 @@ fun SearchBar(
             .fillMaxWidth(0.7f),
         value = text.value,
         placeholder = {
-            Text("Search Here...")
+            Text(
+                fontFamily = PoppinsFontFamily,
+                text = "Search Here..."
+            )
         },
         trailingIcon = {
             Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
@@ -296,10 +300,12 @@ fun SearchResult(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    title,
+                    fontFamily = PoppinsFontFamily,
+                    text = title
                 )
                 Text(
-                    subtitle,
+                    fontFamily = PoppinsFontFamily,
+                    text = subtitle,
                     fontSize = 12.sp,
                     color = Color.Black.copy(alpha = 0.3f)
                 )
@@ -331,6 +337,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -355,7 +362,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your Street here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your Street here!",
                             color = Color.Gray
                         )
                     },
@@ -368,6 +376,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -392,7 +401,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your Area here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your Area here!",
                             color = Color.Gray
                         )
                     },
@@ -405,6 +415,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -428,7 +439,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your City here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your City here!",
                             color = Color.Gray
                         )
                     },
@@ -440,6 +452,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -464,7 +477,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your Street here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your Street here!",
                             color = Color.Gray
                         )
                     },
@@ -476,6 +490,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -500,7 +515,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your ZIP here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your ZIP here!",
                             color = Color.Gray
                         )
                     },
@@ -541,7 +557,10 @@ fun SheetDesignInput(
                         .clip(RoundedCornerShape(20))
                         .fillMaxWidth(0.5f)
                 ) {
-                    Text("Save")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Save"
+                    )
                 }
                 OutlinedButton(
                     onClick = {
@@ -555,7 +574,10 @@ fun SheetDesignInput(
                         .clip(RoundedCornerShape(20))
                         .fillMaxWidth(0.9f)
                 ) {
-                    Text("Cancel")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Cancel"
+                    )
                 }
             }
         }

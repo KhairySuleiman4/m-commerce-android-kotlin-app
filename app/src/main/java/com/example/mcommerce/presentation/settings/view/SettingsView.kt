@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.settings.SettingsContract
 import com.example.mcommerce.presentation.settings.viewmodel.SettingsViewModel
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
@@ -195,12 +196,15 @@ fun SettingsPage(
                     CountryTabInfo(text = "US Dollar", image = R.drawable.usa_flag)
                     if (selectedCurrency == "USD")
                         Text(
-                            "✔",
+                            fontFamily = PoppinsFontFamily,
+                            text = "✔",
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold
                         )
                     else
-                        Text("")
+                        Text(
+                            fontFamily = PoppinsFontFamily, text = ""
+                        )
                 }
                 Row(
                     modifier = Modifier
@@ -215,12 +219,16 @@ fun SettingsPage(
                     CountryTabInfo(text = "EG Pound", image = R.drawable.egypt_flag)
                     if (selectedCurrency == "EGP")
                         Text(
-                            "✔",
+                            fontFamily = PoppinsFontFamily,
+                            text = "✔",
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold
                         )
                     else
-                        Text("")
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text = ""
+                        )
                 }
             }
         }
@@ -247,7 +255,8 @@ fun SettingTabInfo(
         )
 
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold,
             color = Color.Black
@@ -277,7 +286,8 @@ fun CountryTabInfo(
         )
 
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold
         )
@@ -295,13 +305,15 @@ fun CurrencyDisplay(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             color = Color(0, 0, 0, 77),
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
         Text(
-            ">",
+            fontFamily = PoppinsFontFamily,
+            text = ">",
             fontWeight = FontWeight.Bold,
             fontSize = 30.sp
         )

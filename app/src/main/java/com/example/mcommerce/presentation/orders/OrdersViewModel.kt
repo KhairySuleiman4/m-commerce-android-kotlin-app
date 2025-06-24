@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import com.example.mcommerce.domain.usecases.GetOrdersUseCase
 import com.example.mcommerce.domain.usecases.GetUserAccessTokenUseCase
 import com.google.gson.Gson
@@ -18,7 +20,9 @@ import javax.inject.Inject
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
     private val ordersUseCase: GetOrdersUseCase,
-    private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase
+    private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase,
+    private val getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
 ): ViewModel(), OrdersContract.OrdersViewModel{
 
     private val _states = mutableStateOf<OrdersContract.States>(OrdersContract.States.Idle)
@@ -59,6 +63,15 @@ class OrdersViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun getCurrency(){
+        viewModelScope.launch {
+            _events.value = OrdersContract.Events.ShowCurrency(
+                getCurrentCurrencyUseCase(),
+                getCurrentExchangeRateUseCase()
+            )
         }
     }
 

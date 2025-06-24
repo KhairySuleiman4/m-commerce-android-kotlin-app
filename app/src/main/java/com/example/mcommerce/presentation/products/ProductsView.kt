@@ -56,6 +56,7 @@ import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import com.example.mcommerce.presentation.utils.toProductsEntity
 import java.util.Locale
@@ -195,10 +196,10 @@ fun ProductsList(
                     ProductCard(
                         product = product,
                         onFavoriteClick = {
-                            if(!it.isFavorite){
+                            if (!it.isFavorite) {
                                 selectedProduct.value = it.toProductsEntity()
                                 showBottomSheet.value = true
-                            } else{
+                            } else {
                                 onFavoriteClick(it)
                             }
                         },
@@ -284,7 +285,7 @@ fun ProductCard(
                 )
                 IconButton(
                     onClick = {
-                        if(!isGuest){
+                        if (!isGuest) {
                             isFavorite.value = !isFavorite.value
                             val newProduct = product.copy(isFavorite = !product.isFavorite)
                             onFavoriteClick(newProduct)
@@ -302,27 +303,30 @@ fun ProductCard(
                     )
                 }
             }
-            Spacer(modifier.height(8.dp))
+            Spacer(modifier.height(4.dp))
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = product.title.split('|')[1].trim(),
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
                 maxLines = 2
             )
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = product.title.split('|')[0],
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 fontSize = 12.sp,
                 color = Color.Gray,
                 maxLines = 1
             )
-            Spacer(modifier.weight(1f))
+            Spacer(modifier.weight(0.5f))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "$currency ${
                         String.format(
                             Locale.US,
@@ -330,7 +334,7 @@ fun ProductCard(
                             (product.price.toDouble() * rate)
                         )
                     }",
-                    fontWeight = FontWeight.ExtraBold,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )
             }
@@ -357,14 +361,22 @@ private fun ProductTypeFilterChips(
     ) {
         item {
             FilterChipTheme(
-                label = { Text("All") },
+                label = {
+                    Text(
+                        fontFamily = PoppinsFontFamily, text = "All"
+                    )
+                },
                 selected = selectedProductType == null,
                 onClick = { onTypeSelected(null) }
             )
         }
         items(typesList) { type ->
             FilterChipTheme(
-                label = { Text(type) },
+                label = {
+                    Text(
+                        fontFamily = PoppinsFontFamily, text = type
+                    )
+                },
                 selected = selectedProductType == type,
                 onClick = {
                     onTypeSelected(type)

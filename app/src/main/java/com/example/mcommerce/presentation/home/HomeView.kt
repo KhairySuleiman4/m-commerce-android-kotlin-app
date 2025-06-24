@@ -67,6 +67,7 @@ import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.products.ProductCard
 import com.example.mcommerce.presentation.products.ProductsContract
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.utils.toProductsEntity
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
@@ -109,7 +110,7 @@ fun HomeScreen(
         viewModel.invokeActions(HomeContract.Action.LoadHomeData)
         isGuest.value = viewModel.isGuest()
     }
-    
+
     HomeItems(
         viewModel = viewModel,
         currency = currency.value,
@@ -124,7 +125,7 @@ fun HomeItems(
     isGuest: Boolean,
     currency: String,
     rate: Double
-    ) {
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
@@ -132,12 +133,13 @@ fun HomeItems(
     ) {
         val state = viewModel.states.value
 
-        when{
+        when {
             state.errorMessage != null -> {
                 item {
                     FailureScreen(state.errorMessage)
                 }
             }
+
             state.brandsLoading -> {
                 item {
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -145,16 +147,19 @@ fun HomeItems(
                     }
                 }
             }
+
             else -> {
 
-                item{
+                item {
                     AdsCarousel(
-                        couponsList = state.codes.map { CouponEntity(
-                            it,
-                            title = "Big Sale Discount Code\nClick here to Copy",
-                            description = "Up to 70% off on selected items",
-                            imageRes = R.drawable.ad_placeholder
-                        ) },
+                        couponsList = state.codes.map {
+                            CouponEntity(
+                                it,
+                                description = "Click here to Copy",
+                                title = "Get ${it.filter { x -> x.isDigit() }}% Off",
+                                imageRes = R.drawable.ad_placeholder
+                            )
+                        },
                         isLoading = state.codesLoading,
                     )
                 }
@@ -211,7 +216,8 @@ fun BrandList(
 ) {
     Column {
         Text(
-            "Top Brands",
+            fontFamily = PoppinsFontFamily,
+            text = "Top Brands",
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
             color = Color.Black,
@@ -279,6 +285,7 @@ fun BestSellersList(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = title,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -290,9 +297,15 @@ fun BestSellersList(
                     CircularProgressIndicator()
                 }
             }
+
             else -> {
                 LazyRow(
-                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 16.dp),
+                    contentPadding = PaddingValues(
+                        start = 8.dp,
+                        end = 8.dp,
+                        top = 4.dp,
+                        bottom = 16.dp
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(products) { product ->
@@ -307,10 +320,10 @@ fun BestSellersList(
                                 brand = product.brand
                             ),
                             onFavoriteClick = {
-                                if(!it.isFavorite){
+                                if (!it.isFavorite) {
                                     selectedProduct.value = it.toProductsEntity()
                                     showBottomSheet.value = true
-                                } else{
+                                } else {
                                     onFavoriteClick(it)
                                 }
                             },
@@ -323,7 +336,7 @@ fun BestSellersList(
                 }
             }
         }
-        if(showBottomSheet.value && selectedProduct.value != null){
+        if (showBottomSheet.value && selectedProduct.value != null) {
             FavoriteDeleteBottomSheet(
                 productId = selectedProduct.value!!.id,
                 onConfirmDelete = {
@@ -366,6 +379,7 @@ fun LatestArrivalsList(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = title,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -378,10 +392,13 @@ fun LatestArrivalsList(
                     CircularProgressIndicator()
                 }
             }
+
             else -> {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(800.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(800.dp)
+                ) {
                     CustomLazyVerticalGrid(
                         content = {
                             items(products) { product ->
@@ -418,13 +435,14 @@ fun AdsCarousel(
     isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
-    when{
-        isLoading ->{
+    when {
+        isLoading -> {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
-        else ->{
+
+        else -> {
             val pagerState = rememberPagerState(pageCount = { couponsList.size })
             val context = LocalContext.current
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -516,7 +534,7 @@ fun AdsCarousel(
                 }
             }
         }
-}
+    }
 }
 
 @Composable
@@ -545,9 +563,10 @@ fun CouponsCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = coupon.title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
                     maxLines = 2,
                 )
@@ -555,6 +574,7 @@ fun CouponsCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = coupon.description,
                     fontSize = 14.sp,
                     color = Color.Black,

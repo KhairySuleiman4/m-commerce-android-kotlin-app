@@ -31,14 +31,15 @@ import com.example.mcommerce.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.profile.models.ProfileItem
+import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
-import com.example.mcommerce.presentation.theme.Secondary
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
-    navigationTo: (Screens)-> Unit
+    navigationTo: (Screens) -> Unit
 ) {
     val isGuest = remember { mutableStateOf(true) }
     val email = remember { mutableStateOf("") }
@@ -50,7 +51,7 @@ fun ProfileScreen(
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is ProfileContract.Event.Idle -> {}
             is ProfileContract.Event.Logout -> {
                 viewModel.resetEvent()
@@ -65,18 +66,18 @@ fun ProfileScreen(
     }
 
     val loggedTabItems = listOf(
-        ProfileItem(R.drawable.profile_icon,"Personal Information", Screens.PersonalInfo),
-        ProfileItem(R.drawable.adress_icon,"My Addresses", Screens.Addresses),
-        ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.OrdersScreen),
-        ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
-        ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
-        ProfileItem(R.drawable.logout_icon,"Logout", Screens.Login),
+        ProfileItem(R.drawable.profile_icon, "Personal Information", Screens.PersonalInfo),
+        ProfileItem(R.drawable.adress_icon, "My Addresses", Screens.Addresses),
+        ProfileItem(R.drawable.shopping_icon, "My Orders", Screens.OrdersScreen),
+        ProfileItem(R.drawable.settings_icon, "Settings", Screens.Settings),
+        ProfileItem(R.drawable.info_icon, "About us", Screens.Profile),
+        ProfileItem(R.drawable.logout_icon, "Logout", Screens.Login),
     )
 
     val guestTabItems = listOf(
-        ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
-        ProfileItem(R.drawable.info_icon,"About us", Screens.Profile),
-        ProfileItem(R.drawable.profile_icon,"Login", Screens.Login),
+        ProfileItem(R.drawable.settings_icon, "Settings", Screens.Settings),
+        ProfileItem(R.drawable.info_icon, "About us", Screens.Profile),
+        ProfileItem(R.drawable.profile_icon, "Login", Screens.Login),
     )
 
     ProfilePage(
@@ -136,12 +137,12 @@ fun ProfileTabInfo(
     modifier: Modifier = Modifier,
     image: Int,
     text: String
-    ) {
+) {
     Row(
-        modifier= modifier,
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+    ) {
         Image(
             painter = painterResource(image),
             contentDescription = text,
@@ -152,10 +153,11 @@ fun ProfileTabInfo(
         )
 
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold
-            )
+        )
     }
 }
 
@@ -164,22 +166,23 @@ fun ProfileTab(
     modifier: Modifier = Modifier,
     image: Int,
     text: String
-    ) {
+) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(color = Secondary)
+            .background(color = Background)
             .fillMaxWidth()
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
-        ) {
+    ) {
         ProfileTabInfo(
             image = image,
             text = text
         )
         Text(
-            ">",
+            fontFamily = PoppinsFontFamily,
+            text = ">",
             fontSize = 30.sp,
             fontWeight = FontWeight.ExtraBold
         )
@@ -191,7 +194,7 @@ fun UserInfo(
     modifier: Modifier = Modifier,
     email: String,
     name: String,
-    ) {
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -210,11 +213,14 @@ fun UserInfo(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                name,
+                fontFamily = PoppinsFontFamily,
+                text = name,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            Text(email)
+            Text(
+                fontFamily = PoppinsFontFamily, text = email
+            )
         }
     }
 }

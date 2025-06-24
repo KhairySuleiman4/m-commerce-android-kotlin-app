@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.auth.AuthContract
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 
@@ -174,12 +175,14 @@ fun LoginComposable(
 @Composable
 fun LoginScreenHeader(modifier: Modifier = Modifier) {
     Text(
+        fontFamily = PoppinsFontFamily,
         text = stringResource(R.string.login),
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp
     )
 
     Text(
+        fontFamily = PoppinsFontFamily,
         modifier = modifier.padding(top = 8.dp),
         text = stringResource(R.string.welcome_back),
         color = Color.Gray,
@@ -191,12 +194,12 @@ fun LoginScreenHeader(modifier: Modifier = Modifier) {
 fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (String) -> Unit) {
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.email),
             fontSize = 18.sp
         )
@@ -211,12 +214,6 @@ fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (S
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_email),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp)
         )
@@ -233,12 +230,12 @@ fun PasswordSection(
 
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.password),
             fontSize = 18.sp
         )
@@ -253,12 +250,6 @@ fun PasswordSection(
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_password),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -289,6 +280,7 @@ fun LoginButton(
     )
     {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.login),
             color = Color.White,
             fontSize = 18.sp
@@ -305,10 +297,12 @@ fun DontHaveAnAccountSection(
         modifier = modifier.padding(top = 32.dp)
     ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.dont_have_an_accout)
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(start = 4.dp)
                 .clickable {
@@ -330,10 +324,12 @@ fun ContinueAsGuestSection(
         modifier = modifier.padding(top = 8.dp)
     ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.continue_str)
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(start = 4.dp)
                 .clickable {

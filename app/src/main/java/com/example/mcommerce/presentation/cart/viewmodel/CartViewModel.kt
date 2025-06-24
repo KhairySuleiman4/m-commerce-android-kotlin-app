@@ -226,11 +226,12 @@ class CartViewModel @Inject constructor(
 
                     is ApiResult.Success -> {
                         if (result.data != null) {
-                            _states.value = CartContract.States.Success(result.data)
-                            if (_states.value is CartContract.States.Success && result.data.items == (_states.value as CartContract.States.Success).cart.items) {
+                            if (_states.value is CartContract.States.Success && result.data.items.toSet() == (_states.value as CartContract.States.Success).cart.items.toSet()) {
                                 _events.value =
                                     CartContract.Events.DisplayError("you have reached the maximum quantity")
                             }
+                            _states.value = CartContract.States.Success(result.data)
+
                         } else
                             _states.value = CartContract.States.Failure("There is something wrong")
                     }
@@ -293,5 +294,9 @@ class CartViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun resetEvents() {
+        _events.value = CartContract.Events.Idle
     }
 }

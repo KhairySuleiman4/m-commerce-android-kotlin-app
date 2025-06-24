@@ -46,6 +46,7 @@ import com.example.mcommerce.presentation.auth.login.ContinueAsGuestSection
 import com.example.mcommerce.presentation.auth.login.EmailSection
 import com.example.mcommerce.presentation.auth.login.PasswordSection
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
@@ -142,8 +143,7 @@ fun SignupComposable(
 
     LazyColumn(
         modifier = modifier
-            .fillMaxSize()
-        /*.padding(top = 16.dp)*/,
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -217,12 +217,14 @@ fun SignupScreenHeader(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.create_account),
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             fontSize = 24.sp
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = Modifier.padding(top = 8.dp),
             text = stringResource(R.string.fit_your_information),
             color = Color.Gray,
@@ -237,12 +239,12 @@ fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (Str
 
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.name),
             fontSize = 18.sp
         )
@@ -257,12 +259,6 @@ fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (Str
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_name),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp)
         )
@@ -273,12 +269,12 @@ fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (Str
 fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (String) -> Unit) {
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.phone),
             fontSize = 18.sp
         )
@@ -293,12 +289,6 @@ fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_phone),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(
@@ -318,12 +308,12 @@ fun ConfirmPasswordSection(
 
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.confirm_password),
             fontSize = 18.sp
         )
@@ -338,12 +328,6 @@ fun ConfirmPasswordSection(
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_password_again),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -374,6 +358,7 @@ fun SignupButton(
     )
     {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.sign_up),
             color = Color.White,
             fontSize = 18.sp
@@ -390,10 +375,12 @@ fun DoHaveAnAccountSection(
         modifier = modifier.padding(top = 24.dp)
     ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.do_have_an_accout)
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(start = 4.dp)
                 .clickable {

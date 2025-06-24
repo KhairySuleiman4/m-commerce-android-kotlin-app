@@ -25,6 +25,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,8 +43,12 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.data.utils.formatDateTime
 import com.example.mcommerce.domain.entities.OrderEntity
+import com.example.mcommerce.presentation.errors.FailureScreen
+import com.example.mcommerce.presentation.errors.OrderEmptyScreen
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -49,18 +56,27 @@ fun OrdersScreen(
     viewModel: OrdersViewModel = hiltViewModel(),
     navigateTo: (Screens) -> Unit
 ) {
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(0.0) }
     val event = viewModel.events.value
     val state = viewModel.states.value
 
     LaunchedEffect(Unit) {
         viewModel.getOrders()
+        viewModel.getCurrency()
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             OrdersContract.Events.Idle -> {}
             is OrdersContract.Events.NavigateToOrderDetails -> {
                 navigateTo(Screens.OrderDetailsScreen(event.order))
+                viewModel.resetEvent()
+            }
+
+            is OrdersContract.Events.ShowCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
                 viewModel.resetEvent()
             }
         }
@@ -71,7 +87,9 @@ fun OrdersScreen(
         onOrderClick = { order ->
             viewModel.invokeActions(OrdersContract.Action.ClickOnOrder(order))
 
-        }
+        },
+        currency = currency.value,
+        rate = rate.doubleValue
     )
 }
 
@@ -79,23 +97,32 @@ fun OrdersScreen(
 @Composable
 fun Orders(
     state: OrdersContract.States,
+    currency: String,
+    rate: Double,
     onOrderClick: (OrderEntity) -> Unit
 ) {
-    when(state){
+    when (state) {
         is OrdersContract.States.Failure -> {
-            //show alert
+            FailureScreen(state.errorMessage)
         }
+
         OrdersContract.States.Idle -> {}
         OrdersContract.States.Loading -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
+
         is OrdersContract.States.Success -> {
-            OrdersList(
-                ordersList = state.ordersList,
-                onOrderClick = onOrderClick
-            )
+            if (state.ordersList.isNotEmpty())
+                OrdersList(
+                    ordersList = state.ordersList,
+                    onOrderClick = onOrderClick,
+                    currency = currency,
+                    rate = rate
+                )
+            else
+                OrderEmptyScreen()
         }
     }
 }
@@ -104,6 +131,8 @@ fun Orders(
 @Composable
 fun OrdersList(
     ordersList: List<OrderEntity>,
+    currency: String,
+    rate: Double,
     onOrderClick: (OrderEntity) -> Unit
 ) {
     LazyColumn(
@@ -111,7 +140,12 @@ fun OrdersList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(ordersList) { order ->
-            OrderCard(order, onOrderClick)
+            OrderCard(
+                order,
+                rate = rate,
+                onOrderClick = onOrderClick,
+                currency = currency,
+            )
         }
     }
 }
@@ -121,6 +155,8 @@ fun OrdersList(
 @Composable
 fun OrderCard(
     order: OrderEntity,
+    currency: String,
+    rate: Double,
     onOrderClick: (OrderEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -128,6 +164,7 @@ fun OrderCard(
         modifier = modifier.padding(bottom = 16.dp)
     ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = "Order ID: ${order.name}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -165,6 +202,7 @@ fun OrderCard(
                         modifier = modifier.fillMaxWidth()
                     ) {
                         Text(
+                            fontFamily = PoppinsFontFamily,
                             text = "Total Amount",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -173,7 +211,13 @@ fun OrderCard(
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = "EGP ${order.totalPrice}",
+                            fontFamily = PoppinsFontFamily,
+                            text = "$currency ${
+                                String.format(
+                                    Locale.US,
+                                    "%.2f", (order.totalPrice.toDouble() * rate)
+                                )
+                            }",
                             fontSize = 14.sp,
                         )
                     }
@@ -196,7 +240,9 @@ fun OrderCard(
                             modifier = modifier.size(25.dp)
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text(text = date)
+                        Text(
+                            fontFamily = PoppinsFontFamily, text = date
+                        )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(

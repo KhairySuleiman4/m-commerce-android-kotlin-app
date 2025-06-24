@@ -62,6 +62,7 @@ import com.example.mcommerce.presentation.cart.viewmodel.CartViewModel
 import com.example.mcommerce.presentation.errors.CartEmptyScreen
 import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import com.example.mcommerce.presentation.theme.Secondary
 import com.shopify.checkoutsheetkit.ColorScheme
@@ -110,6 +111,7 @@ fun CartScreen(
 
             is CartContract.Events.DisplayError -> {
                 snackbarHostState.showSnackbar(event.msg, duration = SnackbarDuration.Short)
+                viewModel.resetEvents()
             }
 
             is CartContract.Events.SetCurrency -> {
@@ -251,7 +253,8 @@ fun CartPage(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    "Are you sure you want to delete this?",
+                                    fontFamily = PoppinsFontFamily,
+                                    text = "Are you sure you want to delete this?",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -300,7 +303,10 @@ fun CartPage(
                                             .clip(RoundedCornerShape(20))
                                             .fillMaxWidth(0.5f)
                                     ) {
-                                        Text("Delete")
+                                        Text(
+                                            fontFamily = PoppinsFontFamily,
+                                            text = "Delete"
+                                        )
                                     }
                                     OutlinedButton(
                                         onClick = {
@@ -315,7 +321,9 @@ fun CartPage(
                                             .clip(RoundedCornerShape(20))
                                             .fillMaxWidth(0.9f)
                                     ) {
-                                        Text("Cancel")
+                                        Text(
+                                            fontFamily = PoppinsFontFamily, text = "Cancel"
+                                        )
                                     }
                                 }
                             }
@@ -366,7 +374,10 @@ fun BottomBar(
                     },
                     singleLine = true,
                     placeholder = {
-                        Text("Promo Code or Voucher")
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text = "Promo Code or Voucher"
+                        )
                     },
                     colors = TextFieldDefaults.colors().copy(
                         focusedContainerColor = Color(243, 237, 235),
@@ -390,7 +401,10 @@ fun BottomBar(
                     enabled = isApplied,
                     modifier = Modifier.clip(RoundedCornerShape(20))
                 ) {
-                    Text("Apply")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Apply"
+                    )
                 }
             }
 
@@ -400,7 +414,8 @@ fun BottomBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Subtotal",
+                    fontFamily = PoppinsFontFamily,
+                    text = "Subtotal",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -417,7 +432,8 @@ fun BottomBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Discount",
+                        fontFamily = PoppinsFontFamily,
+                        text = "Discount",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -435,7 +451,8 @@ fun BottomBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Total",
+                    fontFamily = PoppinsFontFamily,
+                    text = "Total",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -460,7 +477,8 @@ fun BottomBar(
                 .fillMaxWidth()
         ) {
             Text(
-                "Check out",
+                fontFamily = PoppinsFontFamily,
+                text = "Check out",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -482,13 +500,15 @@ fun PriceInfo(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            currency,
+            fontFamily = PoppinsFontFamily,
+            text = currency,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            String.format(locale = Locale.US, "%.2f", price),
+            fontFamily = PoppinsFontFamily,
+            text = String.format(locale = Locale.US, "%.2f", price),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -556,7 +576,8 @@ fun CartInfo(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            name,
+            fontFamily = PoppinsFontFamily,
+            text = name,
             fontSize = 20.sp,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -565,18 +586,21 @@ fun CartInfo(
         )
 
         Text(
-            brand,
+            fontFamily = PoppinsFontFamily,
+            text = brand,
             fontSize = 16.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
 
         Text(
-            "Size: ${split[0]}",
+            fontFamily = PoppinsFontFamily,
+            text = "Size: ${split[0]}",
             fontSize = 14.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
         Text(
-            "Color: ${split[1]}",
+            fontFamily = PoppinsFontFamily,
+            text = "Color: ${split[1]}",
             fontSize = 14.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
@@ -585,13 +609,15 @@ fun CartInfo(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                currency,
+                fontFamily = PoppinsFontFamily,
+                text = currency,
                 color = Color.Black.copy(alpha = 0.7f),
                 fontSize = 18.sp
             )
 
             Text(
-                String.format(locale = Locale.US, "%.2f", price),
+                fontFamily = PoppinsFontFamily,
+                text = String.format(locale = Locale.US, "%.2f", price),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
@@ -639,7 +665,10 @@ fun QuantityChanger(
                         .width(20.dp)
                         .height(20.dp)
                 ) {
-                    Text("-")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "-"
+                    )
                 }
             } else {
                 Spacer(
@@ -649,7 +678,8 @@ fun QuantityChanger(
                 )
             }
             Text(
-                "$value",
+                fontFamily = PoppinsFontFamily,
+                text = "$value",
                 fontSize = 17.sp
             )
             OutlinedIconButton(
@@ -660,11 +690,13 @@ fun QuantityChanger(
                     .width(20.dp)
                     .height(20.dp)
             ) {
-                Text("+")
+                Text(
+                    fontFamily = PoppinsFontFamily,
+                    text = "+"
+                )
             }
         }
     }
-
 }
 
 @Preview

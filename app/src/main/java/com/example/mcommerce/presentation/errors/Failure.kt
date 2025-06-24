@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mcommerce.R
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 
@@ -36,14 +37,16 @@ fun FailureScreen(error: String = "Something Went Wrong Sorry!") {
             contentScale = ContentScale.FillBounds
         )
         Text(
-            "404",
+            fontFamily = PoppinsFontFamily,
+            text = "404",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Primary
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            error,
+            fontFamily = PoppinsFontFamily,
+            text = error,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,

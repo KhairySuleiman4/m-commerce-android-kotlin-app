@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
@@ -118,6 +119,7 @@ fun PersonalInfoPage(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = modifier
                         .padding(
                             top = 16.dp,
@@ -142,7 +144,8 @@ fun PersonalInfoPage(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter your Name here.",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter your Name here.",
                             color = Color.Gray
                         )
                     },
@@ -158,6 +161,7 @@ fun PersonalInfoPage(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = modifier
                         .padding(
                             top = 16.dp,
@@ -181,7 +185,8 @@ fun PersonalInfoPage(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter your Email here.",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter your Email here.",
                             color = Color.Gray
                         )
                     },

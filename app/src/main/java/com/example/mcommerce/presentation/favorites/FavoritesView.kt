@@ -53,6 +53,7 @@ import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.errors.FavoriteEmptyScreen
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
 
@@ -235,6 +236,7 @@ fun ProductCard(
             }
             Spacer(modifier.height(8.dp))
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = product.title,
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 fontWeight = FontWeight.Bold,
@@ -243,6 +245,7 @@ fun ProductCard(
             )
 
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = "${product.brand} | ${product.productType}",
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 fontSize = 16.sp,
@@ -254,6 +257,7 @@ fun ProductCard(
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "$currency ${String.format(Locale.US, "%.2f", (product.price * rate))}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp
@@ -285,6 +289,7 @@ fun FavoriteDeleteBottomSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = "Are you sure you want to delete this product from favorites?",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -307,7 +312,10 @@ fun FavoriteDeleteBottomSheet(
                         .clip(RoundedCornerShape(20))
                         .fillMaxWidth(0.5f)
                 ) {
-                    Text("Delete")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Delete"
+                    )
                 }
                 OutlinedButton(
                     onClick = onCancel,
@@ -319,7 +327,10 @@ fun FavoriteDeleteBottomSheet(
                         .clip(RoundedCornerShape(20))
                         .fillMaxWidth(0.9f)
                 ) {
-                    Text("Cancel")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Cancel"
+                    )
                 }
             }
         }
