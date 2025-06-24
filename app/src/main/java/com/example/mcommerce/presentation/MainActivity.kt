@@ -1,8 +1,10 @@
 package com.example.mcommerce.presentation
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -66,6 +68,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var connectivityObserver: ConnectivityObserver
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -132,6 +135,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavHostContainer(
     modifier: Modifier = Modifier,
@@ -314,7 +318,9 @@ fun NavHostContainer(
             composable<Screens.OrderDetailsScreen> { backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.OrderDetailsScreen>()
                 if (isConnected) {
-                    OrderDetailsScreen(orderId = value.orderId)
+                    OrderDetailsScreen(order = value.order){
+                        navController.navigate(it)
+                    }
                 } else {
                     NoNetworkScreen()
                 }

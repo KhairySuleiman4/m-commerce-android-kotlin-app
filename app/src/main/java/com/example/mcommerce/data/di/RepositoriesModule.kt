@@ -29,6 +29,8 @@ import com.example.mcommerce.data.remote.exchangerateapi.ExchangeService
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLService
 import com.example.mcommerce.data.remote.map.MapRemoteDataSource
 import com.example.mcommerce.data.remote.map.MapRemoteDataSourceImp
+import com.example.mcommerce.data.remote.orders.OrdersRemoteDataSource
+import com.example.mcommerce.data.remote.orders.OrdersRemoteDataSourceImpl
 import com.example.mcommerce.data.remote.products.ProductsRemoteDataSource
 import com.example.mcommerce.data.remote.products.ProductsRemoteDataSourceImpl
 import com.example.mcommerce.data.repoimp.AddressesRepoImp
@@ -39,6 +41,7 @@ import com.example.mcommerce.data.repoimp.CategoriesRepoImpl
 import com.example.mcommerce.data.repoimp.CurrencyRepoImp
 import com.example.mcommerce.data.repoimp.DiscountCodeRepoImp
 import com.example.mcommerce.data.repoimp.MapRepoImp
+import com.example.mcommerce.data.repoimp.OrdersRepoImpl
 import com.example.mcommerce.data.repoimp.ProductsRepoImpl
 import com.example.mcommerce.data.utils.ConnectivityObserver
 import com.example.mcommerce.domain.repoi.AddressesRepo
@@ -49,6 +52,7 @@ import com.example.mcommerce.domain.repoi.CategoriesRepo
 import com.example.mcommerce.domain.repoi.CurrencyRepo
 import com.example.mcommerce.domain.repoi.DiscountCodeRepo
 import com.example.mcommerce.domain.repoi.MapRepo
+import com.example.mcommerce.domain.repoi.OrdersRepo
 import com.example.mcommerce.domain.repoi.ProductsRepo
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
@@ -183,4 +187,13 @@ object RepositoriesModule{
     @Provides
     @Singleton
     fun provideDiscountCodesRepository(discountsRemoteDataSource: DiscountsRemoteDataSource): DiscountCodeRepo = DiscountCodeRepoImp(discountsRemoteDataSource)
+
+    @Provides
+    @Singleton
+    fun provideOrdersRemoteDataSource(graphQLService: GraphQLService): OrdersRemoteDataSource = OrdersRemoteDataSourceImpl(graphQLService)
+
+    @Provides
+    @Singleton
+    fun provideOrdersRepository(ordersRemoteDataSource: OrdersRemoteDataSource): OrdersRepo = OrdersRepoImpl(ordersRemoteDataSource)
+
 }

@@ -1,8 +1,10 @@
 package com.example.mcommerce.presentation.orders
 
-import androidx.compose.foundation.Image
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,14 +18,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,63 +32,103 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
+import com.example.mcommerce.data.utils.formatDateTime
+import com.example.mcommerce.domain.entities.OrderEntity
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.Primary
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OrdersScreen(modifier: Modifier = Modifier, navigateTo: (Screens) -> Unit) {
-    OrdersList(navigateTo)
-}
+fun OrdersScreen(
+    viewModel: OrdersViewModel = hiltViewModel(),
+    navigateTo: (Screens) -> Unit
+) {
+    val event = viewModel.events.value
+    val state = viewModel.states.value
 
-@Composable
-fun Orders(modifier: Modifier = Modifier) {
-    
-}
+    LaunchedEffect(Unit) {
+        viewModel.getOrders()
+    }
 
-@Composable
-fun OrdersList(navigateTo: (Screens) -> Unit) {
-    val orders = listOf(
-        OrdersContract.OrderUIModel(
-            orderName = "#F15306",
-            orderDate = "July 29,2023",
-            orderTime = "5:30 pm",
-            orderPrice = "1560",
-            currencyCode = "EGP"
-        ),
-        OrdersContract.OrderUIModel(
-            orderName = "#F15307",
-            orderDate = "Aug 01,2023",
-            orderTime = "12:00 pm",
-            orderPrice = "3250",
-            currencyCode = "EGP"
-        )
+    LaunchedEffect(event) {
+        when(event){
+            OrdersContract.Events.Idle -> {}
+            is OrdersContract.Events.NavigateToOrderDetails -> {
+                navigateTo(Screens.OrderDetailsScreen(event.order))
+                viewModel.resetEvent()
+            }
+        }
+    }
+
+    Orders(
+        state = state,
+        onOrderClick = { order ->
+            viewModel.invokeActions(OrdersContract.Action.ClickOnOrder(order))
+
+        }
     )
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(orders) { order ->
-            OrderCard(order, navigateTo)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun Orders(
+    state: OrdersContract.States,
+    onOrderClick: (OrderEntity) -> Unit
+) {
+    when(state){
+        is OrdersContract.States.Failure -> {
+            //show alert
+        }
+        OrdersContract.States.Idle -> {}
+        OrdersContract.States.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        is OrdersContract.States.Success -> {
+            OrdersList(
+                ordersList = state.ordersList,
+                onOrderClick = onOrderClick
+            )
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun OrdersList(
+    ordersList: List<OrderEntity>,
+    onOrderClick: (OrderEntity) -> Unit
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(ordersList) { order ->
+            OrderCard(order, onOrderClick)
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun OrderCard(
-    order: OrdersContract.OrderUIModel,
-    navigateTo: (Screens) -> Unit,
+    order: OrderEntity,
+    onOrderClick: (OrderEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.padding(bottom = 16.dp)
     ) {
         Text(
-            text = "Order ID: ${order.orderName}",
+            text = "Order ID: ${order.name}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = modifier.padding(bottom = 12.dp)
@@ -96,9 +137,11 @@ fun OrderCard(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(Color.White),
-            modifier = modifier.clickable {
-                navigateTo(Screens.OrderDetailsScreen(orderId = order.orderName))
-            }.fillMaxWidth()
+            modifier = modifier
+                .clickable {
+                    onOrderClick(order)
+                }
+                .fillMaxWidth()
         ) {
             Column(
                 modifier = modifier.fillMaxSize()
@@ -108,19 +151,15 @@ fun OrderCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.product_5_image1),
-                        contentDescription = "Product Image",
+                    GlideImage(
+                        model = order.lineItems[0].imageUrl,
+                        contentDescription = order.name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(width = 150.dp, height = 120.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .padding(start = 16.dp)
                     )
-                    //                GlideImage(
-                    //                    model = order.imageUrl,
-                    //                    contentDescription = order.orderName
-                    //                )
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = modifier.fillMaxWidth()
@@ -134,7 +173,7 @@ fun OrderCard(
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = "${order.currencyCode} ${order.orderPrice}",
+                            text = "EGP ${order.totalPrice}",
                             fontSize = 14.sp,
                         )
                     }
@@ -148,32 +187,29 @@ fun OrderCard(
                         .fillMaxWidth()
                         .padding(start = 16.dp, end = 32.dp, bottom = 8.dp)
                 ) {
+                    val (date, time) = formatDateTime(order.processedAt)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            Icons.Default.DateRange,
+                            painter = painterResource(R.drawable.date_icon),
                             contentDescription = "Date",
-                            tint = Color.Gray
+                            tint = Primary,
+                            modifier = modifier.size(25.dp)
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text(text = order.orderDate)
+                        Text(text = date)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            Icons.Default.CheckCircle,
+                            painter = painterResource(R.drawable.time_icon),
                             contentDescription = "Time",
-                            tint = Color.Gray
+                            tint = Primary,
+                            modifier = modifier.size(30.dp)
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text(text = order.orderTime)
+                        Text(text = time)
                     }
                 }
             }
         }
     }
 }
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun OrdersScreenPreview() {
-//    OrdersScreen()
-//}
