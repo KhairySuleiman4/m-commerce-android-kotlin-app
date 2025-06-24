@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +35,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -76,7 +78,11 @@ fun HomeScreen(
     navigateTo: (Screens) -> Unit
 ) {
     val event = viewModel.events.value
+    val state = viewModel.states.value
+
     val isGuest = remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(event) {
         when (event) {
@@ -94,6 +100,14 @@ fun HomeScreen(
 
             is HomeContract.Events.ShowError -> {
             }
+
+            is HomeContract.Events.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(
+                    message = event.message,
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.resetEvent()
+            }
         }
     }
 
@@ -101,116 +115,131 @@ fun HomeScreen(
         viewModel.invokeActions(HomeContract.Action.LoadHomeData)
         isGuest.value = viewModel.isGuest()
     }
-    
+
     HomeItems(
-        viewModel = viewModel,
+        state = state,
         currency = "EGP",
         rate = 1.0,
-        isGuest = isGuest.value
+        isGuest = isGuest.value,
+        snackbarHostState = snackbarHostState,
+        onBrandClick = { id, name ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(id, name))
+        },
+        onFavoriteClick = { product ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
+        },
+        onProductClick = { id ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(id))
+        }
     )
 }
 
 @Composable
 fun HomeItems(
-    viewModel: HomeViewModel,
+    state: HomeContract.HomeState,
     isGuest: Boolean,
     currency: String,
-    rate: Double
-    ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        listOf(
-            CouponEntity(
-                id = "1",
-                title = "Big Sale Event",
-                description = "Up to 70% off on selected items",
-                imageRes = R.drawable.ad_placeholder
-            ),
-            CouponEntity(
-                id = "2",
-                title = "New Collection",
-                description = "Explore our newest arrivals",
-                imageRes = R.drawable.ad_placeholder
-            ),
-            CouponEntity(
-                id = "3",
-                title = "Weekend Special",
-                description = "Exclusive weekend deals just for you",
-                imageRes = R.drawable.ad_placeholder
+    rate: Double,
+    snackbarHostState: SnackbarHostState,
+    onBrandClick: (String, String) -> Unit,
+    onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
+) {
+    Box {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf(
+                CouponEntity(
+                    id = "1",
+                    title = "Big Sale Event",
+                    description = "Up to 70% off on selected items",
+                    imageRes = R.drawable.ad_placeholder
+                ),
+                CouponEntity(
+                    id = "2",
+                    title = "New Collection",
+                    description = "Explore our newest arrivals",
+                    imageRes = R.drawable.ad_placeholder
+                ),
+                CouponEntity(
+                    id = "3",
+                    title = "Weekend Special",
+                    description = "Exclusive weekend deals just for you",
+                    imageRes = R.drawable.ad_placeholder
+                )
             )
-        )
-        val state = viewModel.states.value
-        
 
-        when{
-            state.errorMessage != null -> {
+            when {
+                state.errorMessage != null -> {
 
-            }
-            state.brandsLoading -> {
-                item {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                }
+
+                state.brandsLoading -> {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+
+                else -> {
+
+                    item {
+                        AdsCarousel(
+                            couponsList = state.codes.map {
+                                CouponEntity(
+                                    it,
+                                    title = "Big Sale Event",
+                                    description = "Up to 70% off on selected items",
+                                    imageRes = R.drawable.ad_placeholder
+                                )
+                            },
+                            isLoading = state.codesLoading,
+                        )
+                    }
+                    item {
+                        BrandList(
+                            brandsList = state.brandsList,
+                            onBrandClick = onBrandClick
+                        )
+                    }
+                    item {
+                        BestSellersList(
+                            title = "Best Sellers",
+                            products = state.bestSellersList,
+                            isLoading = state.bestSellersLoading,
+                            onProductClick = onProductClick,
+                            onFavoriteClick = onFavoriteClick,
+                            currency = currency,
+                            rate = rate,
+                            isGuest = isGuest
+                        )
+                    }
+                    item {
+                        LatestArrivalsList(
+                            title = "Latest Arrivals",
+                            products = state.latestArrivals,
+                            isLoading = state.latestArrivalsLoading,
+                            onProductClick = onProductClick,
+                            onFavoriteClick = onFavoriteClick,
+                            currency = currency,
+                            rate = rate,
+                            isGuest = isGuest
+                        )
                     }
                 }
             }
-            else -> {
-
-                item{
-                    AdsCarousel(
-                        couponsList = state.codes.map { CouponEntity(
-                            it,
-                            title = "Big Sale Event",
-                            description = "Up to 70% off on selected items",
-                            imageRes = R.drawable.ad_placeholder
-                        ) },
-                        isLoading = state.codesLoading,
-                    )
-                }
-                item {
-                    BrandList(
-                        brandsList = state.brandsList,
-                        onBrandClick = { id, name ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(id, name))
-                        }
-                    )
-                }
-                item {
-                    BestSellersList(
-                        title = "Best Sellers",
-                        products = state.bestSellersList,
-                        isLoading = state.bestSellersLoading,
-                        onProductClick = { productId ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
-                        },
-                        onFavoriteClick = { product ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
-                        },
-                        currency = currency,
-                        rate = rate,
-                        isGuest = isGuest
-                    )
-                }
-                item {
-                    LatestArrivalsList(
-                        title = "Latest Arrivals",
-                        products = state.latestArrivals,
-                        isLoading = state.latestArrivalsLoading,
-                        onProductClick = { productId ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
-                        },
-                        onFavoriteClick = { product ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
-                        },
-                        currency = currency,
-                        rate = rate,
-                        isGuest = isGuest
-                    )
-                }
-            }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
@@ -301,9 +330,15 @@ fun BestSellersList(
                     CircularProgressIndicator()
                 }
             }
+
             else -> {
                 LazyRow(
-                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 16.dp),
+                    contentPadding = PaddingValues(
+                        start = 8.dp,
+                        end = 8.dp,
+                        top = 4.dp,
+                        bottom = 16.dp
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(products) { product ->
@@ -318,10 +353,10 @@ fun BestSellersList(
                                 brand = product.brand
                             ),
                             onFavoriteClick = {
-                                if(!it.isFavorite){
+                                if (!it.isFavorite) {
                                     selectedProduct.value = it.toProductsEntity()
                                     showBottomSheet.value = true
-                                } else{
+                                } else {
                                     onFavoriteClick(it)
                                 }
                             },
@@ -334,7 +369,7 @@ fun BestSellersList(
                 }
             }
         }
-        if(showBottomSheet.value && selectedProduct.value != null){
+        if (showBottomSheet.value && selectedProduct.value != null) {
             FavoriteDeleteBottomSheet(
                 productId = selectedProduct.value!!.id,
                 onConfirmDelete = {
@@ -389,10 +424,13 @@ fun LatestArrivalsList(
                     CircularProgressIndicator()
                 }
             }
+
             else -> {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(800.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(800.dp)
+                ) {
                     CustomLazyVerticalGrid(
                         content = {
                             items(products) { product ->
@@ -429,13 +467,14 @@ fun AdsCarousel(
     isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
-    when{
-        isLoading ->{
+    when {
+        isLoading -> {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
-        else ->{
+
+        else -> {
             val pagerState = rememberPagerState(pageCount = { couponsList.size })
             val context = LocalContext.current
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -484,7 +523,8 @@ fun AdsCarousel(
                             .clickable {
                                 val clip = ClipData.newPlainText("code", couponsList[page].id)
                                 clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                             .fillMaxSize()
                             .graphicsLayer {
@@ -526,36 +566,8 @@ fun AdsCarousel(
                 }
             }
         }
+    }
 }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AdsCarouselPreview() {
-    val dummyAds = listOf(
-        CouponEntity(
-            id = "1",
-            title = "Summer Sale",
-            description = "Up to 50% off on all summer collections",
-            imageRes = R.drawable.ad_placeholder
-        ),
-        CouponEntity(
-            id = "2",
-            title = "New Arrivals",
-            description = "Check out our latest fashion trends",
-            imageRes = R.drawable.ad_placeholder
-        ),
-        CouponEntity(
-            id = "3",
-            title = "Flash Deal",
-            description = "Limited time offer - Buy 1 Get 1 Free",
-            imageRes = R.drawable.ad_placeholder
-        )
-    )
-
-    //AdsCarousel(couponsList = dummyAds)
-}
-
 
 @Composable
 fun CouponsCard(

@@ -19,6 +19,8 @@ sealed class Screens {
     @Serializable
     data object Profile : Screens()
     @Serializable
+    data object AboutUs : Screens()
+    @Serializable
     data object Settings : Screens()
     @Serializable
     data object Maps : Screens()

@@ -70,7 +70,6 @@ fun OrdersScreen(
         state = state,
         onOrderClick = { order ->
             viewModel.invokeActions(OrdersContract.Action.ClickOnOrder(order))
-
         }
     )
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -80,11 +81,9 @@ fun SettingsScreen(
 
     SettingsPage(
         modifier,
-        checkedDarkMode = checkedDarkMode.value,
         showBottomSheet = showBottomSheet.value,
         selectedCurrency = selectCurrency.value,
         openSheet = { viewModel.invokeActions(SettingsContract.Action.ClickOnCurrency) },
-        checkBoxAction = { viewModel.invokeActions(SettingsContract.Action.ClickOnCheckButton(it)) },
         hideSheet = { viewModel.invokeActions(SettingsContract.Action.ClickOnHide) },
         currencySelection = { viewModel.invokeActions(SettingsContract.Action.ClickOnSelectedCurrency(it)) }
     )
@@ -94,11 +93,9 @@ fun SettingsScreen(
 @Composable
 fun SettingsPage(
     modifier: Modifier = Modifier,
-    checkedDarkMode: Boolean,
     showBottomSheet: Boolean,
     selectedCurrency: String,
     openSheet: ()-> Unit,
-    checkBoxAction: (Boolean)->Unit,
     hideSheet: ()-> Unit,
     currencySelection: (String)-> Unit
     ) {
@@ -123,26 +120,6 @@ fun SettingsPage(
         ) {
             SettingTabInfo(text = "Currency", image = R.drawable.currency_icon)
             CurrencyDisplay(text = selectedCurrency)
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            SettingTabInfo(text = "Dark mode", image = R.drawable.dark_mode_icon)
-            Checkbox(
-                checked = checkedDarkMode,
-                onCheckedChange = { checkBoxAction(!it)},
-                colors = CheckboxDefaults
-                    .colors()
-                    .copy(
-                        checkedBoxColor = Primary,
-                        checkedBorderColor = Primary,
-                        uncheckedBorderColor = Primary
-                    )
-            )
         }
     }
     if (showBottomSheet) {
@@ -276,10 +253,10 @@ fun CurrencyDisplay(
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
-        Text(
-            ">",
-            fontWeight = FontWeight.Bold,
-            fontSize = 30.sp
+        Icon(
+            painter = painterResource(R.drawable.forward_arrow),
+            tint = Primary,
+            contentDescription =""
         )
     }
 }
