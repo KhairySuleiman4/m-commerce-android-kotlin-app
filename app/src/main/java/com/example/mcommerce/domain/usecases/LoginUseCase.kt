@@ -8,5 +8,6 @@ import javax.inject.Inject
 class LoginUseCase @Inject constructor(
     private val authRepo: AuthenticationRepo
 ) {
-    suspend operator fun invoke(email: String, password: String): Flow<ApiResult<Boolean>> = authRepo.login(email, password)
+    suspend operator fun invoke(email: String, password: String): Flow<ApiResult<Boolean>> =
+        authRepo.login(email, password)
 }

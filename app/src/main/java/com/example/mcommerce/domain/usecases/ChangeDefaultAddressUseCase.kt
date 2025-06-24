@@ -7,6 +7,7 @@ import javax.inject.Inject
 
 class ChangeDefaultAddressUseCase @Inject constructor(
     private val addressesRepo: AddressesRepo
-){
-    operator fun invoke(accessToken: String, addressId: String): Flow<ApiResult<Boolean>> = addressesRepo.updateDefault(accessToken, addressId)
+) {
+    operator fun invoke(accessToken: String, addressId: String): Flow<ApiResult<Boolean>> =
+        addressesRepo.updateDefault(accessToken, addressId)
 }

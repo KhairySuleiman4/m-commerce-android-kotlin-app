@@ -9,7 +9,7 @@ interface CartRepo {
     fun addItemToCart(itemId: String, quantity: Int): Flow<ApiResult<CartEntity?>>
     fun removeItemFromCart(itemId: String): Flow<ApiResult<CartEntity?>>
     fun changeItem(itemId: String, quantity: Int): Flow<ApiResult<CartEntity?>>
-    fun addDiscountCode(code: String,): Flow<ApiResult<CartEntity?>>
+    fun addDiscountCode(code: String): Flow<ApiResult<CartEntity?>>
     fun clearLocalCart(): Boolean
     suspend fun removeCart(): Flow<ApiResult<Boolean>>
 }

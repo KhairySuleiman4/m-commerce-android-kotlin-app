@@ -8,7 +8,8 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.CategoriesEntity
 import kotlinx.coroutines.flow.Flow
 
-class CategoriesRemoteDataSourceImpl(private val graphQLService: GraphQLService): CategoriesRemoteDataSource {
+class CategoriesRemoteDataSourceImpl(private val graphQLService: GraphQLService) :
+    CategoriesRemoteDataSource {
     override suspend fun getCategories(): Flow<ApiResult<List<CategoriesEntity>>> =
         executeAPI {
             graphQLService.getCategories().data?.toModel()?.map {

@@ -9,5 +9,6 @@ import javax.inject.Inject
 class GetAllProductsUseCase @Inject constructor(
     private val productsRepo: ProductsRepo
 ) {
-    suspend operator fun invoke(): Flow<ApiResult<List<ProductSearchEntity>>> = productsRepo.fetchAllProducts()
+    suspend operator fun invoke(): Flow<ApiResult<List<ProductSearchEntity>>> =
+        productsRepo.fetchAllProducts()
 }

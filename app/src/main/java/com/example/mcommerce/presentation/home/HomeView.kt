@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -64,10 +65,12 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CouponEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.products.ProductCard
 import com.example.mcommerce.presentation.products.ProductsContract
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.utils.toProductsEntity
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
@@ -83,6 +86,8 @@ fun HomeScreen(
     val isGuest = remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
 
     LaunchedEffect(event) {
         when (event) {
@@ -99,6 +104,11 @@ fun HomeScreen(
             }
 
             is HomeContract.Events.ShowError -> {
+            }
+
+            is HomeContract.Events.UpdateCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
             }
 
             is HomeContract.Events.ShowSnackbar -> {
@@ -118,8 +128,8 @@ fun HomeScreen(
 
     HomeItems(
         state = state,
-        currency = "EGP",
-        rate = 1.0,
+        currency = currency.value,
+        rate = rate.doubleValue,
         isGuest = isGuest.value,
         snackbarHostState = snackbarHostState,
         onBrandClick = { id, name ->
@@ -151,30 +161,12 @@ fun HomeItems(
             contentPadding = PaddingValues(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            listOf(
-                CouponEntity(
-                    id = "1",
-                    title = "Big Sale Event",
-                    description = "Up to 70% off on selected items",
-                    imageRes = R.drawable.ad_placeholder
-                ),
-                CouponEntity(
-                    id = "2",
-                    title = "New Collection",
-                    description = "Explore our newest arrivals",
-                    imageRes = R.drawable.ad_placeholder
-                ),
-                CouponEntity(
-                    id = "3",
-                    title = "Weekend Special",
-                    description = "Exclusive weekend deals just for you",
-                    imageRes = R.drawable.ad_placeholder
-                )
-            )
 
             when {
                 state.errorMessage != null -> {
-
+                    item {
+                        FailureScreen(state.errorMessage)
+                    }
                 }
 
                 state.brandsLoading -> {
@@ -195,8 +187,8 @@ fun HomeItems(
                             couponsList = state.codes.map {
                                 CouponEntity(
                                     it,
-                                    title = "Big Sale Event",
-                                    description = "Up to 70% off on selected items",
+                                    description = "Click here to Copy",
+                                    title = "Get ${it.filter { x -> x.isDigit() }}% Off",
                                     imageRes = R.drawable.ad_placeholder
                                 )
                             },
@@ -235,6 +227,7 @@ fun HomeItems(
                     }
                 }
             }
+
         }
         SnackbarHost(
             hostState = snackbarHostState,
@@ -251,7 +244,8 @@ fun BrandList(
 ) {
     Column {
         Text(
-            "Top Brands",
+            fontFamily = PoppinsFontFamily,
+            text = "Top Brands",
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
             color = Color.Black,
@@ -319,6 +313,7 @@ fun BestSellersList(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = title,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -412,6 +407,7 @@ fun LatestArrivalsList(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = title,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -595,9 +591,10 @@ fun CouponsCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = coupon.title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
                     maxLines = 2,
                 )
@@ -605,6 +602,7 @@ fun CouponsCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = coupon.description,
                     fontSize = 14.sp,
                     color = Color.Black,

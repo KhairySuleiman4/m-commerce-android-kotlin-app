@@ -63,6 +63,7 @@ import com.example.mcommerce.presentation.profile.ProfileScreen
 import com.example.mcommerce.presentation.search.SearchScreen
 import com.example.mcommerce.presentation.settings.view.SettingsScreen
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import com.example.mcommerce.presentation.utils.NoNetworkScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -176,6 +177,9 @@ fun NavHostContainer(
         builder = {
             composable<Screens.Splash> {
                 SplashScreen(navigateTo = {
+                    if (it is Screens.Home) {
+                        changeGuest(true)
+                    }
                     navController.navigate(it) {
                         popUpTo(0) { inclusive = true }
                     }
@@ -349,7 +353,7 @@ fun NavHostContainer(
             composable<Screens.OrderDetailsScreen> { backStackEntry ->
                 val value = backStackEntry.toRoute<Screens.OrderDetailsScreen>()
                 if (isConnected) {
-                    OrderDetailsScreen(order = value.order){
+                    OrderDetailsScreen(order = value.order) {
                         navController.navigate(it)
                     }
                 } else {
@@ -408,6 +412,7 @@ fun MyAppBar(
     TopAppBar(
         title = {
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = title,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
@@ -439,10 +444,16 @@ fun LoginAlert(
 ) {
     AlertDialog(
         title = {
-            Text(text = "Hello, Guest!")
+            Text(
+
+                fontFamily = PoppinsFontFamily, text = "Hello, Guest!"
+            )
         },
         text = {
-            Text(text = "You should have an account to be able to access this feature")
+            Text(
+                fontFamily = PoppinsFontFamily,
+                text = "You should have an account to be able to access this feature"
+            )
         },
         onDismissRequest = {
             onDismissRequest()
@@ -459,7 +470,9 @@ fun LoginAlert(
                     disabledContentColor = Primary
                 )
             ) {
-                Text("Sign up")
+                Text(
+                    fontFamily = PoppinsFontFamily, text = "Sign up"
+                )
             }
         },
         dismissButton = {
@@ -474,7 +487,9 @@ fun LoginAlert(
                     disabledContentColor = Primary
                 )
             ) {
-                Text("cancel")
+                Text(
+                    fontFamily = PoppinsFontFamily, text = "cancel"
+                )
             }
         }
     )

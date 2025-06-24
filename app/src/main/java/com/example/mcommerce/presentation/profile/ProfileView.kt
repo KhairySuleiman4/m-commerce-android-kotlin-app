@@ -34,13 +34,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.profile.models.ProfileItem
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
-    navigationTo: (Screens)-> Unit
+    navigationTo: (Screens) -> Unit
 ) {
     val isGuest = remember { mutableStateOf(true) }
     val email = remember { mutableStateOf("") }
@@ -52,7 +53,7 @@ fun ProfileScreen(
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is ProfileContract.Event.Idle -> {}
             is ProfileContract.Event.Logout -> {
                 viewModel.resetEvent()
@@ -139,12 +140,12 @@ fun ProfileTabInfo(
     modifier: Modifier = Modifier,
     image: Int,
     text: String
-    ) {
+) {
     Row(
-        modifier= modifier,
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+    ) {
         Image(
             painter = painterResource(image),
             contentDescription = text,
@@ -156,10 +157,11 @@ fun ProfileTabInfo(
         )
 
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold
-            )
+        )
     }
 }
 
@@ -168,7 +170,7 @@ fun ProfileTab(
     modifier: Modifier = Modifier,
     image: Int,
     text: String
-    ) {
+) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(4.dp))
@@ -176,7 +178,7 @@ fun ProfileTab(
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
-        ) {
+    ) {
         ProfileTabInfo(
             image = image,
             text = text
@@ -194,7 +196,7 @@ fun UserInfo(
     modifier: Modifier = Modifier,
     email: String,
     name: String,
-    ) {
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -214,11 +216,14 @@ fun UserInfo(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                name,
+                fontFamily = PoppinsFontFamily,
+                text = name,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            Text(email)
+            Text(
+                fontFamily = PoppinsFontFamily, text = email
+            )
         }
     }
 }

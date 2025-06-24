@@ -4,10 +4,10 @@ import com.example.mcommerce.R
 
 data class BottomNavItem(
     val icon: Int,
-    val route:Screens,
+    val route: Screens,
 )
 
-object Constants{
+object Constants {
     val BottomNavItems = listOf(
         BottomNavItem(
             icon = R.drawable.home,

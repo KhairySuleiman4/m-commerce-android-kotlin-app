@@ -7,5 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetBrandsUseCase @Inject constructor(private val brandsRepo: BrandsRepo) {
-    suspend operator fun invoke(): Flow<ApiResult<List<CollectionsEntity>>> = brandsRepo.fetchBrands()
+    suspend operator fun invoke(): Flow<ApiResult<List<CollectionsEntity>>> =
+        brandsRepo.fetchBrands()
 }

@@ -10,5 +10,8 @@ import javax.inject.Inject
 class GetBestSellersUseCase @Inject constructor(
     private val productsRepo: ProductsRepo
 ) {
-    suspend operator fun invoke(sortKeys: ProductSortKeys, reverse: Boolean): Flow<ApiResult<List<ProductsEntity>>> = productsRepo.fetchHomeProducts(sortKeys, reverse)
+    suspend operator fun invoke(
+        sortKeys: ProductSortKeys,
+        reverse: Boolean
+    ): Flow<ApiResult<List<ProductsEntity>>> = productsRepo.fetchHomeProducts(sortKeys, reverse)
 }

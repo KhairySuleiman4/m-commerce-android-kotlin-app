@@ -46,6 +46,7 @@ import com.example.mcommerce.presentation.auth.login.ContinueAsGuestSection
 import com.example.mcommerce.presentation.auth.login.EmailSection
 import com.example.mcommerce.presentation.auth.login.PasswordSection
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
@@ -53,35 +54,40 @@ fun SignupScreen(
     modifier: Modifier = Modifier,
     viewModel: SignupViewModel = hiltViewModel(),
     navigateToLogin: (Screens) -> Unit,
-    navigateToHome: (Screens, Boolean)->Unit,
+    navigateToHome: (Screens, Boolean) -> Unit,
 ) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
     val isLoading = remember { mutableStateOf(false) }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is AuthContract.Events.Idle -> {}
             is AuthContract.Events.NavigateToHomeGuest -> {
                 navigateToHome(Screens.Home, false)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.NavigateToHomeUser -> {
                 navigateToHome(Screens.Home, true)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.ShowSnackbar -> {
                 snackbarHostState.showSnackbar(message = event.message)
                 isLoading.value = false
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.ShowLoading -> {
                 isLoading.value = true
             }
+
             is AuthContract.Events.NavigateToLogin -> {
                 navigateToLogin(Screens.Login)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.NavigateToSignup -> {}
         }
     }
@@ -99,10 +105,15 @@ fun SignupScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else{
+        } else {
             SignupComposable(
                 onSignUpClicked = { credentials, confirm ->
-                    viewModel.invokeActions(AuthContract.SignupAction.ClickOnSignupButton(credentials, confirm))
+                    viewModel.invokeActions(
+                        AuthContract.SignupAction.ClickOnSignupButton(
+                            credentials,
+                            confirm
+                        )
+                    )
                 },
                 onLoginClicked = {
                     viewModel.invokeActions(AuthContract.SignupAction.ClickOnNavigateToLogin)
@@ -132,8 +143,7 @@ fun SignupComposable(
 
     LazyColumn(
         modifier = modifier
-            .fillMaxSize()
-        /*.padding(top = 16.dp)*/,
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -142,31 +152,31 @@ fun SignupComposable(
         }
 
         item {
-            NameSection(name = name.value){
+            NameSection(name = name.value) {
                 name.value = it
             }
         }
 
         item {
-            EmailSection(email = email.value){
+            EmailSection(email = email.value) {
                 email.value = it
             }
         }
 
         item {
-            PhoneSection(phone = phone.value){
+            PhoneSection(phone = phone.value) {
                 phone.value = it
             }
         }
 
         item {
-            PasswordSection(password = password.value){
+            PasswordSection(password = password.value) {
                 password.value = it
             }
         }
 
         item {
-            ConfirmPasswordSection(password = confirmPassword.value){
+            ConfirmPasswordSection(password = confirmPassword.value) {
                 confirmPassword.value = it
             }
         }
@@ -207,12 +217,14 @@ fun SignupScreenHeader(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.create_account),
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             fontSize = 24.sp
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = Modifier.padding(top = 8.dp),
             text = stringResource(R.string.fit_your_information),
             color = Color.Gray,
@@ -227,12 +239,12 @@ fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (Str
 
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.name),
             fontSize = 18.sp
         )
@@ -247,12 +259,6 @@ fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (Str
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_name),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp)
         )
@@ -263,12 +269,12 @@ fun NameSection(modifier: Modifier = Modifier, name: String, onNameChanged: (Str
 fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (String) -> Unit) {
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.phone),
             fontSize = 18.sp
         )
@@ -283,12 +289,6 @@ fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_phone),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(
@@ -299,17 +299,21 @@ fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (
 }
 
 @Composable
-fun ConfirmPasswordSection(modifier: Modifier = Modifier, password: String, onPasswordChanged: (String) -> Unit) {
+fun ConfirmPasswordSection(
+    modifier: Modifier = Modifier,
+    password: String,
+    onPasswordChanged: (String) -> Unit
+) {
     val isPasswordVisible by remember { mutableStateOf(false) }
 
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.confirm_password),
             fontSize = 18.sp
         )
@@ -324,12 +328,6 @@ fun ConfirmPasswordSection(modifier: Modifier = Modifier, password: String, onPa
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_password_again),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -360,6 +358,7 @@ fun SignupButton(
     )
     {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.sign_up),
             color = Color.White,
             fontSize = 18.sp
@@ -374,12 +373,14 @@ fun DoHaveAnAccountSection(
 ) {
     Row(
         modifier = modifier.padding(top = 24.dp)
-    ){
+    ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.do_have_an_accout)
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(start = 4.dp)
                 .clickable {

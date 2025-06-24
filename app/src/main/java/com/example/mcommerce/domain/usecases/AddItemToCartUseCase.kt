@@ -9,5 +9,6 @@ import javax.inject.Inject
 class AddItemToCartUseCase @Inject constructor(
     private val cartRepo: CartRepo
 ) {
-    operator fun invoke(itemId: String, quantity: Int): Flow<ApiResult<CartEntity?>> = cartRepo.addItemToCart(itemId, quantity)
+    operator fun invoke(itemId: String, quantity: Int): Flow<ApiResult<CartEntity?>> =
+        cartRepo.addItemToCart(itemId, quantity)
 }

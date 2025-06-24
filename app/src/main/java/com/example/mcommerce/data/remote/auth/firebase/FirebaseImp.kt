@@ -16,7 +16,7 @@ import kotlinx.coroutines.tasks.await
 class FirebaseImp(
     private val auth: FirebaseAuth,
     private val fireStore: FirebaseFirestore
-): Firebase {
+) : Firebase {
     override suspend fun createNewAccount(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>> =
         executeAPI {
             auth.createUserWithEmailAndPassword(credentials.mail, credentials.password).await()
@@ -73,6 +73,7 @@ class FirebaseImp(
         auth.currentUser?.reload()?.await()
         return auth.currentUser?.photoUrl.toString()
     }
+
     override fun getEmail(): String = auth.currentUser?.email ?: ""
 
     override fun getName(): String = auth.currentUser?.displayName ?: ""
@@ -95,7 +96,7 @@ class FirebaseImp(
         val customerId = auth.currentUser?.uid
         return flow {
             emit(ApiResult.Loading())
-            if(customerId != null){
+            if (customerId != null) {
                 val snapshot = fireStore.collection("customers")
                     .document(customerId)
                     .collection("products")
@@ -114,7 +115,7 @@ class FirebaseImp(
     override suspend fun deleteProduct(id: String) {
         val customerId = auth.currentUser?.uid
         val productId = id.replace("/", "_")
-        if (customerId != null){
+        if (customerId != null) {
             fireStore.collection("customers")
                 .document(customerId)
                 .collection("products")

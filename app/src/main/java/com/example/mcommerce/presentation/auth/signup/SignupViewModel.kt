@@ -16,11 +16,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignupViewModel @Inject constructor (
+class SignupViewModel @Inject constructor(
     private val shopifyUseCase: CreateNewCustomerOnShopifyUseCase,
     private val firebaseUseCase: CreateNewAccountOnFirebaseUseCase,
     private val keepMeLoggedInUseCase: KeepMeLoggedInUseCase
-): ViewModel(), AuthContract.SignupViewModel {
+) : ViewModel(), AuthContract.SignupViewModel {
 
     private val _events = mutableStateOf<AuthContract.Events>(AuthContract.Events.Idle)
     override val events: State<AuthContract.Events> get() = _events
@@ -28,10 +28,11 @@ class SignupViewModel @Inject constructor (
     suspend fun keepMeLoggedIn(): Boolean = keepMeLoggedInUseCase()
 
     override fun invokeActions(action: AuthContract.SignupAction) {
-        when(action){
+        when (action) {
             is AuthContract.SignupAction.ClickOnNavigateToLogin -> {
                 _events.value = AuthContract.Events.NavigateToLogin
             }
+
             is AuthContract.SignupAction.ClickOnSignupButton -> {
                 changeEventBasedOnCredentials(action.credentials, action.confirmPassword)
             }
@@ -42,31 +43,45 @@ class SignupViewModel @Inject constructor (
         }
     }
 
-    private fun changeEventBasedOnCredentials(credentials: UserCredentialsEntity, confirmPassword: String){
+    private fun changeEventBasedOnCredentials(
+        credentials: UserCredentialsEntity,
+        confirmPassword: String
+    ) {
         val msg = checkCredentials(credentials, confirmPassword)
-        when(msg){
+        when (msg) {
             "Success" -> {
                 createNewAccount(credentials)
             }
+
             "Complete" -> {
                 _events.value = AuthContract.Events.ShowSnackbar("Please, fill all fields")
             }
+
             "Email" -> {
                 _events.value = AuthContract.Events.ShowSnackbar("Please, enter a valid email")
             }
+
             "Phone" -> {
-                _events.value = AuthContract.Events.ShowSnackbar("Please, enter a valid phone number")
+                _events.value =
+                    AuthContract.Events.ShowSnackbar("Please, enter a valid phone number")
             }
+
             "Password" -> {
-                _events.value = AuthContract.Events.ShowSnackbar("Password should be 6 characters at least")
+                _events.value =
+                    AuthContract.Events.ShowSnackbar("Password should be 6 characters at least")
             }
+
             "Confirm" -> {
-                _events.value = AuthContract.Events.ShowSnackbar("The two passwords should be exactly the same")
+                _events.value =
+                    AuthContract.Events.ShowSnackbar("The two passwords should be exactly the same")
             }
         }
     }
 
-    private fun checkCredentials(credentials: UserCredentialsEntity, confirmPassword: String): String {
+    private fun checkCredentials(
+        credentials: UserCredentialsEntity,
+        confirmPassword: String
+    ): String {
         return when {
             credentials.name.isBlank() || credentials.mail.isBlank() || credentials.phoneNumber.isBlank() || credentials.password.isBlank() || confirmPassword.isBlank() ->
                 "Complete"
@@ -98,17 +113,22 @@ class SignupViewModel @Inject constructor (
         }
     }
 
-    private suspend fun checkShopifyResult(shopifyResult: ApiResult<String>, credentials: UserCredentialsEntity){
+    private suspend fun checkShopifyResult(
+        shopifyResult: ApiResult<String>,
+        credentials: UserCredentialsEntity
+    ) {
         when (shopifyResult) {
             is ApiResult.Loading -> {
                 return
             }
+
             is ApiResult.Failure -> {
                 _events.value = AuthContract.Events.ShowSnackbar(
                     "Shopify account creation failed: ${shopifyResult.error.message}"
                 )
                 return
             }
+
             is ApiResult.Success -> {
                 val firebaseResult = firebaseUseCase(
                     UserCredentialsEntity(
@@ -126,29 +146,33 @@ class SignupViewModel @Inject constructor (
         }
     }
 
-    private fun checkFirebaseResult(firebaseResult: ApiResult<Boolean>){
+    private fun checkFirebaseResult(firebaseResult: ApiResult<Boolean>) {
         when (firebaseResult) {
             is ApiResult.Loading -> {
                 return
             }
+
             is ApiResult.Failure -> {
                 _events.value = AuthContract.Events.ShowSnackbar(
                     "Firebase account creation failed: ${firebaseResult.error.message}"
                 )
             }
+
             is ApiResult.Success -> {
                 _events.value = AuthContract.Events.NavigateToHomeUser
             }
         }
     }
 
-    private fun isNotValidEmail(mail: String): Boolean = !android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()
+    private fun isNotValidEmail(mail: String): Boolean =
+        !android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()
 
-    private fun isNotValidPhoneNumber(phone: String): Boolean = !Regex("^(010|011|012|015)\\d{8}$").matches(phone)
+    private fun isNotValidPhoneNumber(phone: String): Boolean =
+        !Regex("^(010|011|012|015)\\d{8}$").matches(phone)
 
     private fun isNotValidPassword(password: String): Boolean = password.length < 6
 
-    fun resetEvent(){
+    fun resetEvent() {
         _events.value = AuthContract.Events.Idle
     }
 }

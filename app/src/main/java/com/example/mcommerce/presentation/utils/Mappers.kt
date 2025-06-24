@@ -16,7 +16,7 @@ fun ProductsContract.ProductUIModel.toSearchEntity(): ProductSearchEntity {
     )
 }
 
-fun ProductsContract.ProductUIModel.toProductsEntity(): ProductsEntity{
+fun ProductsContract.ProductUIModel.toProductsEntity(): ProductsEntity {
     return ProductsEntity(
         id = this.id,
         title = this.title,

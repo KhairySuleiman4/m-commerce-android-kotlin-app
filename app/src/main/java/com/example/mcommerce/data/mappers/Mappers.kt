@@ -25,7 +25,7 @@ import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 
-fun CollectionsModel.toEntity(): CollectionsEntity{
+fun CollectionsModel.toEntity(): CollectionsEntity {
     return CollectionsEntity(
         id = this.id,
         title = this.title,
@@ -36,7 +36,7 @@ fun CollectionsModel.toEntity(): CollectionsEntity{
 
 fun ExchangeResponse.toEntity(): ExchangeRateEntity = ExchangeRateEntity(rates)
 
-fun ProductsModel.toEntity(): ProductsEntity{
+fun ProductsModel.toEntity(): ProductsEntity {
     return ProductsEntity(
         id = this.id,
         title = this.title,
@@ -48,7 +48,7 @@ fun ProductsModel.toEntity(): ProductsEntity{
     )
 }
 
-fun CategoriesModel.toEntity(): CategoriesEntity{
+fun CategoriesModel.toEntity(): CategoriesEntity {
     return CategoriesEntity(
         id = this.id,
         title = this.title,
@@ -66,7 +66,7 @@ fun UserCredentialsEntity.toCustomerEntity(): CustomerEntity {
     )
 }
 
-fun Address.toModel(): AddressModel{
+fun Address.toModel(): AddressModel {
     return AddressModel(
         id = "",
         name = this.featureName,
@@ -79,7 +79,7 @@ fun Address.toModel(): AddressModel{
     )
 }
 
-fun AddressModel.toEntity(): AddressEntity{
+fun AddressModel.toEntity(): AddressEntity {
     return AddressEntity(
         id = this.id,
         name = this.name,
@@ -93,7 +93,7 @@ fun AddressModel.toEntity(): AddressEntity{
     )
 }
 
-fun AddressEntity.toModel(): AddressModel{
+fun AddressEntity.toModel(): AddressModel {
     return AddressModel(
         id = this.id,
         name = this.name,
@@ -107,7 +107,7 @@ fun AddressEntity.toModel(): AddressModel{
 }
 
 
-fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
+fun ProductsForSearchModel.toEntity(): ProductSearchEntity {
     return ProductSearchEntity(
         id = this.id,
         title = this.title,
@@ -138,7 +138,7 @@ fun LineModel.toEntity(): LineEntity = LineEntity(
     this.lineId
 )
 
-fun OrderModel.toEntity(): OrderEntity{
+fun OrderModel.toEntity(): OrderEntity {
     return OrderEntity(
         name = this.name,
         processedAt = this.processedAt,
@@ -152,7 +152,7 @@ fun OrderModel.toEntity(): OrderEntity{
     )
 }
 
-fun LineItemModel.toEntity(): LineItemEntity{
+fun LineItemModel.toEntity(): LineItemEntity {
     return LineItemEntity(
         quantity = this.quantity,
         variantTitle = this.variantTitle,
@@ -163,7 +163,7 @@ fun LineItemModel.toEntity(): LineItemEntity{
     )
 }
 
-fun ProductInfoEntity.toSearchEntity(): ProductSearchEntity{
+fun ProductInfoEntity.toSearchEntity(): ProductSearchEntity {
     return ProductSearchEntity(
         id = this.id,
         title = this.title,

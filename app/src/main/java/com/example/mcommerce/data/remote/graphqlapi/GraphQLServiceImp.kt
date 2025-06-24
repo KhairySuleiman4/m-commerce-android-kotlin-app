@@ -33,10 +33,17 @@ import com.example.mcommerce.type.ProductSortKeys
 
 class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
 
-    override suspend fun getBrands(): ApolloResponse<GetBrandsQuery.Data> = client.query(GetBrandsQuery()).execute()
-    override suspend fun getProducts(id: String): ApolloResponse<GetProductsByBrandQuery.Data> = client.query(GetProductsByBrandQuery(Optional.present(id))).execute()
-    override suspend fun getCategories(): ApolloResponse<GetCategoriesQuery.Data> = client.query(GetCategoriesQuery()).execute()
-    override suspend fun getProductById(id: String): ApolloResponse<GetProductByIdQuery.Data> = client.query(GetProductByIdQuery(Optional.present(id))).execute()
+    override suspend fun getBrands(): ApolloResponse<GetBrandsQuery.Data> =
+        client.query(GetBrandsQuery()).execute()
+
+    override suspend fun getProducts(id: String): ApolloResponse<GetProductsByBrandQuery.Data> =
+        client.query(GetProductsByBrandQuery(Optional.present(id))).execute()
+
+    override suspend fun getCategories(): ApolloResponse<GetCategoriesQuery.Data> =
+        client.query(GetCategoriesQuery()).execute()
+
+    override suspend fun getProductById(id: String): ApolloResponse<GetProductByIdQuery.Data> =
+        client.query(GetProductByIdQuery(Optional.present(id))).execute()
 
     override suspend fun createCustomer(customer: CustomerEntity): ApolloResponse<CustomerCreateMutation.Data> =
         client.mutation(
@@ -60,66 +67,92 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
             )
         ).execute()
 
-    override suspend fun getAllProducts(): ApolloResponse<GetAllProductsQuery.Data> = client.query(GetAllProductsQuery()).execute()
+    override suspend fun getAllProducts(): ApolloResponse<GetAllProductsQuery.Data> =
+        client.query(GetAllProductsQuery()).execute()
 
-    override suspend fun getOrders(userAccessToken: String): ApolloResponse<GetOrdersQuery.Data> = client.query(GetOrdersQuery(userAccessToken)).execute()
-    override suspend fun getCartById(id: String): ApolloResponse<GetCartByIdQuery.Data> = client.query(GetCartByIdQuery(id)).execute()
+    override suspend fun getOrders(userAccessToken: String): ApolloResponse<GetOrdersQuery.Data> =
+        client.query(GetOrdersQuery(userAccessToken)).execute()
+
+    override suspend fun getCartById(id: String): ApolloResponse<GetCartByIdQuery.Data> =
+        client.query(GetCartByIdQuery(id)).execute()
 
     override suspend fun createCart(
         accessToken: String,
         email: String
-    ): ApolloResponse<CreateCartMutation.Data>
-    = client.mutation(CreateCartMutation(customerToken = accessToken, email = email)).execute()
+    ): ApolloResponse<CreateCartMutation.Data> =
+        client.mutation(CreateCartMutation(customerToken = accessToken, email = email)).execute()
 
-    override suspend fun addItemToCart(cartId: String, quantity: Int, itemId: String): ApolloResponse<AddItemToCartMutation.Data>
-    = client.mutation(AddItemToCartMutation(cartId,quantity,itemId)).execute()
+    override suspend fun addItemToCart(
+        cartId: String,
+        quantity: Int,
+        itemId: String
+    ): ApolloResponse<AddItemToCartMutation.Data> =
+        client.mutation(AddItemToCartMutation(cartId, quantity, itemId)).execute()
 
-    override suspend fun removeItemFromCart(cartId: String, itemId: String): ApolloResponse<RemoveItemFromCartMutation.Data>
-    = client.mutation(RemoveItemFromCartMutation(cartId, listOf(itemId))).execute()
+    override suspend fun removeItemFromCart(
+        cartId: String,
+        itemId: String
+    ): ApolloResponse<RemoveItemFromCartMutation.Data> =
+        client.mutation(RemoveItemFromCartMutation(cartId, listOf(itemId))).execute()
 
     override suspend fun changeQuantityOfItemInCart(
         cartId: String,
         quantity: Int,
         itemId: String
-    ): ApolloResponse<UpdateItemCountMutation.Data> = client.mutation(UpdateItemCountMutation(cartId, listOf(CartLineUpdateInput(itemId, quantity = Optional.present(quantity))))).execute()
+    ): ApolloResponse<UpdateItemCountMutation.Data> = client.mutation(
+        UpdateItemCountMutation(
+            cartId,
+            listOf(CartLineUpdateInput(itemId, quantity = Optional.present(quantity)))
+        )
+    ).execute()
 
-    override suspend fun addDiscountCodeToCart(cartId: String, code: String): ApolloResponse<AddCartDiscountMutation.Data>
-    = client.mutation(AddCartDiscountMutation(cartId, listOf(code))).execute()
+    override suspend fun addDiscountCodeToCart(
+        cartId: String,
+        code: String
+    ): ApolloResponse<AddCartDiscountMutation.Data> =
+        client.mutation(AddCartDiscountMutation(cartId, listOf(code))).execute()
 
     override suspend fun getHomeProducts(
         sortKey: ProductSortKeys,
         reverse: Boolean
-    ): ApolloResponse<GetHomeProductsQuery.Data> = client.query(GetHomeProductsQuery(Optional.present(sortKey), Optional.present(reverse))).execute()
+    ): ApolloResponse<GetHomeProductsQuery.Data> =
+        client.query(GetHomeProductsQuery(Optional.present(sortKey), Optional.present(reverse)))
+            .execute()
 
-    override suspend fun getAddresses(accessToken: String): ApolloResponse<GetAddressesQuery.Data> = client.query(GetAddressesQuery(accessToken)).execute()
+    override suspend fun getAddresses(accessToken: String): ApolloResponse<GetAddressesQuery.Data> =
+        client.query(GetAddressesQuery(accessToken)).execute()
 
     override suspend fun addAddress(
         accessToken: String,
         address: AddressModel,
         name: String
-    ): ApolloResponse<CustomerAddressCreateMutation.Data> = client.mutation(CustomerAddressCreateMutation(
-        MailingAddressInput(
-            lastName = Optional.present(name),
-           address1 =  Optional.present(address.name),
-           address2 =  Optional.present(address.subName),
-           country = Optional.present(address.country),
-            zip = Optional.present(address.zip),
-            city = Optional.present(address.city)
+    ): ApolloResponse<CustomerAddressCreateMutation.Data> = client.mutation(
+        CustomerAddressCreateMutation(
+            MailingAddressInput(
+                lastName = Optional.present(name),
+                address1 = Optional.present(address.name),
+                address2 = Optional.present(address.subName),
+                country = Optional.present(address.country),
+                zip = Optional.present(address.zip),
+                city = Optional.present(address.city)
             ),
-        customerAccessToken = accessToken
-    )).execute()
+            customerAccessToken = accessToken
+        )
+    ).execute()
 
     override suspend fun removeAddress(
         accessToken: String,
         addressId: String
-    ): ApolloResponse<CustomerAddressDeleteMutation.Data> = client.mutation(CustomerAddressDeleteMutation(accessToken,addressId)).execute()
+    ): ApolloResponse<CustomerAddressDeleteMutation.Data> =
+        client.mutation(CustomerAddressDeleteMutation(accessToken, addressId)).execute()
 
     override suspend fun changeDefaultAddress(
         accessToken: String,
         addressId: String
-    ): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data> = client.mutation(CustomerDefaultAddressUpdateMutation(addressId,accessToken)).execute()
+    ): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data> =
+        client.mutation(CustomerDefaultAddressUpdateMutation(addressId, accessToken)).execute()
 
-    override suspend fun checkForDefaultAddress(accessToken: String): ApolloResponse<CheckForDefaultAddressQuery.Data>
-        = client.query(CheckForDefaultAddressQuery(accessToken)).execute()
+    override suspend fun checkForDefaultAddress(accessToken: String): ApolloResponse<CheckForDefaultAddressQuery.Data> =
+        client.query(CheckForDefaultAddressQuery(accessToken)).execute()
 
 }

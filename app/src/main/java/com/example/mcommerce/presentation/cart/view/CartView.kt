@@ -3,7 +3,6 @@ package com.example.mcommerce.presentation.cart.view
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,8 +61,12 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.presentation.cart.CartContract
 import com.example.mcommerce.presentation.cart.viewmodel.CartViewModel
+import com.example.mcommerce.presentation.errors.CartEmptyScreen
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
+import com.example.mcommerce.presentation.theme.Secondary
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.LogLevel
 import com.shopify.checkoutsheetkit.Preloading
@@ -75,7 +78,7 @@ fun CartScreen(
     modifier: Modifier = Modifier,
     viewModel: CartViewModel = hiltViewModel(),
     navigate: () -> Unit
-    ) {
+) {
     val activity = LocalActivity.current as ComponentActivity
     val event = viewModel.events.value
     val state = viewModel.states.value
@@ -84,7 +87,7 @@ fun CartScreen(
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
 
-    ShopifyCheckoutSheetKit.configure{
+    ShopifyCheckoutSheetKit.configure {
         it.colorScheme = ColorScheme.Automatic()
         it.preloading = Preloading(enabled = false)
         it.logLevel = LogLevel.DEBUG
@@ -93,22 +96,24 @@ fun CartScreen(
     LaunchedEffect(Unit) {
         viewModel.getCart()
         viewModel.getCurrency()
-        viewModel.setEventProcessor(activity,{
+        viewModel.setEventProcessor(activity, {
             navigate()
         })
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             CartContract.Events.DisableApplyEvent -> {
                 isApply.value = false
             }
+
             CartContract.Events.Idle -> {
 
             }
 
             is CartContract.Events.DisplayError -> {
-                snackbarHostState.showSnackbar(event.msg , duration = SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(event.msg, duration = SnackbarDuration.Short)
+                viewModel.resetEvents()
             }
 
             is CartContract.Events.SetCurrency -> {
@@ -156,7 +161,7 @@ fun CartPage(
     minusAction: (String, Int) -> Unit,
     deleteAction: (String) -> Unit,
     submitAction: () -> Unit
-    ) {
+) {
     val showBottomSheet = remember { mutableStateOf(false) }
     val selectedItem = remember { mutableStateOf<LineEntity?>(null) }
     val sheetState = rememberModalBottomSheetState(
@@ -180,23 +185,26 @@ fun CartPage(
                     },
                     onCheckout = {
                         submitAction()
-                }
+                    }
                 )
             }
         }
-        ) { padding->
-        when(state){
+    ) { padding ->
+        when (state) {
             is CartContract.States.Failure -> {
-
+                FailureScreen(state.errorMsg)
             }
+
             CartContract.States.Idle -> {
 
             }
+
             CartContract.States.Loading -> {
                 Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
+
             is CartContract.States.Success -> {
                 if (state.cart.items.isNotEmpty()) {
                     LazyColumn(
@@ -228,31 +236,10 @@ fun CartPage(
                             Spacer(modifier = Modifier.height(320.dp))
                         }
                     }
+                } else {
+                    CartEmptyScreen()
                 }
-                else{
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Opps! Your Cart is empty. Let's fix That!",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 22.sp,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.height(10.dp))
-                        Image(
-                            painter = painterResource(R.drawable.cart),
-                            contentDescription = "Cart Photo",
-                            modifier = Modifier.fillMaxSize(0.5f)
-                        )
-
-                    }
-                }
-                if (showBottomSheet.value){
+                if (showBottomSheet.value) {
                     ModalBottomSheet(
                         sheetState = sheetState,
                         onDismissRequest = {
@@ -268,7 +255,8 @@ fun CartPage(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    "Are you sure you want to delete this?",
+                                    fontFamily = PoppinsFontFamily,
+                                    text = "Are you sure you want to delete this?",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -328,9 +316,12 @@ fun CartPage(
                                             .clip(RoundedCornerShape(20))
                                             .fillMaxWidth(0.5f)
                                     ) {
-                                        Text("Delete")
+                                        Text(
+                                            fontFamily = PoppinsFontFamily,
+                                            text = "Delete"
+                                        )
                                     }
-                                    OutlinedButton (
+                                    OutlinedButton(
                                         onClick = {
                                             selectedItem.value = null
                                             showBottomSheet.value = false
@@ -343,7 +334,9 @@ fun CartPage(
                                             .clip(RoundedCornerShape(20))
                                             .fillMaxWidth(0.9f)
                                     ) {
-                                        Text("Cancel")
+                                        Text(
+                                            fontFamily = PoppinsFontFamily, text = "Cancel"
+                                        )
                                     }
                                 }
                             }
@@ -365,7 +358,7 @@ fun BottomBar(
     discount: Double,
     total: Double,
     isApplied: Boolean,
-    onApply: (String)-> Unit,
+    onApply: (String) -> Unit,
     onCheckout: () -> Unit
 ) {
     val promoCode = rememberSaveable { mutableStateOf("") }
@@ -394,9 +387,15 @@ fun BottomBar(
                     },
                     singleLine = true,
                     placeholder = {
-                        Text("Promo Code or Voucher")
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text = "Promo Code or Voucher"
+                        )
                     },
-                    colors = TextFieldDefaults.colors().copy(focusedContainerColor = Color(243,237,235), unfocusedContainerColor = Color(243,237,235)),
+                    colors = TextFieldDefaults.colors().copy(
+                        focusedContainerColor = Color(243, 237, 235),
+                        unfocusedContainerColor = Color(243, 237, 235)
+                    ),
                     modifier = Modifier
                         .height(50.dp)
                         .clip(RoundedCornerShape(topStartPercent = 20, bottomStartPercent = 20))
@@ -417,7 +416,10 @@ fun BottomBar(
                     enabled = isApplied,
                     modifier = Modifier.clip(RoundedCornerShape(20)).width(120.dp).height(40.dp)
                 ) {
-                    Text("Apply")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Apply"
+                    )
                 }
             }
 
@@ -427,7 +429,8 @@ fun BottomBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Subtotal",
+                    fontFamily = PoppinsFontFamily,
+                    text = "Subtotal",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -444,7 +447,8 @@ fun BottomBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Discount",
+                        fontFamily = PoppinsFontFamily,
+                        text = "Discount",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -462,7 +466,8 @@ fun BottomBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Total",
+                    fontFamily = PoppinsFontFamily,
+                    text = "Total",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -487,7 +492,8 @@ fun BottomBar(
                 .fillMaxWidth()
         ) {
             Text(
-                "Check out",
+                fontFamily = PoppinsFontFamily,
+                text = "Check out",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -509,13 +515,15 @@ fun PriceInfo(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            currency,
+            fontFamily = PoppinsFontFamily,
+            text = currency,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            String.format(locale = Locale.US,"%.2f", price),
+            fontFamily = PoppinsFontFamily,
+            text = String.format(locale = Locale.US, "%.2f", price),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -590,39 +598,45 @@ fun CartInfo(
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            name,
+            fontFamily = PoppinsFontFamily,
+            text = name,
             fontSize = 16.sp,
             maxLines = 2,
         )
 
         Text(
-            brand,
+            fontFamily = PoppinsFontFamily,
+            text = brand,
             fontSize = 14.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
 
         Text(
-            "Size: ${split[0]}",
+            fontFamily = PoppinsFontFamily,
+            text = "Size: ${split[0]}",
             fontSize = 12.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
         Text(
-            "Color: ${split[1]}",
+            fontFamily = PoppinsFontFamily,
+            text = "Color: ${split[1]}",
             fontSize = 12.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement =Arrangement.spacedBy(8.dp)
-        ){
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text(
-                currency,
+                fontFamily = PoppinsFontFamily,
+                text = currency,
                 color = Color.Black.copy(alpha = 0.7f),
                 fontSize = 16.sp
             )
 
             Text(
-                String.format(locale = Locale.US,"%.2f", price),
+                fontFamily = PoppinsFontFamily,
+                text = String.format(locale = Locale.US, "%.2f", price),
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
@@ -645,7 +659,10 @@ fun CartInfo(
                             .width(20.dp)
                             .height(20.dp)
                     ) {
-                        Text("-")
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text ="-"
+                        )
                     }
                 }
                 else{
@@ -656,7 +673,8 @@ fun CartInfo(
                     )
                 }
                 Text(
-                    "$value",
+                    fontFamily = PoppinsFontFamily,
+                    text ="$value",
                     fontSize = 14.sp
                 )
                 OutlinedIconButton(
@@ -667,7 +685,10 @@ fun CartInfo(
                         .width(20.dp)
                         .height(20.dp)
                 ) {
-                    Text("+")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "+"
+                    )
                 }
             }
             IconButton(
@@ -692,7 +713,7 @@ private fun PreviewCartScreen() {
         item = LineEntity("", 2, 2.0, "", "", "1/x", "", "s"),
         currency = "",
         rate = 1.0,
-        plusAction = {  },
-        minusAction = {  },
+        plusAction = { },
+        minusAction = { },
     ) { }
 }

@@ -1,6 +1,6 @@
 package com.example.mcommerce.domain.entities
 
-data class ProductInfoEntity (
+data class ProductInfoEntity(
     val id: String,
     val images: List<String>,
     val title: String,

@@ -25,9 +25,9 @@ fun SplashScreen(
 ) {
     LaunchedEffect(Unit) {
         delay(2000)
-        if(viewModel.keepMeLoggedIn()){
+        if (viewModel.keepMeLoggedIn()) {
             navigateTo(Screens.Home)
-        }else{
+        } else {
             navigateTo(Screens.Signup)
         }
     }

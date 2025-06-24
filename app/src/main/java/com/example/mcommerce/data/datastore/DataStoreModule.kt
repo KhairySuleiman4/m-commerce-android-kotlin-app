@@ -11,7 +11,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "ecommerce-dataStore")
 
 @Module
@@ -25,5 +24,4 @@ object DataStoreModule {
     ): DataStore<Preferences> {
         return context.dataStore
     }
-
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
@@ -45,16 +46,22 @@ fun PersonalInfoScreen(
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             PersonalInfoContract.Event.Idle -> {
 
             }
+
             is PersonalInfoContract.Event.SaveDone -> {
-                snackbarHostState.showSnackbar("The new Name ${event.name} have been saved!", duration =  SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(
+                    "The new Name ${event.name} have been saved!",
+                    duration = SnackbarDuration.Short
+                )
             }
+
             is PersonalInfoContract.Event.ShowError -> {
-                snackbarHostState.showSnackbar(event.msg, duration =  SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(event.msg, duration = SnackbarDuration.Short)
             }
+
             is PersonalInfoContract.Event.UpdateData -> {
                 email.value = event.email
                 name.value = event.name
@@ -63,6 +70,7 @@ fun PersonalInfoScreen(
     }
 
     PersonalInfoPage(
+        modifier = modifier,
         name = name.value,
         email = email.value,
         snackbarHostState = snackbarHostState
@@ -88,7 +96,7 @@ fun PersonalInfoPage(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if(textFieldValue.value != name && textFieldValue.value.length > 4)
+                    if (textFieldValue.value != name && textFieldValue.value.length > 4)
                         changeNameAction(textFieldValue.value)
                 },
                 containerColor = Primary,
@@ -111,6 +119,7 @@ fun PersonalInfoPage(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = modifier
                         .padding(
                             top = 16.dp,
@@ -135,7 +144,8 @@ fun PersonalInfoPage(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter your Name here.",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter your Name here.",
                             color = Color.Gray
                         )
                     },
@@ -151,6 +161,7 @@ fun PersonalInfoPage(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = modifier
                         .padding(
                             top = 16.dp,
@@ -174,7 +185,8 @@ fun PersonalInfoPage(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter your Email here.",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter your Email here.",
                             color = Color.Gray
                         )
                     },

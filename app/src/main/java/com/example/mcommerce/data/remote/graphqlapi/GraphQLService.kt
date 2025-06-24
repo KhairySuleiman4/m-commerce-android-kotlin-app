@@ -35,15 +35,54 @@ interface GraphQLService {
     suspend fun getAllProducts(): ApolloResponse<GetAllProductsQuery.Data>
     suspend fun getOrders(userAccessToken: String): ApolloResponse<GetOrdersQuery.Data>
     suspend fun getCartById(id: String): ApolloResponse<GetCartByIdQuery.Data>
-    suspend fun createCart(accessToken: String, email: String): ApolloResponse<CreateCartMutation.Data>
-    suspend fun addItemToCart(cartId: String, quantity: Int, itemId: String): ApolloResponse<AddItemToCartMutation.Data>
-    suspend fun removeItemFromCart(cartId: String, itemId: String): ApolloResponse<RemoveItemFromCartMutation.Data>
-    suspend fun changeQuantityOfItemInCart(cartId: String, quantity: Int, itemId: String): ApolloResponse<UpdateItemCountMutation.Data>
-    suspend fun addDiscountCodeToCart(cartId: String, code:String): ApolloResponse<AddCartDiscountMutation.Data>
-    suspend fun getHomeProducts(sortKey: ProductSortKeys, reverse: Boolean): ApolloResponse<GetHomeProductsQuery.Data>
+    suspend fun createCart(
+        accessToken: String,
+        email: String
+    ): ApolloResponse<CreateCartMutation.Data>
+
+    suspend fun addItemToCart(
+        cartId: String,
+        quantity: Int,
+        itemId: String
+    ): ApolloResponse<AddItemToCartMutation.Data>
+
+    suspend fun removeItemFromCart(
+        cartId: String,
+        itemId: String
+    ): ApolloResponse<RemoveItemFromCartMutation.Data>
+
+    suspend fun changeQuantityOfItemInCart(
+        cartId: String,
+        quantity: Int,
+        itemId: String
+    ): ApolloResponse<UpdateItemCountMutation.Data>
+
+    suspend fun addDiscountCodeToCart(
+        cartId: String,
+        code: String
+    ): ApolloResponse<AddCartDiscountMutation.Data>
+
+    suspend fun getHomeProducts(
+        sortKey: ProductSortKeys,
+        reverse: Boolean
+    ): ApolloResponse<GetHomeProductsQuery.Data>
+
     suspend fun getAddresses(accessToken: String): ApolloResponse<GetAddressesQuery.Data>
-    suspend fun addAddress(accessToken: String, address:AddressModel, name:String): ApolloResponse<CustomerAddressCreateMutation.Data>
-    suspend fun removeAddress(accessToken: String, addressId: String): ApolloResponse<CustomerAddressDeleteMutation.Data>
-    suspend fun changeDefaultAddress(accessToken: String, addressId: String): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data>
+    suspend fun addAddress(
+        accessToken: String,
+        address: AddressModel,
+        name: String
+    ): ApolloResponse<CustomerAddressCreateMutation.Data>
+
+    suspend fun removeAddress(
+        accessToken: String,
+        addressId: String
+    ): ApolloResponse<CustomerAddressDeleteMutation.Data>
+
+    suspend fun changeDefaultAddress(
+        accessToken: String,
+        addressId: String
+    ): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data>
+
     suspend fun checkForDefaultAddress(accessToken: String): ApolloResponse<CheckForDefaultAddressQuery.Data>
 }

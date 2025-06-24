@@ -38,13 +38,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.settings.SettingsContract
 import com.example.mcommerce.presentation.settings.viewmodel.SettingsViewModel
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel()
-    ) {
+) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.showCurrency()
@@ -54,27 +55,45 @@ fun SettingsScreen(
     val showBottomSheet = remember { mutableStateOf(false) }
     val selectCurrency = remember { mutableStateOf("EGP") }
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             SettingsContract.Events.CheckDarkMode -> {
                 checkedDarkMode.value = true
             }
+
             SettingsContract.Events.HideCurrencyCatalog -> {
                 showBottomSheet.value = false
             }
+
             SettingsContract.Events.Idle -> {
 
             }
+
             is SettingsContract.Events.SaveCurrency -> {
-                Toast.makeText(context, "Changes Saved!\nNow ${event.currency} is your displayed currency", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Changes Saved!\nNow ${event.currency} is your displayed currency",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
             is SettingsContract.Events.SelectCurrency -> {
                 selectCurrency.value = event.currency
             }
+
             SettingsContract.Events.ShowCurrencyCatalog -> {
                 showBottomSheet.value = true
             }
+
             SettingsContract.Events.UnCheckDarkMode -> {
-                checkedDarkMode.value= false
+                checkedDarkMode.value = false
+            }
+
+            is SettingsContract.Events.ShowError -> {
+                Toast.makeText(
+                    context,
+                    event.msg,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -85,7 +104,13 @@ fun SettingsScreen(
         selectedCurrency = selectCurrency.value,
         openSheet = { viewModel.invokeActions(SettingsContract.Action.ClickOnCurrency) },
         hideSheet = { viewModel.invokeActions(SettingsContract.Action.ClickOnHide) },
-        currencySelection = { viewModel.invokeActions(SettingsContract.Action.ClickOnSelectedCurrency(it)) }
+        currencySelection = {
+            viewModel.invokeActions(
+                SettingsContract.Action.ClickOnSelectedCurrency(
+                    it
+                )
+            )
+        }
     )
 }
 
@@ -148,12 +173,15 @@ fun SettingsPage(
                     CountryTabInfo(text = "US Dollar", image = R.drawable.usa_flag)
                     if (selectedCurrency == "USD")
                         Text(
-                            "✔",
+                            fontFamily = PoppinsFontFamily,
+                            text = "✔",
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold
                         )
                     else
-                        Text("")
+                        Text(
+                            fontFamily = PoppinsFontFamily, text = ""
+                        )
                 }
                 Row(
                     modifier = Modifier
@@ -168,12 +196,16 @@ fun SettingsPage(
                     CountryTabInfo(text = "EG Pound", image = R.drawable.egypt_flag)
                     if (selectedCurrency == "EGP")
                         Text(
-                            "✔",
+                            fontFamily = PoppinsFontFamily,
+                            text = "✔",
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold
                         )
                     else
-                        Text("")
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text = ""
+                        )
                 }
             }
         }
@@ -187,7 +219,7 @@ fun SettingTabInfo(
     text: String
 ) {
     Row(
-        modifier= modifier,
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -200,7 +232,8 @@ fun SettingTabInfo(
         )
 
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold,
             color = Color.Black
@@ -215,7 +248,7 @@ fun CountryTabInfo(
     text: String
 ) {
     Row(
-        modifier= modifier,
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -230,7 +263,8 @@ fun CountryTabInfo(
         )
 
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold
         )
@@ -241,14 +275,15 @@ fun CountryTabInfo(
 fun CurrencyDisplay(
     modifier: Modifier = Modifier,
     text: String
-    ) {
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text,
+            fontFamily = PoppinsFontFamily,
+            text = text,
             color = Color(0, 0, 0, 77),
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp

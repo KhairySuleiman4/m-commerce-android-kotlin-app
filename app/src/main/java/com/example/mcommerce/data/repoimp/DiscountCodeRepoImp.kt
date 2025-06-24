@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class DiscountCodeRepoImp(
     private val discountsRemoteDataSource: DiscountsRemoteDataSource
-): DiscountCodeRepo{
-    override fun getCodes(): Flow<ApiResult<List<String?>?>> = discountsRemoteDataSource.getDiscountCodes()
+) : DiscountCodeRepo {
+    override fun getCodes(): Flow<ApiResult<List<String?>?>> =
+        discountsRemoteDataSource.getDiscountCodes()
 }

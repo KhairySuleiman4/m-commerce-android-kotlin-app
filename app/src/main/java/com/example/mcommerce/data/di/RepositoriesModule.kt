@@ -67,47 +67,57 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RepositoriesModule{
+object RepositoriesModule {
     @Provides
     @Singleton
-    fun provideBrandsRepository(brandsRemoteDataSource: BrandsRemoteDataSource): BrandsRepo = BrandsRepoImpl(brandsRemoteDataSource)
+    fun provideBrandsRepository(brandsRemoteDataSource: BrandsRemoteDataSource): BrandsRepo =
+        BrandsRepoImpl(brandsRemoteDataSource)
 
     @Provides
     @Singleton
-    fun provideProductsRepository(productsRemoteDataSource: ProductsRemoteDataSource): ProductsRepo = ProductsRepoImpl(productsRemoteDataSource)
+    fun provideProductsRepository(productsRemoteDataSource: ProductsRemoteDataSource): ProductsRepo =
+        ProductsRepoImpl(productsRemoteDataSource)
 
     @Provides
     @Singleton
-    fun provideCategoriesRepository(categoriesRemoteDataSource: CategoriesRemoteDataSource): CategoriesRepo = CategoriesRepoImpl(categoriesRemoteDataSource)
+    fun provideCategoriesRepository(categoriesRemoteDataSource: CategoriesRemoteDataSource): CategoriesRepo =
+        CategoriesRepoImpl(categoriesRemoteDataSource)
 
     @Provides
     @Singleton
-    fun provideBrandsDataSource(graphQLService: GraphQLService): BrandsRemoteDataSource = BrandsRemoteDataSourceImpl(graphQLService)
+    fun provideBrandsDataSource(graphQLService: GraphQLService): BrandsRemoteDataSource =
+        BrandsRemoteDataSourceImpl(graphQLService)
 
     @Provides
     @Singleton
-    fun provideProductsDataSource(graphQLService: GraphQLService, firestore: Firebase): ProductsRemoteDataSource = ProductsRemoteDataSourceImpl(graphQLService, firestore)
+    fun provideProductsDataSource(
+        graphQLService: GraphQLService,
+        firestore: Firebase
+    ): ProductsRemoteDataSource = ProductsRemoteDataSourceImpl(graphQLService, firestore)
 
     @Provides
     @Singleton
-    fun provideCategoriesDataSource(graphQLService: GraphQLService): CategoriesRemoteDataSource = CategoriesRemoteDataSourceImpl(graphQLService)
+    fun provideCategoriesDataSource(graphQLService: GraphQLService): CategoriesRemoteDataSource =
+        CategoriesRemoteDataSourceImpl(graphQLService)
 
     @Provides
     @Singleton
     fun provideExchangeDataStore(
-        preferences: DataStore<Preferences>): ExchangeDataStore = ExchangeDataStoreImp(preferences)
+        preferences: DataStore<Preferences>
+    ): ExchangeDataStore = ExchangeDataStoreImp(preferences)
 
     @Provides
     @Singleton
     fun provideCurrencyRemoteDataSource(
-        retrofitService: ExchangeService): CurrencyRemoteDataSource = CurrencyRemoteDataSourceImp(retrofitService)
+        retrofitService: ExchangeService
+    ): CurrencyRemoteDataSource = CurrencyRemoteDataSourceImp(retrofitService)
 
     @Provides
     @Singleton
     fun provideCurrencyRepository(
         local: ExchangeDataStore,
         remote: CurrencyRemoteDataSource
-    ): CurrencyRepo = CurrencyRepoImp(local,remote)
+    ): CurrencyRepo = CurrencyRepoImp(local, remote)
 
     @Provides
     @Singleton
@@ -126,15 +136,20 @@ object RepositoriesModule{
 
     @Provides
     @Singleton
-    fun provideCustomerRemoteDataSource(graphQLService: GraphQLService): CustomerRemoteDataSource = CustomerRemoteDataSourceImp(graphQLService)
+    fun provideCustomerRemoteDataSource(graphQLService: GraphQLService): CustomerRemoteDataSource =
+        CustomerRemoteDataSourceImp(graphQLService)
 
     @Provides
     @Singleton
-    fun provideAuthRepository(remote: CustomerRemoteDataSource, firebase: Firebase): AuthenticationRepo = AuthenticationRepoImp(firebase, remote)
+    fun provideAuthRepository(
+        remote: CustomerRemoteDataSource,
+        firebase: Firebase
+    ): AuthenticationRepo = AuthenticationRepoImp(firebase, remote)
 
     @Provides
     @Singleton
-    fun provideGeoCoder(@ApplicationContext context: Context): Geocoder = Geocoder(context,
+    fun provideGeoCoder(@ApplicationContext context: Context): Geocoder = Geocoder(
+        context,
         Locale("en")
     )
 
@@ -150,7 +165,8 @@ object RepositoriesModule{
 
     @Provides
     @Singleton
-    fun provideMapRepository(mapRemoteDataSource: MapRemoteDataSource): MapRepo = MapRepoImp(mapRemoteDataSource)
+    fun provideMapRepository(mapRemoteDataSource: MapRemoteDataSource): MapRepo =
+        MapRepoImp(mapRemoteDataSource)
 
     @Provides
     @Singleton
@@ -158,7 +174,8 @@ object RepositoriesModule{
 
     @Provides
     @Singleton
-    fun provideCartRemoteDataSource(graphQLService: GraphQLService): CartRemoteDataSource = CartRemoteDataSourceImpl(graphQLService)
+    fun provideCartRemoteDataSource(graphQLService: GraphQLService): CartRemoteDataSource =
+        CartRemoteDataSourceImpl(graphQLService)
 
     @Provides
     @Singleton
@@ -170,23 +187,28 @@ object RepositoriesModule{
 
     @Provides
     @Singleton
-    fun provideAddressesRemoteDataSource(graphQLService: GraphQLService): AddressesRemoteDataSource = AddressesRemoteDataSourceImp(graphQLService)
+    fun provideAddressesRemoteDataSource(graphQLService: GraphQLService): AddressesRemoteDataSource =
+        AddressesRemoteDataSourceImp(graphQLService)
 
     @Provides
     @Singleton
-    fun provideAddressesRepository(addressesRemoteDataSource: AddressesRemoteDataSource): AddressesRepo = AddressesRepoImp(addressesRemoteDataSource)
+    fun provideAddressesRepository(addressesRemoteDataSource: AddressesRemoteDataSource): AddressesRepo =
+        AddressesRepoImp(addressesRemoteDataSource)
 
     @Provides
     @Singleton
-    fun provideConnectivityObserver(@ApplicationContext context: Context): ConnectivityObserver = ConnectivityObserver(context)
+    fun provideConnectivityObserver(@ApplicationContext context: Context): ConnectivityObserver =
+        ConnectivityObserver(context)
 
     @Provides
     @Singleton
-    fun provideDiscountCodeRemoteDataSource(adminGraphQLService: AdminGraphQLService): DiscountsRemoteDataSource = DiscountsRemoteDataSourceImp(adminGraphQLService)
+    fun provideDiscountCodeRemoteDataSource(adminGraphQLService: AdminGraphQLService): DiscountsRemoteDataSource =
+        DiscountsRemoteDataSourceImp(adminGraphQLService)
 
     @Provides
     @Singleton
-    fun provideDiscountCodesRepository(discountsRemoteDataSource: DiscountsRemoteDataSource): DiscountCodeRepo = DiscountCodeRepoImp(discountsRemoteDataSource)
+    fun provideDiscountCodesRepository(discountsRemoteDataSource: DiscountsRemoteDataSource): DiscountCodeRepo =
+        DiscountCodeRepoImp(discountsRemoteDataSource)
 
     @Provides
     @Singleton

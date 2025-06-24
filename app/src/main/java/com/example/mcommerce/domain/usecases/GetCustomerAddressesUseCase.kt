@@ -8,6 +8,7 @@ import javax.inject.Inject
 
 class GetCustomerAddressesUseCase @Inject constructor(
     private val addressesRepo: AddressesRepo
-){
-    operator fun invoke(accessToken: String): Flow<ApiResult<List<AddressEntity>?>> = addressesRepo.getAddresses(accessToken)
+) {
+    operator fun invoke(accessToken: String): Flow<ApiResult<List<AddressEntity>?>> =
+        addressesRepo.getAddresses(accessToken)
 }

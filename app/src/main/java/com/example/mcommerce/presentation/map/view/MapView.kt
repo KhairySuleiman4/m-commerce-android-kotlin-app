@@ -49,6 +49,7 @@ import com.example.mcommerce.domain.entities.AddressEntity
 import com.example.mcommerce.presentation.map.MapContract
 import com.example.mcommerce.presentation.map.viewmodel.MapViewModel
 import com.example.mcommerce.presentation.theme.Background
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -68,11 +69,16 @@ import kotlinx.coroutines.launch
 fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: MapViewModel = hiltViewModel(),
-    popup:() -> Unit
-    ) {
+    popup: () -> Unit
+) {
     val address = remember { mutableStateOf<AddressEntity?>(null) }
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0), 10f)
+        position = CameraPosition.fromLatLngZoom(
+            LatLng(
+                address.value?.latitude ?: 2.0,
+                address.value?.longitude ?: 3.0
+            ), 10f
+        )
     }
     val snackbarHostState = remember { SnackbarHostState() }
     val showBottomSheet = remember { mutableStateOf(false) }
@@ -81,19 +87,26 @@ fun MapScreen(
     )
 
     LaunchedEffect(Unit) {
-        viewModel.getSelectedLocation(30.1,32.3)
+        viewModel.getSelectedLocation(30.1, 32.3)
     }
 
     val event = viewModel.events.value
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is MapContract.Events.ChangedAddress -> {
                 address.value = event.address
-                cameraPositionState.position =  CameraPosition.fromLatLngZoom(LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0), cameraPositionState.position.zoom)
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                    LatLng(
+                        address.value?.latitude ?: 2.0,
+                        address.value?.longitude ?: 3.0
+                    ), cameraPositionState.position.zoom
+                )
             }
+
             MapContract.Events.Idle -> {
 
             }
+
             is MapContract.Events.ShowError -> {
                 snackbarHostState.showSnackbar(message = event.errorMessage)
             }
@@ -110,11 +123,11 @@ fun MapScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                showBottomSheet.value = true
-                          },
+                    showBottomSheet.value = true
+                },
                 containerColor = Primary,
                 contentColor = Background
-                ) {
+            ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
             }
         }
@@ -125,7 +138,7 @@ fun MapScreen(
             address = LatLng(address.value?.latitude ?: 2.0, address.value?.longitude ?: 3.0),
             cameraPositionState = cameraPositionState,
             searchAction = {
-                viewModel.invokeActions(  MapContract.Action.SearchPlace(it) )
+                viewModel.invokeActions(MapContract.Action.SearchPlace(it))
             },
             selectMapAction = { latitude, longitude ->
                 viewModel.invokeActions(MapContract.Action.ClickOnMapLocation(latitude, longitude))
@@ -133,13 +146,13 @@ fun MapScreen(
         ) {
             viewModel.invokeActions(MapContract.Action.ClickOnResult(it))
         }
-        if (showBottomSheet.value){
+        if (showBottomSheet.value) {
             ModalBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = {
                     showBottomSheet.value = false
                 }
-            ){
+            ) {
                 SheetDesignInput(
                     addressEntity = address.value,
                     saveAction = {
@@ -163,9 +176,9 @@ fun MapPage(
     state: MapContract.States,
     address: LatLng,
     cameraPositionState: CameraPositionState,
-    searchAction: (String)-> Unit,
-    selectMapAction: (Double, Double)-> Unit,
-    selectAction: (String)-> Unit
+    searchAction: (String) -> Unit,
+    selectMapAction: (Double, Double) -> Unit,
+    selectAction: (String) -> Unit
 ) {
     val markerState = rememberUpdatedMarkerState(position = address)
     val text = remember { mutableStateOf("") }
@@ -173,7 +186,7 @@ fun MapPage(
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         onMapClick = {
-            selectMapAction(it.latitude,it.longitude)
+            selectMapAction(it.latitude, it.longitude)
         },
         cameraPositionState = cameraPositionState
     ) {
@@ -231,7 +244,7 @@ fun SearchBar(
     text: MutableState<String>,
     onDebouncedTextChange: (String) -> Unit,
 
-) {
+    ) {
     val coroutineScope = rememberCoroutineScope()
 
     val textFlow = remember { MutableStateFlow("") }
@@ -241,7 +254,7 @@ fun SearchBar(
             .distinctUntilChanged()
             .collect { debouncedText ->
                 if (debouncedText.isNotBlank())
-                onDebouncedTextChange(debouncedText)
+                    onDebouncedTextChange(debouncedText)
             }
     }
 
@@ -251,7 +264,10 @@ fun SearchBar(
             .fillMaxWidth(0.7f),
         value = text.value,
         placeholder = {
-            Text("Search Here...")
+            Text(
+                fontFamily = PoppinsFontFamily,
+                text = "Search Here..."
+            )
         },
         trailingIcon = {
             Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
@@ -270,7 +286,7 @@ fun SearchResult(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String
-    ) {
+) {
     Column(
         modifier = modifier
             .background(Background)
@@ -284,10 +300,12 @@ fun SearchResult(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    title,
+                    fontFamily = PoppinsFontFamily,
+                    text = title
                 )
                 Text(
-                    subtitle,
+                    fontFamily = PoppinsFontFamily,
+                    text = subtitle,
                     fontSize = 12.sp,
                     color = Color.Black.copy(alpha = 0.3f)
                 )
@@ -319,6 +337,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -343,7 +362,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your Street here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your Street here!",
                             color = Color.Gray
                         )
                     },
@@ -356,6 +376,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -380,7 +401,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your Area here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your Area here!",
                             color = Color.Gray
                         )
                     },
@@ -393,6 +415,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -416,7 +439,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your City here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your City here!",
                             color = Color.Gray
                         )
                     },
@@ -428,6 +452,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -452,7 +477,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your Street here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your Street here!",
                             color = Color.Gray
                         )
                     },
@@ -464,6 +490,7 @@ fun SheetDesignInput(
         item {
             Column {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier
                         .padding(
                             top = 16.dp,
@@ -488,7 +515,8 @@ fun SheetDesignInput(
                         .fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "Enter Your ZIP here!",
+                            fontFamily = PoppinsFontFamily,
+                            text = "Enter Your ZIP here!",
                             color = Color.Gray
                         )
                     },
@@ -520,7 +548,7 @@ fun SheetDesignInput(
                         dismissAction()
 
                     },
-                    enabled =( address1.value.isNotBlank() && address2.value.isNotBlank() && zip.value.isNotBlank() && city.value.isNotBlank() && country.value.isNotBlank()),
+                    enabled = (address1.value.isNotBlank() && address2.value.isNotBlank() && zip.value.isNotBlank() && city.value.isNotBlank() && country.value.isNotBlank()),
                     colors = ButtonDefaults.buttonColors().copy(
                         containerColor = Primary,
                         contentColor = Background,
@@ -529,9 +557,12 @@ fun SheetDesignInput(
                         .clip(RoundedCornerShape(20))
                         .fillMaxWidth(0.5f)
                 ) {
-                    Text("Save")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Save"
+                    )
                 }
-                OutlinedButton (
+                OutlinedButton(
                     onClick = {
                         dismissAction()
                     },
@@ -543,13 +574,15 @@ fun SheetDesignInput(
                         .clip(RoundedCornerShape(20))
                         .fillMaxWidth(0.9f)
                 ) {
-                    Text("Cancel")
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Cancel"
+                    )
                 }
             }
         }
 
     }
-
 
 
 }

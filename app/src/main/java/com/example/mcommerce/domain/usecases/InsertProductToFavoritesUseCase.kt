@@ -7,5 +7,6 @@ import javax.inject.Inject
 class InsertProductToFavoritesUseCase @Inject constructor(
     private val repo: ProductsRepo
 ) {
-    suspend operator fun invoke(product: ProductSearchEntity) = repo.insertProductToFavorites(product)
+    suspend operator fun invoke(product: ProductSearchEntity) =
+        repo.insertProductToFavorites(product)
 }

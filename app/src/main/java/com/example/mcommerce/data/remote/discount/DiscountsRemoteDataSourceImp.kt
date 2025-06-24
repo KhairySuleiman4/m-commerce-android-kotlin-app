@@ -7,9 +7,8 @@ import kotlinx.coroutines.flow.Flow
 
 class DiscountsRemoteDataSourceImp(
     private val adminGraphQLService: AdminGraphQLService
-): DiscountsRemoteDataSource{
-    override fun getDiscountCodes(): Flow<ApiResult<List<String?>?>> = executeAPI{
+) : DiscountsRemoteDataSource {
+    override fun getDiscountCodes(): Flow<ApiResult<List<String?>?>> = executeAPI {
         adminGraphQLService.getDiscountCodes().data?.codeDiscountNodes?.nodes?.map { it.codeDiscount.onDiscountCodeBasic?.title }
     }
-
 }

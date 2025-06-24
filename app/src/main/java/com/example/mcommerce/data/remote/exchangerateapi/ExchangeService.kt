@@ -6,5 +6,5 @@ import retrofit2.http.GET
 
 interface ExchangeService {
     @GET("latest/EGP")
-    suspend fun getEGPExchangeRate() : Response<ExchangeResponse>
+    suspend fun getEGPExchangeRate(): Response<ExchangeResponse>
 }

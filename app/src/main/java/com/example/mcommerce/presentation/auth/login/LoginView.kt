@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.auth.AuthContract
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
 
@@ -47,31 +48,35 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToSignup: (Screens) -> Unit,
-    navigateToHome: (Screens, Boolean)->Unit,
+    navigateToHome: (Screens, Boolean) -> Unit,
 ) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
     val isLoading = remember { mutableStateOf(false) }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is AuthContract.Events.Idle -> {}
             is AuthContract.Events.NavigateToHomeGuest -> {
                 navigateToHome(Screens.Home, false)
                 viewModel.resetEvent()
             }
+
             AuthContract.Events.NavigateToHomeUser -> {
                 navigateToHome(Screens.Home, true)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.NavigateToLogin -> {}
             is AuthContract.Events.NavigateToSignup -> {
                 navigateToSignup(Screens.Signup)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.ShowLoading -> {
                 isLoading.value = true
             }
+
             is AuthContract.Events.ShowSnackbar -> {
                 snackbarHostState.showSnackbar(message = event.message)
                 isLoading.value = false
@@ -93,10 +98,15 @@ fun LoginScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else{
+        } else {
             LoginComposable(
                 onLoginClicked = { email, password ->
-                    viewModel.invokeActions(AuthContract.LoginAction.ClickOnLoginButton(email, password))
+                    viewModel.invokeActions(
+                        AuthContract.LoginAction.ClickOnLoginButton(
+                            email,
+                            password
+                        )
+                    )
                 },
                 onSignupClicked = {
                     viewModel.invokeActions(AuthContract.LoginAction.ClickOnNavigateToSignup)
@@ -131,13 +141,13 @@ fun LoginComposable(
         }
 
         item {
-            EmailSection(email = email.value){
+            EmailSection(email = email.value) {
                 email.value = it
             }
         }
 
         item {
-            PasswordSection(password = password.value){
+            PasswordSection(password = password.value) {
                 password.value = it
             }
         }
@@ -165,12 +175,14 @@ fun LoginComposable(
 @Composable
 fun LoginScreenHeader(modifier: Modifier = Modifier) {
     Text(
+        fontFamily = PoppinsFontFamily,
         text = stringResource(R.string.login),
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp
     )
 
     Text(
+        fontFamily = PoppinsFontFamily,
         modifier = modifier.padding(top = 8.dp),
         text = stringResource(R.string.welcome_back),
         color = Color.Gray,
@@ -182,12 +194,12 @@ fun LoginScreenHeader(modifier: Modifier = Modifier) {
 fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (String) -> Unit) {
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.email),
             fontSize = 18.sp
         )
@@ -202,12 +214,6 @@ fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (S
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_email),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp)
         )
@@ -215,17 +221,21 @@ fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (S
 }
 
 @Composable
-fun PasswordSection(modifier: Modifier = Modifier, password: String, onPasswordChanged: (String) -> Unit) {
+fun PasswordSection(
+    modifier: Modifier = Modifier,
+    password: String,
+    onPasswordChanged: (String) -> Unit
+) {
     val isPasswordVisible by remember { mutableStateOf(false) }
 
     Column {
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(
                     top = 16.dp,
                     start = 16.dp
                 ),
-            fontWeight = FontWeight.Bold,
             text = stringResource(R.string.password),
             fontSize = 18.sp
         )
@@ -240,12 +250,6 @@ fun PasswordSection(modifier: Modifier = Modifier, password: String, onPasswordC
                     end = 16.dp
                 )
                 .fillMaxWidth(),
-            placeholder = {
-                Text(
-                    stringResource(R.string.enter_your_password),
-                    color = Color.Gray
-                )
-            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -276,6 +280,7 @@ fun LoginButton(
     )
     {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.login),
             color = Color.White,
             fontSize = 18.sp
@@ -290,12 +295,14 @@ fun DontHaveAnAccountSection(
 ) {
     Row(
         modifier = modifier.padding(top = 32.dp)
-    ){
+    ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.dont_have_an_accout)
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(start = 4.dp)
                 .clickable {
@@ -313,20 +320,21 @@ fun ContinueAsGuestSection(
     onGuestClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row (
+    Row(
         modifier = modifier.padding(top = 8.dp)
-    ){
+    ) {
         Text(
+            fontFamily = PoppinsFontFamily,
             text = stringResource(R.string.continue_str)
         )
 
         Text(
+            fontFamily = PoppinsFontFamily,
             modifier = modifier
                 .padding(start = 4.dp)
                 .clickable {
                     onGuestClicked()
-                }
-            ,
+                },
             text = stringResource(R.string.as_guest),
             textDecoration = TextDecoration.Underline,
             color = Primary
