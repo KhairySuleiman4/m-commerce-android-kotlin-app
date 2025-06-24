@@ -24,9 +24,11 @@ interface HomeContract {
         val brandsList: List<CollectionsEntity> = emptyList(),
         val bestSellersList: List<ProductsEntity> = emptyList(),
         val latestArrivals: List<ProductsEntity> = listOf(),
+        val codes: List<String> = listOf(),
         val brandsLoading: Boolean = false,
         val bestSellersLoading: Boolean = false,
         val latestArrivalsLoading: Boolean = false,
+        val codesLoading: Boolean = false,
         val errorMessage: String? = null
     )
 

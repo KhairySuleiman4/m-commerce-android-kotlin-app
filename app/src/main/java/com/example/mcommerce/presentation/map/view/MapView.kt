@@ -406,7 +406,6 @@ fun SheetDesignInput(
                 OutlinedTextField(
                     value = city.value,
                     onValueChange = {
-                        city.value = it
                     },
                     modifier = modifier
                         .padding(
@@ -443,7 +442,6 @@ fun SheetDesignInput(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     value = country.value,
                     onValueChange = {
-                        country.value = it
                     },
                     modifier = modifier
                         .padding(
@@ -480,7 +478,6 @@ fun SheetDesignInput(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     value = zip.value,
                     onValueChange = {
-                        zip.value = it
                     },
                     modifier = modifier
                         .padding(

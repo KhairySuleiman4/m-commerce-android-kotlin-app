@@ -5,6 +5,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.example.mcommerce.AddCartDiscountMutation
 import com.example.mcommerce.AddItemToCartMutation
+import com.example.mcommerce.CheckForDefaultAddressQuery
 import com.example.mcommerce.CreateCartMutation
 import com.example.mcommerce.CustomerAccessTokenCreateMutation
 import com.example.mcommerce.CustomerAddressCreateMutation
@@ -94,9 +95,11 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
 
     override suspend fun addAddress(
         accessToken: String,
-        address: AddressModel
+        address: AddressModel,
+        name: String
     ): ApolloResponse<CustomerAddressCreateMutation.Data> = client.mutation(CustomerAddressCreateMutation(
         MailingAddressInput(
+            lastName = Optional.present(name),
            address1 =  Optional.present(address.name),
            address2 =  Optional.present(address.subName),
            country = Optional.present(address.country),
@@ -115,5 +118,8 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
         accessToken: String,
         addressId: String
     ): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data> = client.mutation(CustomerDefaultAddressUpdateMutation(addressId,accessToken)).execute()
+
+    override suspend fun checkForDefaultAddress(accessToken: String): ApolloResponse<CheckForDefaultAddressQuery.Data>
+        = client.query(CheckForDefaultAddressQuery(accessToken)).execute()
 
 }

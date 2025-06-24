@@ -1,5 +1,7 @@
 package com.example.mcommerce.presentation.cart.view
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -61,13 +63,19 @@ import com.example.mcommerce.presentation.cart.CartContract
 import com.example.mcommerce.presentation.cart.viewmodel.CartViewModel
 import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.Primary
+import com.shopify.checkoutsheetkit.ColorScheme
+import com.shopify.checkoutsheetkit.LogLevel
+import com.shopify.checkoutsheetkit.Preloading
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import java.util.Locale
 
 @Composable
 fun CartScreen(
     modifier: Modifier = Modifier,
-    viewModel: CartViewModel = hiltViewModel()
+    viewModel: CartViewModel = hiltViewModel(),
+    navigate: () -> Unit
     ) {
+    val activity = LocalActivity.current as ComponentActivity
     val event = viewModel.events.value
     val state = viewModel.states.value
     val isApply = remember { mutableStateOf(true) }
@@ -75,9 +83,18 @@ fun CartScreen(
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
 
+    ShopifyCheckoutSheetKit.configure{
+        it.colorScheme = ColorScheme.Automatic()
+        it.preloading = Preloading(enabled = false)
+        it.logLevel = LogLevel.DEBUG
+    }
+
     LaunchedEffect(Unit) {
         viewModel.getCart()
         viewModel.getCurrency()
+        viewModel.setEventProcessor(activity,{
+            navigate()
+        })
     }
 
     LaunchedEffect(event) {
@@ -117,6 +134,9 @@ fun CartScreen(
         },
         deleteAction = {
             viewModel.invokeActions(CartContract.Action.ClickOnRemoveItem(it))
+        },
+        submitAction = {
+            viewModel.invokeActions(CartContract.Action.ClickOnSubmit(activity))
         }
     )
 }
@@ -133,7 +153,8 @@ fun CartPage(
     onApply: (String) -> Unit,
     plusAction: (String, Int) -> Unit,
     minusAction: (String, Int) -> Unit,
-    deleteAction: (String) -> Unit
+    deleteAction: (String) -> Unit,
+    submitAction: () -> Unit
     ) {
     val showBottomSheet = remember { mutableStateOf(false) }
     val selectedItem = remember { mutableStateOf<LineEntity?>(null) }
@@ -155,7 +176,10 @@ fun CartPage(
                     isApplied = isApplied,
                     onApply = {
                         onApply(it)
-                    }
+                    },
+                    onCheckout = {
+                        submitAction()
+                }
                 )
             }
         }
@@ -329,7 +353,8 @@ fun BottomBar(
     discount: Double,
     total: Double,
     isApplied: Boolean,
-    onApply: (String)-> Unit
+    onApply: (String)-> Unit,
+    onCheckout: () -> Unit
 ) {
     val promoCode = rememberSaveable { mutableStateOf("") }
     Column(
@@ -436,6 +461,7 @@ fun BottomBar(
         }
         Button(
             onClick = {
+                onCheckout()
             },
 
             colors = ButtonDefaults.buttonColors().copy(

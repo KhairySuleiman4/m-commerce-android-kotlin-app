@@ -4,6 +4,10 @@ package com.example.mcommerce.data.remote
 import android.content.Context
 import com.apollographql.apollo.ApolloClient
 import com.example.mcommerce.BuildConfig
+import com.example.mcommerce.data.di.AdminClient
+import com.example.mcommerce.data.di.StoreClient
+import com.example.mcommerce.data.remote.admingaraphgl.AdminGraphQLService
+import com.example.mcommerce.data.remote.admingaraphgl.AdminGraphQLServiceImp
 import com.example.mcommerce.data.remote.exchangerateapi.ExchangeService
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLService
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLServiceImp
@@ -43,7 +47,8 @@ object ApisManager {
 
     @Provides
     @Singleton
-    fun provideApolloClient() = ApolloClient.Builder()
+    @StoreClient
+    fun provideStoreApolloClient() = ApolloClient.Builder()
             .serverUrl(BuildConfig.STORE_URL)
             .addHttpHeader("X-Shopify-Storefront-Access-Token", BuildConfig.STORE_ACCESS_TOKEN)
             .addHttpHeader("Content-Type", "application/json")
@@ -51,8 +56,20 @@ object ApisManager {
 
     @Provides
     @Singleton
-    fun getGraphQLService(
-        apolloClient: ApolloClient): GraphQLService = GraphQLServiceImp(apolloClient)
+    @AdminClient
+    fun provideAdminApolloClient() = ApolloClient.Builder()
+        .serverUrl(BuildConfig.ADMIN_URL)
+        .addHttpHeader("X-Shopify-Access-Token", BuildConfig.ADMIN_ACCESS_TOKEN)
+        .addHttpHeader("Content-Type", "application/json")
+        .build()
+
+    @Provides
+    @Singleton
+    fun getGraphQLService(@StoreClient apolloClient: ApolloClient): GraphQLService = GraphQLServiceImp(apolloClient)
+
+    @Provides
+    @Singleton
+    fun getAdminGraphQLService(@AdminClient apolloClient: ApolloClient): AdminGraphQLService = AdminGraphQLServiceImp(apolloClient)
 
     @Provides
     @Singleton

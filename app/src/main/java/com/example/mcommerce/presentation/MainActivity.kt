@@ -291,8 +291,13 @@ fun NavHostContainer(
                 }
             }
             composable<Screens.Cart> {
+
                 if (isConnected) {
-                    CartScreen()
+                    CartScreen{
+                        navController.navigate(Screens.Home){
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 } else {
                     NoNetworkScreen()
                 }

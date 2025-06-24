@@ -3,6 +3,7 @@ package com.example.mcommerce.data.remote.graphqlapi
 import com.apollographql.apollo.api.ApolloResponse
 import com.example.mcommerce.AddCartDiscountMutation
 import com.example.mcommerce.AddItemToCartMutation
+import com.example.mcommerce.CheckForDefaultAddressQuery
 import com.example.mcommerce.CreateCartMutation
 import com.example.mcommerce.CustomerAccessTokenCreateMutation
 import com.example.mcommerce.CustomerAddressCreateMutation
@@ -41,7 +42,8 @@ interface GraphQLService {
     suspend fun addDiscountCodeToCart(cartId: String, code:String): ApolloResponse<AddCartDiscountMutation.Data>
     suspend fun getHomeProducts(sortKey: ProductSortKeys, reverse: Boolean): ApolloResponse<GetHomeProductsQuery.Data>
     suspend fun getAddresses(accessToken: String): ApolloResponse<GetAddressesQuery.Data>
-    suspend fun addAddress(accessToken: String, address:AddressModel): ApolloResponse<CustomerAddressCreateMutation.Data>
+    suspend fun addAddress(accessToken: String, address:AddressModel, name:String): ApolloResponse<CustomerAddressCreateMutation.Data>
     suspend fun removeAddress(accessToken: String, addressId: String): ApolloResponse<CustomerAddressDeleteMutation.Data>
     suspend fun changeDefaultAddress(accessToken: String, addressId: String): ApolloResponse<CustomerDefaultAddressUpdateMutation.Data>
+    suspend fun checkForDefaultAddress(accessToken: String): ApolloResponse<CheckForDefaultAddressQuery.Data>
 }

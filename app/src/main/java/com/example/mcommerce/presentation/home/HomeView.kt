@@ -1,5 +1,9 @@
 package com.example.mcommerce.presentation.home
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -117,7 +122,7 @@ fun HomeItems(
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val adsList = listOf(
+        listOf(
             CouponEntity(
                 id = "1",
                 title = "Big Sale Event",
@@ -139,9 +144,7 @@ fun HomeItems(
         )
         val state = viewModel.states.value
         
-        item{
-            AdsCarousel(couponsList = adsList)
-        }
+
         when{
             state.errorMessage != null -> {
 
@@ -154,6 +157,18 @@ fun HomeItems(
                 }
             }
             else -> {
+
+                item{
+                    AdsCarousel(
+                        couponsList = state.codes.map { CouponEntity(
+                            it,
+                            title = "Big Sale Event",
+                            description = "Up to 70% off on selected items",
+                            imageRes = R.drawable.ad_placeholder
+                        ) },
+                        isLoading = state.codesLoading,
+                    )
+                }
                 item {
                     BrandList(
                         brandsList = state.brandsList,
@@ -411,90 +426,107 @@ fun LatestArrivalsList(
 @Composable
 fun AdsCarousel(
     couponsList: List<CouponEntity>,
+    isLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(pageCount = { couponsList.size })
-
-    LaunchedEffect(couponsList.size) {
-        if (couponsList.size > 1) {
-            while (true) {
-                delay(3000)
-                val nextPage = (pagerState.currentPage + 1) % couponsList.size
-                pagerState.animateScrollToPage(nextPage)
+    when{
+        isLoading ->{
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
         }
-    }
+        else ->{
+            val pagerState = rememberPagerState(pageCount = { couponsList.size })
+            val context = LocalContext.current
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(horizontal = 32.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-        ) { page ->
-            val pageOffset = (
-                    (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                    ).absoluteValue
-
-            val scale = lerp(
-                start = 0.9f,
-                stop = 1f,
-                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-            )
-
-            val alpha = lerp(
-                start = 0.7f,
-                stop = 1f,
-                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-            )
-
-            CouponsCard(
-                coupon = couponsList[page],
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        this.alpha = alpha
+            LaunchedEffect(couponsList.size) {
+                if (couponsList.size > 1) {
+                    while (true) {
+                        delay(3000)
+                        val nextPage = (pagerState.currentPage + 1) % couponsList.size
+                        pagerState.animateScrollToPage(nextPage)
                     }
-            )
-        }
+                }
+            }
 
-        if (couponsList.size > 1) {
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
             ) {
-                repeat(couponsList.size) { index ->
-                    val isSelected = pagerState.currentPage == index
-                    Box(
-                        modifier = Modifier
-                            .size(
-                                width = if (isSelected) 20.dp else 8.dp,
-                                height = 8.dp
-                            )
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(
-                                if (isSelected) {
-                                    Color(0xFF8c503b)
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                }
-                            )
+                HorizontalPager(
+                    state = pagerState,
+                    contentPadding = PaddingValues(horizontal = 32.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                ) { page ->
+                    val pageOffset = (
+                            (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                            ).absoluteValue
+
+                    val scale = lerp(
+                        start = 0.9f,
+                        stop = 1f,
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
                     )
-                    if (index < couponsList.size - 1) {
-                        Spacer(modifier = Modifier.width(4.dp))
+
+                    val alpha = lerp(
+                        start = 0.7f,
+                        stop = 1f,
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    )
+
+                    CouponsCard(
+                        coupon = couponsList[page],
+                        modifier = Modifier
+                            .clickable {
+                                val clip = ClipData.newPlainText("code", couponsList[page].id)
+                                clipboard.setPrimaryClip(clip)
+                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                            }
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                this.alpha = alpha
+                            }
+                    )
+                }
+
+                if (couponsList.size > 1) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        repeat(couponsList.size) { index ->
+                            val isSelected = pagerState.currentPage == index
+                            Box(
+                                modifier = Modifier
+                                    .size(
+                                        width = if (isSelected) 20.dp else 8.dp,
+                                        height = 8.dp
+                                    )
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(
+                                        if (isSelected) {
+                                            Color(0xFF8c503b)
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                        }
+                                    )
+                            )
+                            if (index < couponsList.size - 1) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                            }
+                        }
                     }
                 }
             }
         }
-    }
+}
 }
 
 @Preview(showBackground = true)
@@ -521,7 +553,7 @@ private fun AdsCarouselPreview() {
         )
     )
 
-    AdsCarousel(couponsList = dummyAds)
+    //AdsCarousel(couponsList = dummyAds)
 }
 
 

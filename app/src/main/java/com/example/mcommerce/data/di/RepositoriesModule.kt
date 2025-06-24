@@ -14,6 +14,7 @@ import com.example.mcommerce.data.local.cartcache.CartCache
 import com.example.mcommerce.data.local.cartcache.CartCacheImp
 import com.example.mcommerce.data.remote.addresses.AddressesRemoteDataSource
 import com.example.mcommerce.data.remote.addresses.AddressesRemoteDataSourceImp
+import com.example.mcommerce.data.remote.admingaraphgl.AdminGraphQLService
 import com.example.mcommerce.data.remote.brands.BrandsRemoteDataSource
 import com.example.mcommerce.data.remote.brands.BrandsRemoteDataSourceImpl
 import com.example.mcommerce.data.remote.cart.CartRemoteDataSource
@@ -22,6 +23,8 @@ import com.example.mcommerce.data.remote.categories.CategoriesRemoteDataSource
 import com.example.mcommerce.data.remote.categories.CategoriesRemoteDataSourceImpl
 import com.example.mcommerce.data.remote.currency.CurrencyRemoteDataSource
 import com.example.mcommerce.data.remote.currency.CurrencyRemoteDataSourceImp
+import com.example.mcommerce.data.remote.discount.DiscountsRemoteDataSource
+import com.example.mcommerce.data.remote.discount.DiscountsRemoteDataSourceImp
 import com.example.mcommerce.data.remote.exchangerateapi.ExchangeService
 import com.example.mcommerce.data.remote.graphqlapi.GraphQLService
 import com.example.mcommerce.data.remote.map.MapRemoteDataSource
@@ -34,6 +37,7 @@ import com.example.mcommerce.data.repoimp.BrandsRepoImpl
 import com.example.mcommerce.data.repoimp.CartRepoImp
 import com.example.mcommerce.data.repoimp.CategoriesRepoImpl
 import com.example.mcommerce.data.repoimp.CurrencyRepoImp
+import com.example.mcommerce.data.repoimp.DiscountCodeRepoImp
 import com.example.mcommerce.data.repoimp.MapRepoImp
 import com.example.mcommerce.data.repoimp.ProductsRepoImpl
 import com.example.mcommerce.data.utils.ConnectivityObserver
@@ -43,6 +47,7 @@ import com.example.mcommerce.domain.repoi.BrandsRepo
 import com.example.mcommerce.domain.repoi.CartRepo
 import com.example.mcommerce.domain.repoi.CategoriesRepo
 import com.example.mcommerce.domain.repoi.CurrencyRepo
+import com.example.mcommerce.domain.repoi.DiscountCodeRepo
 import com.example.mcommerce.domain.repoi.MapRepo
 import com.example.mcommerce.domain.repoi.ProductsRepo
 import com.google.android.libraries.places.api.net.PlacesClient
@@ -170,4 +175,12 @@ object RepositoriesModule{
     @Provides
     @Singleton
     fun provideConnectivityObserver(@ApplicationContext context: Context): ConnectivityObserver = ConnectivityObserver(context)
+
+    @Provides
+    @Singleton
+    fun provideDiscountCodeRemoteDataSource(adminGraphQLService: AdminGraphQLService): DiscountsRemoteDataSource = DiscountsRemoteDataSourceImp(adminGraphQLService)
+
+    @Provides
+    @Singleton
+    fun provideDiscountCodesRepository(discountsRemoteDataSource: DiscountsRemoteDataSource): DiscountCodeRepo = DiscountCodeRepoImp(discountsRemoteDataSource)
 }
