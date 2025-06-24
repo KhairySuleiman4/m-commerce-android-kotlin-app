@@ -118,6 +118,9 @@ dependencies {
     implementation(libs.checkout.sheet.kit)
     // Lottie Animations
     implementation(libs.lottie.compose)
+    //serialization
+    implementation(libs.kotlinx.serialization.json.v173)
+
 
 }
 

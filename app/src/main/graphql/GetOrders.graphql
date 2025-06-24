@@ -3,20 +3,13 @@ query GetOrders($customerAccessToken: String!) {
         orders(first: 10, sortKey: PROCESSED_AT, reverse: true) {
             edges {
                 node {
-                    id
                     name
                     processedAt
-                    customerUrl
                     shippingAddress{
                         address1,
                         city,
                         name,
                         phone
-                    }
-                    shippingDiscountAllocations{
-                        allocatedAmount{
-                            amount
-                        }
                     }
                     subtotalPrice{
                         amount
@@ -27,11 +20,11 @@ query GetOrders($customerAccessToken: String!) {
                     lineItems(first: 5) {
                         edges {
                             node {
-                                title
                                 quantity
                                 variant {
                                     title
                                     product {
+                                        id
                                         title
                                         priceRange{
                                             maxVariantPrice{

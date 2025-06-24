@@ -9,6 +9,7 @@ import com.example.mcommerce.GetBrandsQuery
 import com.example.mcommerce.GetCartByIdQuery
 import com.example.mcommerce.GetCategoriesQuery
 import com.example.mcommerce.GetHomeProductsQuery
+import com.example.mcommerce.GetOrdersQuery
 import com.example.mcommerce.GetProductByIdQuery
 import com.example.mcommerce.GetProductsByBrandQuery
 import com.example.mcommerce.RemoveItemFromCartMutation
@@ -17,7 +18,9 @@ import com.example.mcommerce.data.models.AddressModel
 import com.example.mcommerce.data.models.CartModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
+import com.example.mcommerce.data.models.LineItemModel
 import com.example.mcommerce.data.models.LineModel
+import com.example.mcommerce.data.models.OrderModel
 import com.example.mcommerce.data.models.ProductsForSearchModel
 import com.example.mcommerce.data.models.ProductsModel
 import com.example.mcommerce.domain.entities.ProductInfoEntity
@@ -322,26 +325,27 @@ fun GetAddressesQuery.Data.toModel(): List<AddressModel>?{
     }
 }
 
-//fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{
-//    return this.customer?.orders?.edges?.map{
-//        OrderModel(
-//            orderId = it.node.id,
-//            orderName = it.node.name,
-//            orderDate = it.node.processedAt.toString(),
-//            orderTime = it.node.processedAt.toString(),
-//            orderPrice = it.node.totalPrice.amount.toString(),
-//            currencyCode = it.node.totalPrice.currencyCode.toString(),
-//            productTitle = it.node.lineItems.edges.,
-//            productQuantity = TODO(),
-//            productPrice = TODO(),
-//            productImage = TODO(),
-//            variantTitle = TODO(),
-//            variantImage = TODO(),
-//            customerUrl = TODO(),
-//            customerName = TODO(),
-//            customerPhone = TODO(),
-//            shippingAddress = TODO(),
-//            shippingCity = TODO()
-//        )
-//    }
-//}
+fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{
+    return this.customer?.orders?.edges?.map{ order ->
+        OrderModel(
+            name = order.node.name,
+            processedAt = order.node.processedAt.toString(),
+            subtotalPrice = order.node.subtotalPrice?.amount.toString(),
+            totalPrice = order.node.totalPrice.amount.toString(),
+            shippingAddress = order.node.shippingAddress?.address1 ?: "",
+            city = order.node.shippingAddress?.city ?: "",
+            customerName = order.node.shippingAddress?.name ?: "",
+            phone = order.node.shippingAddress?.phone ?: "",
+            lineItems = order.node.lineItems.edges.map { it.toModel() },
+        )
+    }
+}
+
+fun GetOrdersQuery.Edge1.toModel(): LineItemModel = LineItemModel(
+    quantity = this.node.quantity.toString(),
+    price = this.node.variant?.product?.priceRange?.maxVariantPrice?.amount.toString(),
+    variantTitle = this.node.variant?.title ?: "",
+    productId = this.node.variant?.product?.id ?: "",
+    productTitle = this.node.variant?.product?.title ?: "",
+    imageUrl = this.node.variant?.product?.featuredImage?.url.toString(),
+)

@@ -1,6 +1,9 @@
 package com.example.mcommerce.presentation.order_details
 
-import androidx.compose.foundation.Image
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,15 +13,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,241 +31,284 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
+import com.example.mcommerce.data.utils.formatDateTime
+import com.example.mcommerce.domain.entities.LineItemEntity
+import com.example.mcommerce.domain.entities.OrderEntity
+import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.Primary
+import kotlinx.serialization.json.Json
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OrderDetailsScreen(modifier: Modifier = Modifier, orderId: String) {
-    OrderDetails()
+fun OrderDetailsScreen(
+    viewModel: OrderDetailsViewModel = hiltViewModel(),
+    order: String,
+    navigateTo: (Screens) -> Unit
+) {
+    val event = viewModel.events.value
+
+    LaunchedEffect(event) {
+        when (event) {
+            OrderDetailsContract.Events.Idle -> {}
+            is OrderDetailsContract.Events.NavigateToProductInfo -> {
+                navigateTo(Screens.ProductDetails(event.productId))
+                viewModel.resetEvent()
+            }
+        }
+    }
+
+    OrderDetails(
+        order = order,
+        onItemClick = { id ->
+            viewModel.invokeActions(OrderDetailsContract.Action.ClickOnItem(id))
+        }
+    )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OrderDetails(
-    modifier: Modifier = Modifier,
+    order: String,
+    onItemClick: (String) -> Unit,
 ) {
-    val order  = OrderDetailsContract.OrderDetailsUIModel(
-        name = "#F15306",
-        date = "July 29,2023",
-        time = "5:30 pm",
-        totalPrice = "1560",
-        subtotalPrice = "1440",
-        discount = "120",
-        currencyCode = "EGP",
-        userAddress = "Naser street",
-        userCity = "Suez",
-        userName = "Shereen Mohamed",
-        userPhone = "+201569985471",
+    val orderObj = Json.decodeFromString<OrderEntity>(order)
+    Log.i("OrderDetailsScreen", ": $orderObj")
+    OrderDetailsUI(
+        order = orderObj,
+        onItemClick
     )
-    Column(
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun OrderDetailsUI(
+    order: OrderEntity,
+    onItemClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        Row(
-            modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Order ID ",
-                fontSize = 20.sp,
-                modifier = modifier.padding(bottom = 12.dp)
-            )
-
-            Spacer(modifier.width(8.dp))
-
-            Text(
-                text = order.name,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-
-        Card(
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(Color.White),
-            modifier = modifier.fillMaxWidth()
-        ) {
+        item {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier.padding(vertical = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = "",
-                    tint = Color.Green,
-                    modifier = modifier.padding(horizontal = 16.dp)
-                )
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = "Delivered",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "on ${order.date.split(',')[0]} ${order.time}",
-                        fontSize = 16.sp,
-                    )
-                }
-            }
-        }
-
-        Card(
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(Color.White),
-            modifier = modifier.fillMaxWidth()
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = modifier.padding(16.dp)
+                modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = "Delivery address",
-                    fontSize = 24.sp,
+                    text = "Order ID ",
+                    fontSize = 20.sp,
+                    modifier = modifier.padding(bottom = 12.dp)
+                )
+
+                Spacer(modifier.width(8.dp))
+
+                Text(
+                    text = order.name,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = order.userName,
-                    fontSize = 16.sp,
-                )
-                Text(
-                    text = "${order.userCity}, ${order.userAddress}",
-                    fontSize = 16.sp,
-                )
-                Text(
-                    text = order.userPhone,
-                    fontSize = 16.sp,
                 )
             }
         }
+         item{
+             DeliveryStatusCard(order = order)
+         }
 
-        Card(
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(Color.White),
-            modifier = modifier.fillMaxWidth()
-        ) {
-            Column {
-                CartItem(
-                    item = LineItem(
-                        name = "VANS | SK8-HI DECON (CUTOUT)| LEAVES/WHITE",
-                        brand = "Vans",
-                        size = "4 / white",
-                        quantity = 1,
-                        price = 179.95
-                    ),
-                    currency = "EGP"
-                )
-                CartItem(
-                    item = LineItem(
-                        name = "VANS | SK8-HI DECON (CUTOUT)| LEAVES/WHITE",
-                        brand = "Vans",
-                        size = "4 / white",
-                        quantity = 1,
-                        price = 179.95
-                    ),
-                    currency = "EGP"
-                )
-            }
-        }
-        Card(
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(Color.White),
-            modifier = modifier.fillMaxWidth()
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = modifier.padding(16.dp)
-            ) {
-                Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Subtotal",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = "${order.subtotalPrice} ${order.currencyCode}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray
-                    )
-                }
-
-                Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Discount",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = "-${order.discount} ${order.currencyCode}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray
-                    )
-                }
-
-                Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Total",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "${order.totalPrice} ${order.currencyCode}",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+        item{
+            PersonalInfoCard(order = order)
         }
 
+        item{
+            ItemsList(
+                itemsList = order.lineItems,
+                onItemClick = onItemClick
+            )
+        }
+
+        item{
+            PriceDetailsCard(order = order)
+        }
     }
 }
 
 @Composable
-fun CartItem(
+fun PersonalInfoCard(modifier: Modifier = Modifier, order: OrderEntity) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(Color.White),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Delivery address",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = order.customerName,
+                fontSize = 16.sp,
+            )
+            Text(
+                text = "${order.city}, ${order.shippingAddress}",
+                fontSize = 16.sp,
+            )
+            Text(
+                text = order.phone,
+                fontSize = 16.sp,
+            )
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DeliveryStatusCard(modifier: Modifier = Modifier, order: OrderEntity) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(Color.White),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier.padding(all = 16.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.delivery_icon),
+                contentDescription = "delivered",
+                tint = Primary,
+                modifier = modifier.size(40.dp).padding(end = 8.dp)
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Delivered",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                val (date, time) = formatDateTime(order.processedAt)
+                Text(
+                    text = "on $date $time",
+                    fontSize = 16.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemsList(
+    itemsList: List<LineItemEntity>,
+    onItemClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(Color.White),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            itemsList.forEach { item ->
+                ItemCard(item = item, onItemClick = onItemClick)
+            }
+        }
+    }
+}
+
+@Composable
+fun PriceDetailsCard(modifier: Modifier = Modifier, order: OrderEntity) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(Color.White),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Subtotal",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "${order.subtotalPrice} EGP",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray
+                )
+            }
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Total",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${order.totalPrice} EGP",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun ItemCard(
     modifier: Modifier = Modifier,
-    item: LineItem,
-    currency: String,
+    item: LineItemEntity,
+    onItemClick: (String) -> Unit
 ) {
     Column {
         Row(
             modifier = modifier
                 .clip(RoundedCornerShape(12.dp))
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .clickable { onItemClick(item.productId) },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(R.drawable.product_5_image1),
-                contentDescription = item.name,
+            GlideImage(
+                model = item.imageUrl,
+                contentDescription = item.productTitle,
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .size(100.dp)
                     .clip(RoundedCornerShape(12.dp))
             )
-            CartInfo(
-                name = item.name,
-                brand = item.brand,
-                size = item.size,
-                currency = currency,
+            ItemCardInfo(
+                name = item.productTitle,
+                brand = item.productTitle,
+                size = item.variantTitle,
+                currency = "EGP",
                 price = item.price
             )
         }
@@ -271,20 +317,20 @@ fun CartItem(
 }
 
 @Composable
-fun CartInfo(
+fun ItemCardInfo(
     modifier: Modifier = Modifier,
     name: String,
     brand: String,
     size: String,
     currency: String,
-    price: Double,
+    price: String,
 ) {
     Column(
         modifier = modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            name,
+            name.split('|')[1].trim(),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
@@ -293,7 +339,7 @@ fun CartInfo(
             modifier = modifier.fillMaxWidth()
         ) {
             Text(
-                brand,
+                brand.split('|')[0],
                 fontSize = 16.sp,
                 color = Color.Black.copy(alpha = 0.7f),
             )
@@ -305,8 +351,8 @@ fun CartInfo(
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement =Arrangement.spacedBy(8.dp)
-        ){
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text(
                 currency,
                 color = Color.Black.copy(alpha = 0.7f),
@@ -314,12 +360,10 @@ fun CartInfo(
             )
 
             Text(
-                "$price",
+                price,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
         }
     }
 }
-
-data class LineItem(val name: String, val brand: String, val size: String, val quantity: Int, val price: Double)
