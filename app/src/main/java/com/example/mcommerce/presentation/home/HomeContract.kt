@@ -37,6 +37,7 @@ interface HomeContract {
         data class NavigateToBrandProducts(val brandId: String, val brandName: String): Events
         data class NavigateToProductDetails(val productId: String): Events
         data class ShowError(val message: String) : Events
+        data class ShowSnackbar(val message: String): Events
         data object Idle: Events
     }
 }

@@ -258,6 +258,7 @@ class CartViewModel @Inject constructor(
                             _states.value = CartContract.States.Success(result.data)
                             if (result.data.discountAmount > 0) {
                                 _events.value = CartContract.Events.DisableApplyEvent
+                                delay(1000)
                                 _events.value =
                                     CartContract.Events.DisplayError("The Code was Applied Successfully")
                             } else {

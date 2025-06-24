@@ -231,9 +231,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if(product.isFavorite){
                 insertProductToFavoritesUseCase(product.toSearchEntity())
+                _events.value = HomeContract.Events.ShowSnackbar("Added to favorites")
                 updateFavoriteState(product)
             } else{
                 deleteFavoriteProductUseCase(product.id)
+                _events.value = HomeContract.Events.ShowSnackbar("Removed from favorites")
                 updateFavoriteState(product)
             }
         }
@@ -261,6 +263,10 @@ class HomeViewModel @Inject constructor(
             bestSellersList = updatedBestSellers,
             latestArrivals = updatedLatestArrivals
         )
+        val message =
+            if (updatedLatestArrivals.find { it.id == product.id }?.isFavorite == true || updatedBestSellers.find { it.id == product.id }?.isFavorite == true)
+                "Added to Favorites!" else "Removed from Favorites."
+        _events.value = HomeContract.Events.ShowSnackbar(message)
     }
 
     fun isGuest(): Boolean = isGuestModeUseCase()

@@ -35,6 +35,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -78,7 +81,11 @@ fun HomeScreen(
     navigateTo: (Screens) -> Unit
 ) {
     val event = viewModel.events.value
+    val state = viewModel.states.value
+
     val isGuest = remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
 
@@ -103,6 +110,14 @@ fun HomeScreen(
                 currency.value = event.currency
                 rate.doubleValue = event.rate
             }
+
+            is HomeContract.Events.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(
+                    message = event.message,
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.resetEvent()
+            }
         }
     }
 
@@ -112,99 +127,112 @@ fun HomeScreen(
     }
 
     HomeItems(
-        viewModel = viewModel,
+        state = state,
         currency = currency.value,
         rate = rate.doubleValue,
-        isGuest = isGuest.value
+        isGuest = isGuest.value,
+        snackbarHostState = snackbarHostState,
+        onBrandClick = { id, name ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(id, name))
+        },
+        onFavoriteClick = { product ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
+        },
+        onProductClick = { id ->
+            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(id))
+        }
     )
 }
 
 @Composable
 fun HomeItems(
-    viewModel: HomeViewModel,
+    state: HomeContract.HomeState,
     isGuest: Boolean,
     currency: String,
-    rate: Double
+    rate: Double,
+    snackbarHostState: SnackbarHostState,
+    onBrandClick: (String, String) -> Unit,
+    onProductClick: (String) -> Unit,
+    onFavoriteClick: (ProductsContract.ProductUIModel) -> Unit,
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        val state = viewModel.states.value
+    Box {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
 
-        when {
-            state.errorMessage != null -> {
-                item {
-                    FailureScreen(state.errorMessage)
+            when {
+                state.errorMessage != null -> {
+                    item {
+                        FailureScreen(state.errorMessage)
+                    }
                 }
-            }
 
-            state.brandsLoading -> {
-                item {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                state.brandsLoading -> {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+
+                else -> {
+
+                    item {
+                        AdsCarousel(
+                            couponsList = state.codes.map {
+                                CouponEntity(
+                                    it,
+                                    description = "Click here to Copy",
+                                    title = "Get ${it.filter { x -> x.isDigit() }}% Off",
+                                    imageRes = R.drawable.ad_placeholder
+                                )
+                            },
+                            isLoading = state.codesLoading,
+                        )
+                    }
+                    item {
+                        BrandList(
+                            brandsList = state.brandsList,
+                            onBrandClick = onBrandClick
+                        )
+                    }
+                    item {
+                        BestSellersList(
+                            title = "Best Sellers",
+                            products = state.bestSellersList,
+                            isLoading = state.bestSellersLoading,
+                            onProductClick = onProductClick,
+                            onFavoriteClick = onFavoriteClick,
+                            currency = currency,
+                            rate = rate,
+                            isGuest = isGuest
+                        )
+                    }
+                    item {
+                        LatestArrivalsList(
+                            title = "Latest Arrivals",
+                            products = state.latestArrivals,
+                            isLoading = state.latestArrivalsLoading,
+                            onProductClick = onProductClick,
+                            onFavoriteClick = onFavoriteClick,
+                            currency = currency,
+                            rate = rate,
+                            isGuest = isGuest
+                        )
                     }
                 }
             }
 
-            else -> {
-
-                item {
-                    AdsCarousel(
-                        couponsList = state.codes.map {
-                            CouponEntity(
-                                it,
-                                description = "Click here to Copy",
-                                title = "Get ${it.filter { x -> x.isDigit() }}% Off",
-                                imageRes = R.drawable.ad_placeholder
-                            )
-                        },
-                        isLoading = state.codesLoading,
-                    )
-                }
-                item {
-                    BrandList(
-                        brandsList = state.brandsList,
-                        onBrandClick = { id, name ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnBrand(id, name))
-                        }
-                    )
-                }
-                item {
-                    BestSellersList(
-                        title = "Best Sellers",
-                        products = state.bestSellersList,
-                        isLoading = state.bestSellersLoading,
-                        onProductClick = { productId ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
-                        },
-                        onFavoriteClick = { product ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
-                        },
-                        currency = currency,
-                        rate = rate,
-                        isGuest = isGuest
-                    )
-                }
-                item {
-                    LatestArrivalsList(
-                        title = "Latest Arrivals",
-                        products = state.latestArrivals,
-                        isLoading = state.latestArrivalsLoading,
-                        onProductClick = { productId ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnProduct(productId))
-                        },
-                        onFavoriteClick = { product ->
-                            viewModel.invokeActions(HomeContract.Action.ClickOnFavorite(product))
-                        },
-                        currency = currency,
-                        rate = rate,
-                        isGuest = isGuest
-                    )
-                }
-            }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 

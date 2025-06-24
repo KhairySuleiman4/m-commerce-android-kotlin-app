@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,18 +68,18 @@ fun ProfileScreen(
     }
 
     val loggedTabItems = listOf(
-        ProfileItem(R.drawable.profile_icon, "Personal Information", Screens.PersonalInfo),
-        ProfileItem(R.drawable.adress_icon, "My Addresses", Screens.Addresses),
-        ProfileItem(R.drawable.shopping_icon, "My Orders", Screens.OrdersScreen),
-        ProfileItem(R.drawable.settings_icon, "Settings", Screens.Settings),
-        ProfileItem(R.drawable.info_icon, "About us", Screens.Profile),
-        ProfileItem(R.drawable.logout_icon, "Logout", Screens.Login),
+        ProfileItem(R.drawable.profile_icon,"Personal Information", Screens.PersonalInfo),
+        ProfileItem(R.drawable.adress_icon,"My Addresses", Screens.Addresses),
+        ProfileItem(R.drawable.shopping_icon,"My Orders", Screens.OrdersScreen),
+        ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
+        ProfileItem(R.drawable.info_icon,"About us", Screens.AboutUs),
+        ProfileItem(R.drawable.logout_icon,"Logout", Screens.Login),
     )
 
     val guestTabItems = listOf(
-        ProfileItem(R.drawable.settings_icon, "Settings", Screens.Settings),
-        ProfileItem(R.drawable.info_icon, "About us", Screens.Profile),
-        ProfileItem(R.drawable.profile_icon, "Login", Screens.Login),
+        ProfileItem(R.drawable.settings_icon,"Settings", Screens.Settings),
+        ProfileItem(R.drawable.info_icon,"About us", Screens.AboutUs),
+        ProfileItem(R.drawable.profile_icon,"Login", Screens.Login),
     )
 
     ProfilePage(
@@ -106,8 +108,9 @@ private fun ProfilePage(
 ) {
     LazyColumn(
         modifier = modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .fillMaxSize()
+            .padding(12.dp),
+        horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -150,6 +153,7 @@ fun ProfileTabInfo(
             modifier = Modifier
                 .width(25.dp)
                 .height(25.dp)
+                .padding(end = 4.dp)
         )
 
         Text(
@@ -169,8 +173,7 @@ fun ProfileTab(
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(color = Background)
+            .clip(RoundedCornerShape(4.dp))
             .fillMaxWidth()
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -180,11 +183,10 @@ fun ProfileTab(
             image = image,
             text = text
         )
-        Text(
-            fontFamily = PoppinsFontFamily,
-            text = ">",
-            fontSize = 30.sp,
-            fontWeight = FontWeight.ExtraBold
+        Icon(
+            painter = painterResource(R.drawable.forward_arrow),
+            tint = Primary,
+            contentDescription =""
         )
     }
 }
@@ -203,13 +205,14 @@ fun UserInfo(
         Image(
             painter = painterResource(R.drawable.profile_placeholder),
             contentDescription = "user image",
+            contentScale = ContentScale.Fit,
             modifier = Modifier
-                .clip(RoundedCornerShape(50))
                 .width(75.dp)
                 .height(75.dp)
+                .clip(RoundedCornerShape(50))
         )
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(

@@ -58,6 +58,7 @@ import com.example.mcommerce.presentation.orders.OrdersScreen
 import com.example.mcommerce.presentation.personalinfo.PersonalInfoScreen
 import com.example.mcommerce.presentation.product_info.ProductInfoScreen
 import com.example.mcommerce.presentation.products.ProductsScreen
+import com.example.mcommerce.presentation.profile.AboutUsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
 import com.example.mcommerce.presentation.search.SearchScreen
 import com.example.mcommerce.presentation.settings.view.SettingsScreen
@@ -255,6 +256,14 @@ fun NavHostContainer(
                     NoNetworkScreen()
                 }
             }
+            composable<Screens.AboutUs> {
+                if (isConnected) {
+                    AboutUsScreen()
+                } else {
+                    NoNetworkScreen()
+                }
+
+            }
             composable<Screens.Settings> {
                 changeRoute(3)
                 changeName("Settings")
@@ -380,7 +389,7 @@ fun BottomNavigationBar(
                 },
                 alwaysShowLabel = true,
                 icon = {
-                    Icon(imageVector = navItem.icon, contentDescription = "Navigation Icon")
+                    Icon(painter = painterResource(navItem.icon), contentDescription = "Navigation Icon", modifier = Modifier.size(25.dp))
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,

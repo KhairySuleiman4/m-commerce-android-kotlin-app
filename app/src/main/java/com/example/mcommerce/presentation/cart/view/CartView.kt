@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -48,7 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -208,7 +210,7 @@ fun CartPage(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(8.dp),
+                            .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -281,7 +283,18 @@ fun CartPage(
                                         brand = item.brand,
                                         category = item.category,
                                         currency = currency,
-                                        price = item.price * rate
+                                        price = item.price * rate,
+                                        value = item.quantity,
+                                        plusAction = {
+                                            plusAction(item.lineId, item.quantity)
+                                        },
+                                        minusAction = {
+                                            minusAction(item.lineId, item.quantity)
+                                        },
+                                        deleteAction = {
+                                            showBottomSheet.value = true
+                                            selectedItem.value = item
+                                        }
                                     )
                                 }
                                 Row(
@@ -354,7 +367,7 @@ fun BottomBar(
             .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
             .background(color = Background)
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(40.dp)
     ) {
@@ -365,7 +378,7 @@ fun BottomBar(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Start
             ) {
                 TextField(
                     value = promoCode.value,
@@ -386,7 +399,9 @@ fun BottomBar(
                     modifier = Modifier
                         .height(50.dp)
                         .clip(RoundedCornerShape(topStartPercent = 20, bottomStartPercent = 20))
+                        .fillMaxWidth(0.7f)
                 )
+                Spacer(Modifier.width(8.dp))
                 Button(
                     onClick = {
                         if (promoCode.value.isNotBlank()) {
@@ -399,7 +414,7 @@ fun BottomBar(
                         contentColor = Background,
                     ),
                     enabled = isApplied,
-                    modifier = Modifier.clip(RoundedCornerShape(20))
+                    modifier = Modifier.clip(RoundedCornerShape(20)).width(120.dp).height(40.dp)
                 ) {
                     Text(
                         fontFamily = PoppinsFontFamily,
@@ -526,38 +541,41 @@ fun CartItem(
     minusAction: () -> Unit,
     deleteAction: () -> Unit
 ) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(color = Secondary)
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        GlideImage(
-            model = item.image,
-            contentDescription = item.title,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .height(100.dp)
-                .width(100.dp)
-                .clip(RoundedCornerShape(12.dp))
-        )
-        CartInfo(
-            name = item.title,
-            brand = item.brand,
-            category = item.category,
-            currency = currency,
-            price = item.price * rate
-        )
-        QuantityChanger(
-            modifier = Modifier.height(200.dp),
-            value = item.quantity,
-            plusAction = plusAction,
-            minusAction = minusAction,
-            deleteAction = deleteAction
-        )
+    Card (
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(Color.White),
+        modifier = modifier.fillMaxWidth()
+            .height(180.dp)
+    ){
+        Row(
+            modifier = modifier
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            GlideImage(
+                model = item.image,
+                contentDescription = item.title,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
+            CartInfo(
+                name = item.title,
+                brand = item.brand,
+                category = item.category,
+                currency = currency,
+                price = item.price * rate,
+                value = item.quantity,
+                plusAction = plusAction,
+                minusAction = minusAction,
+                deleteAction = deleteAction
+
+            )
+        }
     }
 }
 
@@ -569,39 +587,40 @@ fun CartInfo(
     category: String,
     currency: String,
     price: Double,
+    value: Int,
+    plusAction: () -> Unit,
+    minusAction: () -> Unit,
+    deleteAction: () -> Unit
 ) {
     val split = category.split("/")
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
             fontFamily = PoppinsFontFamily,
             text = name,
-            fontSize = 20.sp,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .width(200.dp)
-                .height(60.dp)
+            fontSize = 16.sp,
+            maxLines = 2,
         )
 
         Text(
             fontFamily = PoppinsFontFamily,
             text = brand,
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
 
         Text(
             fontFamily = PoppinsFontFamily,
             text = "Size: ${split[0]}",
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
         Text(
             fontFamily = PoppinsFontFamily,
             text = "Color: ${split[1]}",
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = Color.Black.copy(alpha = 0.7f)
         )
         Row(
@@ -612,93 +631,81 @@ fun CartInfo(
                 fontFamily = PoppinsFontFamily,
                 text = currency,
                 color = Color.Black.copy(alpha = 0.7f),
-                fontSize = 18.sp
+                fontSize = 16.sp
             )
 
             Text(
                 fontFamily = PoppinsFontFamily,
                 text = String.format(locale = Locale.US, "%.2f", price),
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+                fontSize = 16.sp
             )
         }
-    }
-}
-
-@Composable
-fun QuantityChanger(
-    modifier: Modifier = Modifier,
-    value: Int,
-    plusAction: () -> Unit,
-    minusAction: () -> Unit,
-    deleteAction: () -> Unit
-) {
-    Column(
-        modifier = modifier.fillMaxSize(1f),
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-
-        IconButton(
-            colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
-            onClick = deleteAction,
-            modifier = Modifier
-                .width(30.dp)
-                .height(30.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.delete_icon),
-                contentDescription = "delete"
-            )
-        }
+        Spacer(Modifier.height(8.dp))
         Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = modifier.fillMaxWidth()
         ) {
-            if (value != 1) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                if (value != 1) {
+                    OutlinedIconButton(
+                        border = BorderStroke(1.dp, color = Primary),
+                        colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
+                        onClick = minusAction,
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(20.dp)
+                    ) {
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text ="-"
+                        )
+                    }
+                }
+                else{
+                    Spacer(
+                        Modifier
+                            .width(16.dp)
+                            .height(16.dp)
+                    )
+                }
+                Text(
+                    fontFamily = PoppinsFontFamily,
+                    text ="$value",
+                    fontSize = 14.sp
+                )
                 OutlinedIconButton(
                     border = BorderStroke(1.dp, color = Primary),
-                    colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
-                    onClick = minusAction,
+                    colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+                    onClick = plusAction,
                     modifier = Modifier
                         .width(20.dp)
                         .height(20.dp)
                 ) {
                     Text(
                         fontFamily = PoppinsFontFamily,
-                        text = "-"
+                        text = "+"
                     )
                 }
-            } else {
-                Spacer(
-                    Modifier
-                        .width(20.dp)
-                        .height(20.dp)
-                )
             }
-            Text(
-                fontFamily = PoppinsFontFamily,
-                text = "$value",
-                fontSize = 17.sp
-            )
-            OutlinedIconButton(
-                border = BorderStroke(1.dp, color = Primary),
-                colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
-                onClick = plusAction,
+            IconButton(
+                colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+                onClick = deleteAction,
                 modifier = Modifier
                     .width(20.dp)
                     .height(20.dp)
             ) {
-                Text(
-                    fontFamily = PoppinsFontFamily,
-                    text = "+"
+                Icon(
+                    painter = painterResource(R.drawable.delete_icon),
+                    contentDescription = "delete"
                 )
             }
         }
     }
 }
-
 @Preview
 @Composable
 private fun PreviewCartScreen() {
