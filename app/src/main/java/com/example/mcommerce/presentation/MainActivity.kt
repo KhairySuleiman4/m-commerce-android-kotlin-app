@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,6 +17,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -48,14 +51,15 @@ import com.example.mcommerce.presentation.home.HomeScreen
 import com.example.mcommerce.presentation.map.view.MapScreen
 import com.example.mcommerce.presentation.navigation.Constants
 import com.example.mcommerce.presentation.navigation.Screens
-import com.example.mcommerce.presentation.personalinfo.PersonalInfoScreen
 import com.example.mcommerce.presentation.order_details.OrderDetailsScreen
 import com.example.mcommerce.presentation.orders.OrdersScreen
+import com.example.mcommerce.presentation.personalinfo.PersonalInfoScreen
 import com.example.mcommerce.presentation.product_info.ProductInfoScreen
 import com.example.mcommerce.presentation.products.ProductsScreen
 import com.example.mcommerce.presentation.profile.ProfileScreen
 import com.example.mcommerce.presentation.search.SearchScreen
 import com.example.mcommerce.presentation.settings.view.SettingsScreen
+import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.Primary
 import com.example.mcommerce.presentation.utils.NoNetworkScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -89,6 +93,8 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(false)
             }
 
+            val showLoginAlert = remember { mutableStateOf(false) }
+
             Scaffold(
                 topBar = {
                     if (showTopBar) {
@@ -100,7 +106,7 @@ class MainActivity : ComponentActivity() {
                                 if (isUser.value) {
                                     navController.navigate(Screens.Cart)
                                 } else {
-                                    //alert to login
+                                    showLoginAlert.value = true
                                 }
                             },
                             title = title.value
@@ -112,7 +118,8 @@ class MainActivity : ComponentActivity() {
                         BottomNavigationBar(
                             navController = navController,
                             currentRoute = navDest.intValue,
-                            isGuest = !isUser.value
+                            isGuest = !isUser.value,
+                            onShowLoginAlert = { showLoginAlert.value = true }
                         )
                     }
                 },
@@ -128,6 +135,19 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             )
+            if (showLoginAlert.value) {
+                LoginAlert(
+                    onDismissRequest = {
+                        showLoginAlert.value = false
+                    },
+                    onConfirmation = {
+                        showLoginAlert.value = false
+                        navController.navigate(Screens.Signup) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -143,7 +163,9 @@ fun NavHostContainer(
     changeRoute: (Int) -> Unit
 ) {
     NavHost(
-        modifier = modifier.fillMaxSize().padding(paddingValues = padding),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(paddingValues = padding),
         navController = navController,
         startDestination = Screens.Splash,
         builder = {
@@ -293,8 +315,8 @@ fun NavHostContainer(
             composable<Screens.Cart> {
 
                 if (isConnected) {
-                    CartScreen{
-                        navController.navigate(Screens.Home){
+                    CartScreen {
+                        navController.navigate(Screens.Home) {
                             popUpTo(0) { inclusive = true }
                         }
                     }
@@ -327,7 +349,8 @@ fun NavHostContainer(
 fun BottomNavigationBar(
     navController: NavHostController,
     currentRoute: Int,
-    isGuest: Boolean
+    isGuest: Boolean,
+    onShowLoginAlert: () -> Unit
 ) {
     NavigationBar {
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
@@ -336,7 +359,7 @@ fun BottomNavigationBar(
                 onClick = {
                     if (index != currentRoute) {
                         if (index == 2 && isGuest) {
-                            //alert to login
+                            onShowLoginAlert()
                         } else {
                             navController.navigate(navItem.route) {
                                 launchSingleTop = true
@@ -389,6 +412,54 @@ fun MyAppBar(
                     contentDescription = "Shopping Cart",
                     modifier = Modifier.size(25.dp)
                 )
+            }
+        }
+    )
+}
+
+@Composable
+fun LoginAlert(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit
+) {
+    AlertDialog(
+        title = {
+            Text(text = "Hello, Guest!")
+        },
+        text = {
+            Text(text = "You should have an account to be able to access this feature")
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                },
+                colors = ButtonColors(
+                    containerColor = Background,
+                    contentColor = Primary,
+                    disabledContainerColor = Background,
+                    disabledContentColor = Primary
+                )
+            ) {
+                Text("Sign up")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                },
+                colors = ButtonColors(
+                    containerColor = Background,
+                    contentColor = Color.Red,
+                    disabledContainerColor = Background,
+                    disabledContentColor = Primary
+                )
+            ) {
+                Text("cancel")
             }
         }
     )
