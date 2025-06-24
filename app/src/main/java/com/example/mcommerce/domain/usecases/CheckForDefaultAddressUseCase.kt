@@ -7,6 +7,7 @@ import javax.inject.Inject
 
 class CheckForDefaultAddressUseCase @Inject constructor(
     private val addressesRepo: AddressesRepo
-){
-    operator fun invoke(accessToken: String): Flow<ApiResult<Boolean>> = addressesRepo.checkForDefault(accessToken)
+) {
+    operator fun invoke(accessToken: String): Flow<ApiResult<Boolean>> =
+        addressesRepo.checkForDefault(accessToken)
 }

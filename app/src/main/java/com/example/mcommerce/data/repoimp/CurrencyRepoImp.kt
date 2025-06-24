@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.Flow
 class CurrencyRepoImp(
     private val local: ExchangeDataStore,
     private val remote: CurrencyRemoteDataSource
-    ): CurrencyRepo {
+) : CurrencyRepo {
 
-    override suspend fun getCurrencyFromRemoteSource(): Flow<ApiResult<ExchangeRateEntity?>> = remote.getCurrency()
+    override suspend fun getCurrencyFromRemoteSource(): Flow<ApiResult<ExchangeRateEntity?>> =
+        remote.getCurrency()
 
     override suspend fun getCurrencyValueFromLocalSource(): String = local.getCurrency()
 

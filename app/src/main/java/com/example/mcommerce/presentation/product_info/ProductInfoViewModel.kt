@@ -4,10 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mcommerce.data.mappers.toSearchEntity
 import com.example.mcommerce.domain.ApiResult
-import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.usecases.AddItemToCartUseCase
 import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
@@ -35,28 +33,33 @@ class ProductInfoViewModel @Inject constructor(
     private val isGuestModeUseCase: IsGuestModeUseCase
 ) : ViewModel(), ProductInfoContract.ProductInfoViewModel {
 
-    private val _states = mutableStateOf<ProductInfoContract.States>(ProductInfoContract.States.Loading)
-    private val _events = mutableStateOf<ProductInfoContract.Events>(ProductInfoContract.Events.Idle)
+    private val _states =
+        mutableStateOf<ProductInfoContract.States>(ProductInfoContract.States.Loading)
+    private val _events =
+        mutableStateOf<ProductInfoContract.Events>(ProductInfoContract.Events.Idle)
 
     override val states: State<ProductInfoContract.States> get() = _states
     override val events: State<ProductInfoContract.Events> get() = _events
 
-    fun getProductById(id: String){
+    fun getProductById(id: String) {
         viewModelScope.launch {
-            getProductUseCase(id).collect{ result ->
-                when(result){
+            getProductUseCase(id).collect { result ->
+                when (result) {
                     is ApiResult.Failure -> {
-                        _states.value = ProductInfoContract.States.Failure(result.error.message.toString())
+                        _states.value =
+                            ProductInfoContract.States.Failure(result.error.message.toString())
                     }
+
                     is ApiResult.Loading -> {
                         _states.value = ProductInfoContract.States.Loading
                     }
+
                     is ApiResult.Success -> {
-                        if(result.data == null){
+                        if (result.data == null) {
                             _states.value = ProductInfoContract.States.Failure("Product Not Found")
-                        } else{
+                        } else {
                             _states.value = ProductInfoContract.States.Success(result.data)
-                            if(!isGuestModeUseCase()){
+                            if (!isGuestModeUseCase()) {
                                 getCart()
                                 getFavorites()
                             }
@@ -84,11 +87,12 @@ class ProductInfoViewModel @Inject constructor(
                             if (_states.value is ProductInfoContract.States.Success) {
                                 val product =
                                     (_states.value as ProductInfoContract.States.Success).product
-                                val newProduct= product.copy(variants = product.variants.map { item ->
-                                    if (result.data.items.any { it.id == item.id })
-                                        item.isSelected = true
-                                    item
-                                })
+                                val newProduct =
+                                    product.copy(variants = product.variants.map { item ->
+                                        if (result.data.items.any { it.id == item.id })
+                                            item.isSelected = true
+                                        item
+                                    })
                                 _states.value = ProductInfoContract.States.Success(newProduct)
                             }
                         }
@@ -98,20 +102,23 @@ class ProductInfoViewModel @Inject constructor(
         }
     }
 
-    private fun getFavorites(){
-        viewModelScope.launch(Dispatchers.IO){
-            getFavoritesUseCase().collect{ result ->
-                when(result){
+    private fun getFavorites() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getFavoritesUseCase().collect { result ->
+                when (result) {
                     is ApiResult.Failure -> {
 
                     }
+
                     is ApiResult.Loading -> {
 
                     }
+
                     is ApiResult.Success -> {
                         val favoriteIds = result.data.map { it.id }.toSet()
                         if (_states.value is ProductInfoContract.States.Success) {
-                            val product = (_states.value as ProductInfoContract.States.Success).product
+                            val product =
+                                (_states.value as ProductInfoContract.States.Success).product
                             val isFavorite = favoriteIds.contains(product.id)
                             val newProduct = product.copy(isFavorite = isFavorite)
                             _states.value = ProductInfoContract.States.Success(newProduct)
@@ -122,7 +129,7 @@ class ProductInfoViewModel @Inject constructor(
         }
     }
 
-    fun getCurrency(){
+    fun getCurrency() {
         viewModelScope.launch {
             val currency = getCurrencyUseCase()
             val rate = getCurrentExchangeRateUseCase()
@@ -130,25 +137,28 @@ class ProductInfoViewModel @Inject constructor(
         }
     }
 
-    private fun addItemToCart(id: String){
+    private fun addItemToCart(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            addItemToCartUseCase(id,1).collect{
-                when(it){
+            addItemToCartUseCase(id, 1).collect {
+                when (it) {
                     is ApiResult.Failure -> {
-                        _events.value = ProductInfoContract.Events.ShowSnackbar(it.error.message.toString())
+                        _events.value =
+                            ProductInfoContract.Events.ShowSnackbar(it.error.message.toString())
                     }
+
                     is ApiResult.Loading -> {
 
                     }
+
                     is ApiResult.Success -> {
-                        if (_states.value is ProductInfoContract.States.Success){
+                        if (_states.value is ProductInfoContract.States.Success) {
                             val product =
                                 (_states.value as ProductInfoContract.States.Success).product
                             val newProduct = product.copy(variants = product.variants.map {
-                              if (it.id==id)
-                                  it.isSelected = true
-                              it
-                          })
+                                if (it.id == id)
+                                    it.isSelected = true
+                                it
+                            })
                             _states.value = ProductInfoContract.States.Success(newProduct)
                             _events.value = ProductInfoContract.Events.ShowSnackbar("Added to cart")
                         }
@@ -159,22 +169,26 @@ class ProductInfoViewModel @Inject constructor(
     }
 
     override fun invokeActions(action: ProductInfoContract.Action) {
-        when(action){
+        when (action) {
             is ProductInfoContract.Action.ClickOnAddToCart -> {
-               addItemToCart(action.variant.id)
+                addItemToCart(action.variant.id)
             }
+
             is ProductInfoContract.Action.ClickOnAddToWishList -> {
-                if(isGuest()){
-                    _events.value = ProductInfoContract.Events.ShowSnackbar("Login first so you can add to favorites")
-                } else{
+                if (isGuest()) {
+                    _events.value =
+                        ProductInfoContract.Events.ShowSnackbar("Login first so you can add to favorites")
+                } else {
                     viewModelScope.launch(Dispatchers.IO) {
-                        if(action.product.isFavorite){
+                        if (action.product.isFavorite) {
                             insertToFavoritesUseCase(action.product.toSearchEntity())
-                            _events.value = ProductInfoContract.Events.ShowSnackbar("Added to favorites")
+                            _events.value =
+                                ProductInfoContract.Events.ShowSnackbar("Added to favorites")
                             _states.value = ProductInfoContract.States.Success(action.product)
                         } else {
                             deleteFavoriteProductUseCase(action.product.id)
-                            _events.value = ProductInfoContract.Events.ShowSnackbar("Removed from favorites")
+                            _events.value =
+                                ProductInfoContract.Events.ShowSnackbar("Removed from favorites")
                             _states.value = ProductInfoContract.States.Success(action.product)
                         }
                     }
@@ -185,7 +199,7 @@ class ProductInfoViewModel @Inject constructor(
 
     fun isGuest(): Boolean = isGuestModeUseCase()
 
-    fun resetEvent(){
+    fun resetEvent() {
         _events.value = ProductInfoContract.Events.Idle
     }
 }

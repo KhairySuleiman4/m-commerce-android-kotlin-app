@@ -11,14 +11,15 @@ import kotlinx.coroutines.flow.Flow
 class AuthenticationRepoImp(
     private val firebase: Firebase,
     private val remote: CustomerRemoteDataSource
-): AuthenticationRepo {
+) : AuthenticationRepo {
     override suspend fun createAccountOnShopify(credentials: UserCredentialsEntity): Flow<ApiResult<String>> =
         remote.createCustomer(customer = credentials.toCustomerEntity())
 
     override suspend fun createAccountOnFirebase(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>> =
         firebase.createNewAccount(credentials)
 
-    override fun updateNameOnAccount(name: String): Flow<ApiResult<String>> = firebase.updateName(name)
+    override fun updateNameOnAccount(name: String): Flow<ApiResult<String>> =
+        firebase.updateName(name)
 
     override suspend fun login(email: String, password: String): Flow<ApiResult<Boolean>> =
         firebase.login(email, password)

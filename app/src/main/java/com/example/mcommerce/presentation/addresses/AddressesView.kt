@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.domain.entities.AddressEntity
+import com.example.mcommerce.presentation.errors.AddressEmptyScreen
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.Primary
 
@@ -66,6 +68,7 @@ fun AddressesScreen(
             AddressesContract.Events.Idle -> {
 
             }
+
             is AddressesContract.Events.ShowError -> {
                 snackbarHostState.showSnackbar(event.msg, duration = SnackbarDuration.Short)
             }
@@ -100,6 +103,7 @@ fun AddressPage(
     )
     when (states) {
         is AddressesContract.States.Failure -> {
+            FailureScreen(states.errorMsg)
         }
 
         AddressesContract.States.Idle -> {
@@ -134,33 +138,43 @@ fun AddressPage(
                     modifier = Modifier
                         .padding(paddingValues)
                         .fillMaxSize(),
-                    horizontalArrangement = if(states.data.size == 1) Arrangement.Center else Arrangement.spacedBy(20.dp),
+                    horizontalArrangement = if (states.data.size == 1) Arrangement.Center else Arrangement.spacedBy(
+                        20.dp
+                    ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (states.data.size>1){
-                        item{
-                            Spacer(Modifier.width(25.dp))
-                        }
-                    }
-                    items(states.data.size) {
-                        val address = states.data[it]
-                        AddressItem(
-                            address = address,
-                            onDelete = {
-                                currentAddress.value = it
-                                showBottomSheet.value = true
-                            },
-                            onChange = {
-                                changeAddress(it)
+                    if (states.data.isNotEmpty()) {
+
+                        if (states.data.size > 1) {
+                            item {
+                                Spacer(Modifier.width(25.dp))
                             }
-                        )
-                    }
-                    if (states.data.size>1){
-                        item{
-                            Spacer(Modifier.width(25.dp))
+                        }
+                        items(states.data.size) {
+                            val address = states.data[it]
+                            AddressItem(
+                                address = address,
+                                onDelete = {
+                                    currentAddress.value = it
+                                    showBottomSheet.value = true
+                                },
+                                onChange = {
+                                    changeAddress(it)
+                                }
+                            )
+                        }
+                        if (states.data.size > 1) {
+                            item {
+                                Spacer(Modifier.width(25.dp))
+                            }
+                        }
+                    } else {
+                        item {
+                            AddressEmptyScreen()
                         }
                     }
                 }
+
 
                 if (showBottomSheet.value) {
                     ModalBottomSheet(
@@ -235,14 +249,14 @@ fun AddressItem(
 ) {
     Column(
         modifier = modifier
-            .border(2.dp, Primary,RoundedCornerShape(10.dp))
+            .border(2.dp, Primary, RoundedCornerShape(10.dp))
             .padding(16.dp)
             .fillMaxWidth(),
 
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        if (address.isDefault){
+        if (address.isDefault) {
             Text(
                 "Any Upcoming Order will be delivered to This Location",
                 fontWeight = FontWeight.Bold,

@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 class ProductsRemoteDataSourceImpl(
     private val graphQlService: GraphQLService,
     private val firestore: Firebase
-): ProductsRemoteDataSource {
+) : ProductsRemoteDataSource {
     override suspend fun getProducts(id: String): Flow<ApiResult<List<ProductsEntity>>> =
         executeAPI {
             graphQlService.getProducts(id).data?.toModel()?.map {
@@ -30,21 +30,26 @@ class ProductsRemoteDataSourceImpl(
 
     override suspend fun getAllProducts(): Flow<ApiResult<List<ProductSearchEntity>>> =
         executeAPI {
-            graphQlService.getAllProducts().data?.toModel()?.map{
+            graphQlService.getAllProducts().data?.toModel()?.map {
                 it.toEntity()
             } ?: listOf()
         }
 
-    override suspend fun getHomeProducts(sortKeys: ProductSortKeys, reverse: Boolean): Flow<ApiResult<List<ProductsEntity>>> =
+    override suspend fun getHomeProducts(
+        sortKeys: ProductSortKeys,
+        reverse: Boolean
+    ): Flow<ApiResult<List<ProductsEntity>>> =
         executeAPI {
             graphQlService.getHomeProducts(sortKeys, reverse).data?.toModel()?.map {
                 it.toEntity()
             } ?: listOf()
         }
 
-    override suspend fun insertProductToFavorites(product: ProductSearchEntity) = firestore.insertProductToFavorites(product)
+    override suspend fun insertProductToFavorites(product: ProductSearchEntity) =
+        firestore.insertProductToFavorites(product)
 
-    override suspend fun getFavoriteProducts(): Flow<ApiResult<List<ProductSearchEntity>>> = firestore.getFavoriteProducts()
+    override suspend fun getFavoriteProducts(): Flow<ApiResult<List<ProductSearchEntity>>> =
+        firestore.getFavoriteProducts()
 
     override suspend fun deleteFavoriteProduct(id: String) = firestore.deleteProduct(id)
 }

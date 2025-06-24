@@ -20,14 +20,14 @@ class ProfileViewModel @Inject constructor(
     private val isGuestModeUseCase: IsGuestModeUseCase,
     private val getEmailUseCase: GetEmailUseCase,
     private val getUserNameUseCase: GetUserNameUseCase
-): ViewModel(), ProfileContract.ProfileViewModel {
+) : ViewModel(), ProfileContract.ProfileViewModel {
 
     private val _events = mutableStateOf<ProfileContract.Event>(ProfileContract.Event.Idle)
 
     override val events: State<ProfileContract.Event> get() = _events
 
     override fun invokeActions(action: ProfileContract.Action) {
-        when(action){
+        when (action) {
             ProfileContract.Action.ClickOnLogout -> {
                 logoutUseCase()
                 clearLocalCartUseCase()
@@ -36,20 +36,19 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun setup(){
+    fun setup() {
         viewModelScope.launch {
             val isGuest = isGuestModeUseCase()
-            if (!isGuest){
+            if (!isGuest) {
                 val email = getEmailUseCase()
                 val name = getUserNameUseCase()
                 _events.value = ProfileContract.Event.UpdateData(isGuest, email, name)
-            }
-            else
-                _events.value = ProfileContract.Event.UpdateData(isGuest,"","Guest")
+            } else
+                _events.value = ProfileContract.Event.UpdateData(isGuest, "", "Guest")
         }
     }
 
-    fun resetEvent(){
+    fun resetEvent() {
         _events.value = ProfileContract.Event.Idle
     }
 }

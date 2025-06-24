@@ -171,6 +171,9 @@ fun NavHostContainer(
         builder = {
             composable<Screens.Splash> {
                 SplashScreen(navigateTo = {
+                    if (it is Screens.Home) {
+                        changeGuest(true)
+                    }
                     navController.navigate(it) {
                         popUpTo(0) { inclusive = true }
                     }

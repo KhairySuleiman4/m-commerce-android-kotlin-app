@@ -43,7 +43,7 @@ import com.example.mcommerce.presentation.theme.Primary
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel()
-    ) {
+) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.showCurrency()
@@ -53,27 +53,45 @@ fun SettingsScreen(
     val showBottomSheet = remember { mutableStateOf(false) }
     val selectCurrency = remember { mutableStateOf("EGP") }
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             SettingsContract.Events.CheckDarkMode -> {
                 checkedDarkMode.value = true
             }
+
             SettingsContract.Events.HideCurrencyCatalog -> {
                 showBottomSheet.value = false
             }
+
             SettingsContract.Events.Idle -> {
 
             }
+
             is SettingsContract.Events.SaveCurrency -> {
-                Toast.makeText(context, "Changes Saved!\nNow ${event.currency} is your displayed currency", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Changes Saved!\nNow ${event.currency} is your displayed currency",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
             is SettingsContract.Events.SelectCurrency -> {
                 selectCurrency.value = event.currency
             }
+
             SettingsContract.Events.ShowCurrencyCatalog -> {
                 showBottomSheet.value = true
             }
+
             SettingsContract.Events.UnCheckDarkMode -> {
-                checkedDarkMode.value= false
+                checkedDarkMode.value = false
+            }
+
+            is SettingsContract.Events.ShowError -> {
+                Toast.makeText(
+                    context,
+                    event.msg,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -86,7 +104,13 @@ fun SettingsScreen(
         openSheet = { viewModel.invokeActions(SettingsContract.Action.ClickOnCurrency) },
         checkBoxAction = { viewModel.invokeActions(SettingsContract.Action.ClickOnCheckButton(it)) },
         hideSheet = { viewModel.invokeActions(SettingsContract.Action.ClickOnHide) },
-        currencySelection = { viewModel.invokeActions(SettingsContract.Action.ClickOnSelectedCurrency(it)) }
+        currencySelection = {
+            viewModel.invokeActions(
+                SettingsContract.Action.ClickOnSelectedCurrency(
+                    it
+                )
+            )
+        }
     )
 }
 
@@ -97,11 +121,11 @@ fun SettingsPage(
     checkedDarkMode: Boolean,
     showBottomSheet: Boolean,
     selectedCurrency: String,
-    openSheet: ()-> Unit,
-    checkBoxAction: (Boolean)->Unit,
-    hideSheet: ()-> Unit,
-    currencySelection: (String)-> Unit
-    ) {
+    openSheet: () -> Unit,
+    checkBoxAction: (Boolean) -> Unit,
+    hideSheet: () -> Unit,
+    currencySelection: (String) -> Unit
+) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
     )
@@ -134,7 +158,7 @@ fun SettingsPage(
             SettingTabInfo(text = "Dark mode", image = R.drawable.dark_mode_icon)
             Checkbox(
                 checked = checkedDarkMode,
-                onCheckedChange = { checkBoxAction(!it)},
+                onCheckedChange = { checkBoxAction(!it) },
                 colors = CheckboxDefaults
                     .colors()
                     .copy(
@@ -210,7 +234,7 @@ fun SettingTabInfo(
     text: String
 ) {
     Row(
-        modifier= modifier,
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -238,7 +262,7 @@ fun CountryTabInfo(
     text: String
 ) {
     Row(
-        modifier= modifier,
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -264,7 +288,7 @@ fun CountryTabInfo(
 fun CurrencyDisplay(
     modifier: Modifier = Modifier,
     text: String
-    ) {
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),

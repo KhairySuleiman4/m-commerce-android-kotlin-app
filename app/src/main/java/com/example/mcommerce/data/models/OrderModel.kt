@@ -17,5 +17,5 @@ data class OrderModel(
     val customerName: String,
     val customerPhone: String,
     val shippingAddress: String,
-    val shippingCity: String,
+    val shippingCity: String
 )

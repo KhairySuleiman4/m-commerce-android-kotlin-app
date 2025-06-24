@@ -45,16 +45,22 @@ fun PersonalInfoScreen(
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             PersonalInfoContract.Event.Idle -> {
 
             }
+
             is PersonalInfoContract.Event.SaveDone -> {
-                snackbarHostState.showSnackbar("The new Name ${event.name} have been saved!", duration =  SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(
+                    "The new Name ${event.name} have been saved!",
+                    duration = SnackbarDuration.Short
+                )
             }
+
             is PersonalInfoContract.Event.ShowError -> {
-                snackbarHostState.showSnackbar(event.msg, duration =  SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(event.msg, duration = SnackbarDuration.Short)
             }
+
             is PersonalInfoContract.Event.UpdateData -> {
                 email.value = event.email
                 name.value = event.name
@@ -63,6 +69,7 @@ fun PersonalInfoScreen(
     }
 
     PersonalInfoPage(
+        modifier = modifier,
         name = name.value,
         email = email.value,
         snackbarHostState = snackbarHostState
@@ -88,7 +95,7 @@ fun PersonalInfoPage(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if(textFieldValue.value != name && textFieldValue.value.length > 4)
+                    if (textFieldValue.value != name && textFieldValue.value.length > 4)
                         changeNameAction(textFieldValue.value)
                 },
                 containerColor = Primary,

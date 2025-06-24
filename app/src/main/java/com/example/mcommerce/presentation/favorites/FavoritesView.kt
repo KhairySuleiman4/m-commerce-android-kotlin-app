@@ -49,6 +49,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.domain.entities.ProductSearchEntity
+import com.example.mcommerce.presentation.errors.FailureScreen
+import com.example.mcommerce.presentation.errors.FavoriteEmptyScreen
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.Primary
@@ -108,7 +110,10 @@ fun Products(
     modifier: Modifier = Modifier
 ) {
     when (state) {
-        is FavoritesContract.States.Failure -> {}
+        is FavoritesContract.States.Failure -> {
+            FailureScreen(state.errorMsg)
+        }
+
         is FavoritesContract.States.Idle -> {}
         is FavoritesContract.States.Loading -> {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -117,13 +122,16 @@ fun Products(
         }
 
         is FavoritesContract.States.Success -> {
-            ProductsList(
-                productsList = state.products,
-                currency = currency,
-                rate = rate,
-                onProductClick = onProductClick,
-                onDeleteFromFavoriteClick = onDeleteFromFavoriteClick
-            )
+            if (state.products.isNotEmpty())
+                ProductsList(
+                    productsList = state.products,
+                    currency = currency,
+                    rate = rate,
+                    onProductClick = onProductClick,
+                    onDeleteFromFavoriteClick = onDeleteFromFavoriteClick
+                )
+            else
+                FavoriteEmptyScreen()
         }
     }
 }

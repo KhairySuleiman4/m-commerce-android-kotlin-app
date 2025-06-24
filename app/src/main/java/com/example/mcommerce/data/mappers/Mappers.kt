@@ -23,7 +23,7 @@ import com.example.mcommerce.domain.entities.ProductSearchEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.domain.entities.UserCredentialsEntity
 
-fun CollectionsModel.toEntity(): CollectionsEntity{
+fun CollectionsModel.toEntity(): CollectionsEntity {
     return CollectionsEntity(
         id = this.id,
         title = this.title,
@@ -31,7 +31,7 @@ fun CollectionsModel.toEntity(): CollectionsEntity{
     )
 }
 
-fun CollectionsEntity.toModel(): CollectionsModel{
+fun CollectionsEntity.toModel(): CollectionsModel {
     return CollectionsModel(
         id = this.id,
         title = this.title,
@@ -43,7 +43,7 @@ fun ExchangeResponse.toEntity(): ExchangeRateEntity = ExchangeRateEntity(rates)
 
 fun ExchangeRateEntity.toModel(): ExchangeResponse = ExchangeResponse(rates)
 
-fun ProductsModel.toEntity(): ProductsEntity{
+fun ProductsModel.toEntity(): ProductsEntity {
     return ProductsEntity(
         id = this.id,
         title = this.title,
@@ -55,7 +55,7 @@ fun ProductsModel.toEntity(): ProductsEntity{
     )
 }
 
-fun ProductsEntity.toModel(): ProductsModel{
+fun ProductsEntity.toModel(): ProductsModel {
     return ProductsModel(
         id = this.id,
         title = this.title,
@@ -66,7 +66,7 @@ fun ProductsEntity.toModel(): ProductsModel{
     )
 }
 
-fun CategoriesModel.toEntity(): CategoriesEntity{
+fun CategoriesModel.toEntity(): CategoriesEntity {
     return CategoriesEntity(
         id = this.id,
         title = this.title,
@@ -75,7 +75,7 @@ fun CategoriesModel.toEntity(): CategoriesEntity{
     )
 }
 
-fun CategoriesEntity.toModel(): CategoriesModel{
+fun CategoriesEntity.toModel(): CategoriesModel {
     return CategoriesModel(
         id = this.id,
         title = this.title,
@@ -93,7 +93,7 @@ fun UserCredentialsEntity.toCustomerEntity(): CustomerEntity {
     )
 }
 
-fun Address.toModel(): AddressModel{
+fun Address.toModel(): AddressModel {
     return AddressModel(
         id = "",
         name = this.featureName,
@@ -106,7 +106,7 @@ fun Address.toModel(): AddressModel{
     )
 }
 
-fun AddressModel.toEntity(): AddressEntity{
+fun AddressModel.toEntity(): AddressEntity {
     return AddressEntity(
         id = this.id,
         name = this.name,
@@ -120,7 +120,7 @@ fun AddressModel.toEntity(): AddressEntity{
     )
 }
 
-fun AddressEntity.toModel(): AddressModel{
+fun AddressEntity.toModel(): AddressModel {
     return AddressModel(
         id = this.id,
         name = this.name,
@@ -134,7 +134,7 @@ fun AddressEntity.toModel(): AddressModel{
 }
 
 
-fun ProductsForSearchModel.toEntity(): ProductSearchEntity{
+fun ProductsForSearchModel.toEntity(): ProductSearchEntity {
     return ProductSearchEntity(
         id = this.id,
         title = this.title,
@@ -165,7 +165,7 @@ fun LineModel.toEntity(): LineEntity = LineEntity(
     this.lineId
 )
 
-fun OrderModel.toEntity(): OrderEntity{
+fun OrderModel.toEntity(): OrderEntity {
     return OrderEntity(
         orderId = this.orderId,
         orderName = this.orderName,
@@ -187,7 +187,7 @@ fun OrderModel.toEntity(): OrderEntity{
     )
 }
 
-fun OrderEntity.toModel(): OrderModel{
+fun OrderEntity.toModel(): OrderModel {
     return OrderModel(
         orderId = this.orderId,
         orderName = this.orderName,
@@ -209,7 +209,7 @@ fun OrderEntity.toModel(): OrderModel{
     )
 }
 
-fun ProductInfoEntity.toSearchEntity(): ProductSearchEntity{
+fun ProductInfoEntity.toSearchEntity(): ProductSearchEntity {
     return ProductSearchEntity(
         id = this.id,
         title = this.title,

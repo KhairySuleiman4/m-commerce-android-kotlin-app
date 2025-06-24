@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -62,6 +62,7 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CouponEntity
 import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.products.ProductCard
@@ -77,6 +78,8 @@ fun HomeScreen(
 ) {
     val event = viewModel.events.value
     val isGuest = remember { mutableStateOf(false) }
+    val currency = remember { mutableStateOf("EGP") }
+    val rate = remember { mutableDoubleStateOf(1.0) }
 
     LaunchedEffect(event) {
         when (event) {
@@ -94,6 +97,11 @@ fun HomeScreen(
 
             is HomeContract.Events.ShowError -> {
             }
+
+            is HomeContract.Events.UpdateCurrency -> {
+                currency.value = event.currency
+                rate.doubleValue = event.rate
+            }
         }
     }
 
@@ -104,8 +112,8 @@ fun HomeScreen(
     
     HomeItems(
         viewModel = viewModel,
-        currency = "EGP",
-        rate = 1.0,
+        currency = currency.value,
+        rate = rate.doubleValue,
         isGuest = isGuest.value
     )
 }
@@ -122,32 +130,13 @@ fun HomeItems(
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        listOf(
-            CouponEntity(
-                id = "1",
-                title = "Big Sale Event",
-                description = "Up to 70% off on selected items",
-                imageRes = R.drawable.ad_placeholder
-            ),
-            CouponEntity(
-                id = "2",
-                title = "New Collection",
-                description = "Explore our newest arrivals",
-                imageRes = R.drawable.ad_placeholder
-            ),
-            CouponEntity(
-                id = "3",
-                title = "Weekend Special",
-                description = "Exclusive weekend deals just for you",
-                imageRes = R.drawable.ad_placeholder
-            )
-        )
         val state = viewModel.states.value
-        
 
         when{
             state.errorMessage != null -> {
-
+                item {
+                    FailureScreen(state.errorMessage)
+                }
             }
             state.brandsLoading -> {
                 item {
@@ -162,7 +151,7 @@ fun HomeItems(
                     AdsCarousel(
                         couponsList = state.codes.map { CouponEntity(
                             it,
-                            title = "Big Sale Event",
+                            title = "Big Sale Discount Code\nClick here to Copy",
                             description = "Up to 70% off on selected items",
                             imageRes = R.drawable.ad_placeholder
                         ) },
@@ -484,7 +473,8 @@ fun AdsCarousel(
                             .clickable {
                                 val clip = ClipData.newPlainText("code", couponsList[page].id)
                                 clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                             .fillMaxSize()
                             .graphicsLayer {
@@ -528,34 +518,6 @@ fun AdsCarousel(
         }
 }
 }
-
-@Preview(showBackground = true)
-@Composable
-private fun AdsCarouselPreview() {
-    val dummyAds = listOf(
-        CouponEntity(
-            id = "1",
-            title = "Summer Sale",
-            description = "Up to 50% off on all summer collections",
-            imageRes = R.drawable.ad_placeholder
-        ),
-        CouponEntity(
-            id = "2",
-            title = "New Arrivals",
-            description = "Check out our latest fashion trends",
-            imageRes = R.drawable.ad_placeholder
-        ),
-        CouponEntity(
-            id = "3",
-            title = "Flash Deal",
-            description = "Limited time offer - Buy 1 Get 1 Free",
-            imageRes = R.drawable.ad_placeholder
-        )
-    )
-
-    //AdsCarousel(couponsList = dummyAds)
-}
-
 
 @Composable
 fun CouponsCard(

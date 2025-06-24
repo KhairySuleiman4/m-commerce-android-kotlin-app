@@ -9,5 +9,4 @@ data class LineModel(
     val category: String,
     val brand: String,
     val lineId: String
-
 )

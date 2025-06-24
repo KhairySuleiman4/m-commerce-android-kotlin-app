@@ -22,7 +22,7 @@ class AddressesViewModel @Inject constructor(
     private val getCustomerAddressesUseCase: GetCustomerAddressesUseCase,
     private val removeAddressUseCase: RemoveAddressUseCase,
     private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase
-): ViewModel(), AddressesContract.AddressesViewModel{
+) : ViewModel(), AddressesContract.AddressesViewModel {
 
     private val _states = mutableStateOf<AddressesContract.States>(AddressesContract.States.Idle)
     private val _events = mutableStateOf<AddressesContract.Events>(AddressesContract.Events.Idle)
@@ -32,40 +32,45 @@ class AddressesViewModel @Inject constructor(
 
     private var token = ""
     override fun invokeActions(action: AddressesContract.Action) {
-        when(action){
+        when (action) {
             is AddressesContract.Action.ClickOnDelete -> {
                 deleteAddress(action.addressId)
             }
+
             is AddressesContract.Action.ClickOnSetDefault -> {
                 setDefault(action.addressId)
             }
         }
     }
 
-    fun getAddresses(){
+    fun getAddresses() {
         viewModelScope.launch {
             if (token.isBlank()) {
                 val accessToken = getUserAccessTokenUseCase()
                 val json = Gson().fromJson(accessToken, JsonObject::class.java)
                 token = json.get("token")?.asString ?: ""
             }
-            getCustomerAddressesUseCase(token).collect{
-                when(it){
+            getCustomerAddressesUseCase(token).collect {
+                when (it) {
                     is ApiResult.Failure -> {
-                        _states.value = AddressesContract.States.Failure(it.error.message ?: "there is something wrong")
+                        _states.value = AddressesContract.States.Failure(
+                            it.error.message ?: "there is something wrong"
+                        )
                     }
+
                     is ApiResult.Loading -> {
                         _states.value = AddressesContract.States.Loading
                     }
+
                     is ApiResult.Success -> {
-                        _states.value = AddressesContract.States.Success(it.data?: listOf())
+                        _states.value = AddressesContract.States.Success(it.data ?: listOf())
                     }
                 }
             }
         }
     }
 
-    private fun setDefault(addressId: String){
+    private fun setDefault(addressId: String) {
         viewModelScope.launch {
             if (token.isBlank()) {
                 val accessToken = getUserAccessTokenUseCase()
@@ -73,13 +78,17 @@ class AddressesViewModel @Inject constructor(
                 token = json.get("token")?.asString ?: ""
             }
             changeDefaultAddressUseCase(token, addressId).collect {
-                when(it){
+                when (it) {
                     is ApiResult.Failure -> {
-                        _events.value = AddressesContract.Events.ShowError(it.error.message ?: "Couldn't change The default address")
+                        _events.value = AddressesContract.Events.ShowError(
+                            it.error.message ?: "Couldn't change The default address"
+                        )
                     }
+
                     is ApiResult.Loading -> {
                         _events.value = AddressesContract.Events.ShowError("Saving...")
                     }
+
                     is ApiResult.Success -> {
                         _events.value = AddressesContract.Events.ShowError("Saved Successfully!")
                         delay(1000)
@@ -90,7 +99,7 @@ class AddressesViewModel @Inject constructor(
         }
     }
 
-    private fun deleteAddress(addressId: String){
+    private fun deleteAddress(addressId: String) {
         viewModelScope.launch {
             if (token.isBlank()) {
                 val accessToken = getUserAccessTokenUseCase()
@@ -98,13 +107,17 @@ class AddressesViewModel @Inject constructor(
                 token = json.get("token")?.asString ?: ""
             }
             removeAddressUseCase(token, addressId).collect {
-                when(it){
+                when (it) {
                     is ApiResult.Failure -> {
-                        _events.value = AddressesContract.Events.ShowError(it.error.message ?: "Couldn't delete the address")
+                        _events.value = AddressesContract.Events.ShowError(
+                            it.error.message ?: "Couldn't delete the address"
+                        )
                     }
+
                     is ApiResult.Loading -> {
                         _events.value = AddressesContract.Events.ShowError("Saving Changes...")
                     }
+
                     is ApiResult.Success -> {
                         _events.value = AddressesContract.Events.ShowError("Deleted Successfully!")
                         delay(1000)

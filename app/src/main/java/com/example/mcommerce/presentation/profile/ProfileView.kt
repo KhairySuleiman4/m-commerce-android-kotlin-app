@@ -31,13 +31,13 @@ import com.example.mcommerce.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.profile.models.ProfileItem
-import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.Primary
+import com.example.mcommerce.presentation.theme.Secondary
 
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = hiltViewModel(),
     navigationTo: (Screens)-> Unit
 ) {
     val isGuest = remember { mutableStateOf(true) }
@@ -167,8 +167,8 @@ fun ProfileTab(
     ) {
     Row(
         modifier = modifier
-            .background(color = Background)
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = Secondary)
             .fillMaxWidth()
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

@@ -10,5 +10,6 @@ import javax.inject.Inject
 class CreateNewAccountOnFirebaseUseCase @Inject constructor(
     private val authRepo: AuthenticationRepo
 ) {
-    suspend operator fun invoke(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>> = authRepo.createAccountOnFirebase(credentials)
+    suspend operator fun invoke(credentials: UserCredentialsEntity): Flow<ApiResult<Boolean>> =
+        authRepo.createAccountOnFirebase(credentials)
 }

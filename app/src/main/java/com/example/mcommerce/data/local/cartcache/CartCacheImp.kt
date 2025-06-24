@@ -2,7 +2,7 @@ package com.example.mcommerce.data.local.cartcache
 
 import com.example.mcommerce.domain.entities.CartEntity
 
-class CartCacheImp: CartCache {
+class CartCacheImp : CartCache {
     private var cachedCart: CartEntity? = null
 
     override fun getCart(): CartEntity? = cachedCart

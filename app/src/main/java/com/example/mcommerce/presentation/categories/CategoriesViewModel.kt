@@ -21,16 +21,19 @@ class CategoriesViewModel @Inject constructor(
     override val states: State<CategoriesContract.States> get() = _states
     override val events: State<CategoriesContract.Events> get() = _events
 
-    fun getCategories(){
+    fun getCategories() {
         viewModelScope.launch {
-            categoriesUseCase().collect{
-                when(it){
+            categoriesUseCase().collect {
+                when (it) {
                     is ApiResult.Failure -> {
-                        _states.value = CategoriesContract.States.Failure(it.error.message.toString())
+                        _states.value =
+                            CategoriesContract.States.Failure(it.error.message.toString())
                     }
+
                     is ApiResult.Loading -> {
                         _states.value = CategoriesContract.States.Loading
                     }
+
                     is ApiResult.Success -> {
                         _states.value = CategoriesContract.States.Success(it.data)
                     }
@@ -40,9 +43,12 @@ class CategoriesViewModel @Inject constructor(
     }
 
     override fun invokeActions(action: CategoriesContract.Action) {
-        when(action){
+        when (action) {
             is CategoriesContract.Action.ClickOnCategory -> {
-                _events.value = CategoriesContract.Events.NavigateToCategoryProducts(action.collectionId, action.collectionName)
+                _events.value = CategoriesContract.Events.NavigateToCategoryProducts(
+                    action.collectionId,
+                    action.collectionName
+                )
             }
         }
     }

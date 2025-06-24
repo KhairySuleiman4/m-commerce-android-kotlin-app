@@ -6,5 +6,4 @@ import kotlinx.coroutines.flow.Flow
 
 interface CurrencyRemoteDataSource {
     suspend fun getCurrency(): Flow<ApiResult<ExchangeRateEntity?>>
-
 }

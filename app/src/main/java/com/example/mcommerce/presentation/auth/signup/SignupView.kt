@@ -53,35 +53,40 @@ fun SignupScreen(
     modifier: Modifier = Modifier,
     viewModel: SignupViewModel = hiltViewModel(),
     navigateToLogin: (Screens) -> Unit,
-    navigateToHome: (Screens, Boolean)->Unit,
+    navigateToHome: (Screens, Boolean) -> Unit,
 ) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
     val isLoading = remember { mutableStateOf(false) }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is AuthContract.Events.Idle -> {}
             is AuthContract.Events.NavigateToHomeGuest -> {
                 navigateToHome(Screens.Home, false)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.NavigateToHomeUser -> {
                 navigateToHome(Screens.Home, true)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.ShowSnackbar -> {
                 snackbarHostState.showSnackbar(message = event.message)
                 isLoading.value = false
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.ShowLoading -> {
                 isLoading.value = true
             }
+
             is AuthContract.Events.NavigateToLogin -> {
                 navigateToLogin(Screens.Login)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.NavigateToSignup -> {}
         }
     }
@@ -99,10 +104,15 @@ fun SignupScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else{
+        } else {
             SignupComposable(
                 onSignUpClicked = { credentials, confirm ->
-                    viewModel.invokeActions(AuthContract.SignupAction.ClickOnSignupButton(credentials, confirm))
+                    viewModel.invokeActions(
+                        AuthContract.SignupAction.ClickOnSignupButton(
+                            credentials,
+                            confirm
+                        )
+                    )
                 },
                 onLoginClicked = {
                     viewModel.invokeActions(AuthContract.SignupAction.ClickOnNavigateToLogin)
@@ -142,31 +152,31 @@ fun SignupComposable(
         }
 
         item {
-            NameSection(name = name.value){
+            NameSection(name = name.value) {
                 name.value = it
             }
         }
 
         item {
-            EmailSection(email = email.value){
+            EmailSection(email = email.value) {
                 email.value = it
             }
         }
 
         item {
-            PhoneSection(phone = phone.value){
+            PhoneSection(phone = phone.value) {
                 phone.value = it
             }
         }
 
         item {
-            PasswordSection(password = password.value){
+            PasswordSection(password = password.value) {
                 password.value = it
             }
         }
 
         item {
-            ConfirmPasswordSection(password = confirmPassword.value){
+            ConfirmPasswordSection(password = confirmPassword.value) {
                 confirmPassword.value = it
             }
         }
@@ -299,7 +309,11 @@ fun PhoneSection(modifier: Modifier = Modifier, phone: String, onPhoneChanged: (
 }
 
 @Composable
-fun ConfirmPasswordSection(modifier: Modifier = Modifier, password: String, onPasswordChanged: (String) -> Unit) {
+fun ConfirmPasswordSection(
+    modifier: Modifier = Modifier,
+    password: String,
+    onPasswordChanged: (String) -> Unit
+) {
     val isPasswordVisible by remember { mutableStateOf(false) }
 
     Column {
@@ -374,7 +388,7 @@ fun DoHaveAnAccountSection(
 ) {
     Row(
         modifier = modifier.padding(top = 24.dp)
-    ){
+    ) {
         Text(
             text = stringResource(R.string.do_have_an_accout)
         )

@@ -7,6 +7,6 @@ import javax.inject.Inject
 
 class ClearOnlineCartUseCase @Inject constructor(
     private val cartRepo: CartRepo
-){
-   suspend operator fun invoke() : Flow<ApiResult<Boolean>> = cartRepo.removeCart()
+) {
+    suspend operator fun invoke(): Flow<ApiResult<Boolean>> = cartRepo.removeCart()
 }

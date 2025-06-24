@@ -33,6 +33,7 @@ interface HomeContract {
     )
 
     sealed interface Events{
+        data class UpdateCurrency(val currency: String, val rate: Double): Events
         data class NavigateToBrandProducts(val brandId: String, val brandName: String): Events
         data class NavigateToProductDetails(val productId: String): Events
         data class ShowError(val message: String) : Events

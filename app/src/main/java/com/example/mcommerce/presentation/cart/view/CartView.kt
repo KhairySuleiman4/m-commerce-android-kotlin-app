@@ -3,7 +3,6 @@ package com.example.mcommerce.presentation.cart.view
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,7 +48,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,8 +59,11 @@ import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.presentation.cart.CartContract
 import com.example.mcommerce.presentation.cart.viewmodel.CartViewModel
+import com.example.mcommerce.presentation.errors.CartEmptyScreen
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.Primary
+import com.example.mcommerce.presentation.theme.Secondary
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.LogLevel
 import com.shopify.checkoutsheetkit.Preloading
@@ -74,7 +75,7 @@ fun CartScreen(
     modifier: Modifier = Modifier,
     viewModel: CartViewModel = hiltViewModel(),
     navigate: () -> Unit
-    ) {
+) {
     val activity = LocalActivity.current as ComponentActivity
     val event = viewModel.events.value
     val state = viewModel.states.value
@@ -83,7 +84,7 @@ fun CartScreen(
     val currency = remember { mutableStateOf("EGP") }
     val rate = remember { mutableDoubleStateOf(1.0) }
 
-    ShopifyCheckoutSheetKit.configure{
+    ShopifyCheckoutSheetKit.configure {
         it.colorScheme = ColorScheme.Automatic()
         it.preloading = Preloading(enabled = false)
         it.logLevel = LogLevel.DEBUG
@@ -92,22 +93,23 @@ fun CartScreen(
     LaunchedEffect(Unit) {
         viewModel.getCart()
         viewModel.getCurrency()
-        viewModel.setEventProcessor(activity,{
+        viewModel.setEventProcessor(activity, {
             navigate()
         })
     }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             CartContract.Events.DisableApplyEvent -> {
                 isApply.value = false
             }
+
             CartContract.Events.Idle -> {
 
             }
 
             is CartContract.Events.DisplayError -> {
-                snackbarHostState.showSnackbar(event.msg , duration = SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(event.msg, duration = SnackbarDuration.Short)
             }
 
             is CartContract.Events.SetCurrency -> {
@@ -155,7 +157,7 @@ fun CartPage(
     minusAction: (String, Int) -> Unit,
     deleteAction: (String) -> Unit,
     submitAction: () -> Unit
-    ) {
+) {
     val showBottomSheet = remember { mutableStateOf(false) }
     val selectedItem = remember { mutableStateOf<LineEntity?>(null) }
     val sheetState = rememberModalBottomSheetState(
@@ -179,23 +181,26 @@ fun CartPage(
                     },
                     onCheckout = {
                         submitAction()
-                }
+                    }
                 )
             }
         }
-        ) { padding->
-        when(state){
+    ) { padding ->
+        when (state) {
             is CartContract.States.Failure -> {
-
+                FailureScreen(state.errorMsg)
             }
+
             CartContract.States.Idle -> {
 
             }
+
             CartContract.States.Loading -> {
                 Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
+
             is CartContract.States.Success -> {
                 if (state.cart.items.isNotEmpty()) {
                     LazyColumn(
@@ -227,31 +232,10 @@ fun CartPage(
                             Spacer(modifier = Modifier.height(320.dp))
                         }
                     }
+                } else {
+                    CartEmptyScreen()
                 }
-                else{
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Opps! Your Cart is empty. Let's fix That!",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 22.sp,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.height(10.dp))
-                        Image(
-                            painter = painterResource(R.drawable.cart),
-                            contentDescription = "Cart Photo",
-                            modifier = Modifier.fillMaxSize(0.5f)
-                        )
-
-                    }
-                }
-                if (showBottomSheet.value){
+                if (showBottomSheet.value) {
                     ModalBottomSheet(
                         sheetState = sheetState,
                         onDismissRequest = {
@@ -318,7 +302,7 @@ fun CartPage(
                                     ) {
                                         Text("Delete")
                                     }
-                                    OutlinedButton (
+                                    OutlinedButton(
                                         onClick = {
                                             selectedItem.value = null
                                             showBottomSheet.value = false
@@ -353,7 +337,7 @@ fun BottomBar(
     discount: Double,
     total: Double,
     isApplied: Boolean,
-    onApply: (String)-> Unit,
+    onApply: (String) -> Unit,
     onCheckout: () -> Unit
 ) {
     val promoCode = rememberSaveable { mutableStateOf("") }
@@ -384,7 +368,10 @@ fun BottomBar(
                     placeholder = {
                         Text("Promo Code or Voucher")
                     },
-                    colors = TextFieldDefaults.colors().copy(focusedContainerColor = Color(243,237,235), unfocusedContainerColor = Color(243,237,235)),
+                    colors = TextFieldDefaults.colors().copy(
+                        focusedContainerColor = Color(243, 237, 235),
+                        unfocusedContainerColor = Color(243, 237, 235)
+                    ),
                     modifier = Modifier
                         .height(50.dp)
                         .clip(RoundedCornerShape(topStartPercent = 20, bottomStartPercent = 20))
@@ -501,7 +488,7 @@ fun PriceInfo(
         )
 
         Text(
-            String.format(locale = Locale.US,"%.2f", price),
+            String.format(locale = Locale.US, "%.2f", price),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -522,7 +509,7 @@ fun CartItem(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(color = Background)
+            .background(color = Secondary)
             .fillMaxWidth()
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -562,7 +549,7 @@ fun CartInfo(
     category: String,
     currency: String,
     price: Double,
-    ) {
+) {
     val split = category.split("/")
     Column(
         modifier = modifier,
@@ -595,8 +582,8 @@ fun CartInfo(
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement =Arrangement.spacedBy(8.dp)
-        ){
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text(
                 currency,
                 color = Color.Black.copy(alpha = 0.7f),
@@ -604,7 +591,7 @@ fun CartInfo(
             )
 
             Text(
-                String.format(locale = Locale.US,"%.2f", price),
+                String.format(locale = Locale.US, "%.2f", price),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
@@ -619,7 +606,7 @@ fun QuantityChanger(
     plusAction: () -> Unit,
     minusAction: () -> Unit,
     deleteAction: () -> Unit
-    ) {
+) {
     Column(
         modifier = modifier.fillMaxSize(1f),
         horizontalAlignment = Alignment.End,
@@ -627,7 +614,7 @@ fun QuantityChanger(
     ) {
 
         IconButton(
-            colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+            colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
             onClick = deleteAction,
             modifier = Modifier
                 .width(30.dp)
@@ -654,8 +641,7 @@ fun QuantityChanger(
                 ) {
                     Text("-")
                 }
-            }
-            else{
+            } else {
                 Spacer(
                     Modifier
                         .width(20.dp)
@@ -668,7 +654,7 @@ fun QuantityChanger(
             )
             OutlinedIconButton(
                 border = BorderStroke(1.dp, color = Primary),
-                colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+                colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
                 onClick = plusAction,
                 modifier = Modifier
                     .width(20.dp)
@@ -688,7 +674,7 @@ private fun PreviewCartScreen() {
         item = LineEntity("", 2, 2.0, "", "", "1/x", "", "s"),
         currency = "",
         rate = 1.0,
-        plusAction = {  },
-        minusAction = {  },
+        plusAction = { },
+        minusAction = { },
     ) { }
 }

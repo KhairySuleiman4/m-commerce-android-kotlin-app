@@ -7,6 +7,7 @@ import javax.inject.Inject
 
 class RemoveAddressUseCase @Inject constructor(
     private val addressesRepo: AddressesRepo
-){
-    operator fun invoke(accessToken: String, addressId: String): Flow<ApiResult<Boolean>> = addressesRepo.removeAddress(accessToken, addressId)
+) {
+    operator fun invoke(accessToken: String, addressId: String): Flow<ApiResult<Boolean>> =
+        addressesRepo.removeAddress(accessToken, addressId)
 }

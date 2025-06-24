@@ -7,5 +7,5 @@ data class ProductsEntity(
     val productType: String,
     val brand: String,
     val isFavorite: Boolean,
-    val price: String,
+    val price: String
 )

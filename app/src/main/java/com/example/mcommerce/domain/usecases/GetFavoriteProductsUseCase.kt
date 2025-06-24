@@ -9,5 +9,6 @@ import javax.inject.Inject
 class GetFavoriteProductsUseCase @Inject constructor(
     private val repo: ProductsRepo
 ) {
-    suspend operator fun invoke(): Flow<ApiResult<List<ProductSearchEntity>>> = repo.getFavoriteProducts()
+    suspend operator fun invoke(): Flow<ApiResult<List<ProductSearchEntity>>> =
+        repo.getFavoriteProducts()
 }

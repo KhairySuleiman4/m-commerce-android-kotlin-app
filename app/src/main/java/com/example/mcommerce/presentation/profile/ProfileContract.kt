@@ -4,18 +4,18 @@ import androidx.compose.runtime.State
 
 interface ProfileContract {
 
-    interface ProfileViewModel{
+    interface ProfileViewModel {
         fun invokeActions(action: Action)
         val events: State<Event>
     }
 
-    sealed interface Action{
-        data object ClickOnLogout: Action
+    sealed interface Action {
+        data object ClickOnLogout : Action
     }
 
-    sealed interface Event{
-        data object Logout: Event
-        data object Idle: Event
-        data class UpdateData(val isGuest: Boolean, val email: String, val  name: String): Event
+    sealed interface Event {
+        data object Logout : Event
+        data object Idle : Event
+        data class UpdateData(val isGuest: Boolean, val email: String, val name: String) : Event
     }
 }

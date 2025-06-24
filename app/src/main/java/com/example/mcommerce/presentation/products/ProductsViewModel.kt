@@ -43,14 +43,16 @@ class ProductsViewModel @Inject constructor(
             is ProductsContract.Action.ClickOnProduct -> {
                 _events.value = ProductsContract.Events.NavigateToProductDetails(action.productId)
             }
+
             is ProductsContract.Action.OnTypeSelected -> {
                 filterProductsByType(action.productType)
             }
 
             is ProductsContract.Action.ClickOnFavorite -> {
-                if(isGuest()){
-                    _events.value = ProductsContract.Events.ShowSnackbar("Login first so you can add to favorites")
-                } else{
+                if (isGuest()) {
+                    _events.value =
+                        ProductsContract.Events.ShowSnackbar("Login first so you can add to favorites")
+                } else {
                     toggleFavorite(action.product)
                 }
             }
@@ -84,7 +86,7 @@ class ProductsViewModel @Inject constructor(
                         }
                         _states.value = ProductsContract.States.Success(products, products)
                         allProducts = products
-                        if (!isGuest()){
+                        if (!isGuest()) {
                             getFavorites()
                         }
                     }
@@ -93,7 +95,7 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    fun getCurrency(){
+    fun getCurrency() {
         viewModelScope.launch {
             val currency = getCurrencyUseCase()
             val rate = getCurrentExchangeRateUseCase()
@@ -117,19 +119,22 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    private fun getFavorites(){
+    private fun getFavorites() {
         viewModelScope.launch(Dispatchers.IO) {
-            getFavoriteProductsUseCase().collect{ result ->
-                when(result){
+            getFavoriteProductsUseCase().collect { result ->
+                when (result) {
                     is ApiResult.Failure -> {
 
                     }
+
                     is ApiResult.Loading -> {
 
                     }
+
                     is ApiResult.Success -> {
-                        if(_states.value is ProductsContract.States.Success) {
-                            val data = (_states.value as ProductsContract.States.Success).productsList
+                        if (_states.value is ProductsContract.States.Success) {
+                            val data =
+                                (_states.value as ProductsContract.States.Success).productsList
                             val newData = data.map { product ->
                                 if (result.data.any { it.id == product.id }) {
                                     product.copy(isFavorite = true)
@@ -159,10 +164,10 @@ class ProductsViewModel @Inject constructor(
 
     private fun toggleFavorite(product: ProductsContract.ProductUIModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            if(product.isFavorite){
+            if (product.isFavorite) {
                 insertProductToFavoritesUseCase(product.toSearchEntity())
                 _events.value = ProductsContract.Events.ShowSnackbar("Added to favorites")
-            } else{
+            } else {
                 deleteFavoriteProductUseCase(product.id)
                 _events.value = ProductsContract.Events.ShowSnackbar("Removed from favorites")
             }
@@ -172,16 +177,14 @@ class ProductsViewModel @Inject constructor(
             val updatedAllProducts = currentState.productsList.map {
                 if (it.id == product.id) {
                     it.copy(isFavorite = !it.isFavorite)
-                }
-                else {
+                } else {
                     it
                 }
             }
             val updatedFilteredProducts = currentState.filteredProductsList.map {
                 if (it.id == product.id) {
                     it.copy(isFavorite = !it.isFavorite)
-                }
-                else {
+                } else {
                     it
                 }
             }

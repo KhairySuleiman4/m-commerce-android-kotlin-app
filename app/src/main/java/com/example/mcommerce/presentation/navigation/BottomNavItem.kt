@@ -9,10 +9,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 data class BottomNavItem(
     val icon: ImageVector,
-    val route:Screens,
+    val route: Screens,
 )
 
-object Constants{
+object Constants {
     val BottomNavItems = listOf(
         BottomNavItem(
             icon = Icons.Filled.Home,

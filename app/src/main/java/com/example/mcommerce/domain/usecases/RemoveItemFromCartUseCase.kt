@@ -9,5 +9,6 @@ import javax.inject.Inject
 class RemoveItemFromCartUseCase @Inject constructor(
     private val cartRepo: CartRepo
 ) {
-    operator fun invoke(itemId: String): Flow<ApiResult<CartEntity?>> = cartRepo.removeItemFromCart(itemId)
+    operator fun invoke(itemId: String): Flow<ApiResult<CartEntity?>> =
+        cartRepo.removeItemFromCart(itemId)
 }

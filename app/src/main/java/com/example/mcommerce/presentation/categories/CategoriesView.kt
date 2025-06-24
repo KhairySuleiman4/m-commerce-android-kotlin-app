@@ -31,6 +31,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.data.utils.imagesMapper
 import com.example.mcommerce.domain.entities.CategoriesEntity
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.navigation.Screens
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -73,7 +74,7 @@ fun Categories(
 ) {
     when (state) {
         is CategoriesContract.States.Failure -> {
-            //show alert
+            FailureScreen(state.errorMessage)
         }
 
         CategoriesContract.States.Idle -> {}

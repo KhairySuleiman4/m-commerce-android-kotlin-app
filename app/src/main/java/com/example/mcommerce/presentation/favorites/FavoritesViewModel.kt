@@ -20,7 +20,7 @@ class FavoritesViewModel @Inject constructor(
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
     private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
     private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
-): ViewModel(), FavoritesContract.FavoritesViewModel {
+) : ViewModel(), FavoritesContract.FavoritesViewModel {
 
     private val _states = mutableStateOf<FavoritesContract.States>(FavoritesContract.States.Idle)
     private val _events = mutableStateOf<FavoritesContract.Events>(FavoritesContract.Events.Idle)
@@ -29,26 +29,29 @@ class FavoritesViewModel @Inject constructor(
     override val events: State<FavoritesContract.Events> get() = _events
 
     override fun invokeActions(action: FavoritesContract.Action) {
-        when(action){
+        when (action) {
             is FavoritesContract.Action.ClickOnDeleteFromFavorite -> {
                 deleteProduct(action.productId)
             }
+
             is FavoritesContract.Action.ClickOnProduct -> {
                 _events.value = FavoritesContract.Events.NavigateToProductInfo(action.productId)
             }
         }
     }
 
-    fun getFavoriteProducts(){
+    fun getFavoriteProducts() {
         viewModelScope.launch(Dispatchers.IO) {
-            getFavoriteProductsUseCase().collect{ result ->
-                when(result){
+            getFavoriteProductsUseCase().collect { result ->
+                when (result) {
                     is ApiResult.Failure -> {
 
                     }
+
                     is ApiResult.Loading -> {
                         _states.value = FavoritesContract.States.Loading
                     }
+
                     is ApiResult.Success -> {
                         _states.value = FavoritesContract.States.Success(result.data)
                     }
@@ -57,7 +60,7 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    fun getCurrency(){
+    fun getCurrency() {
         viewModelScope.launch {
             val currency = getCurrencyUseCase()
             val rate = getCurrentExchangeRateUseCase()
@@ -65,7 +68,7 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    private fun deleteProduct(id: String){
+    private fun deleteProduct(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             deleteFavoriteProductUseCase(id)
             getFavoriteProducts()

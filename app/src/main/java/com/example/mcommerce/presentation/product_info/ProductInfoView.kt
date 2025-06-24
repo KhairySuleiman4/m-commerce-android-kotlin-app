@@ -56,6 +56,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
@@ -127,7 +128,7 @@ fun ProductInfoScreenComposable(
 
     when (state) {
         is ProductInfoContract.States.Failure -> {
-            // Show alert and back to the products screen
+            FailureScreen(state.errorMessage)
         }
 
         is ProductInfoContract.States.Idle -> {}
@@ -181,10 +182,10 @@ fun ShowProductInfo(
             ProductImageSection(
                 product = product,
                 onFavoriteClick = {
-                    if(!it.isFavorite){
+                    if (!it.isFavorite) {
                         selectedProduct.value = it
                         showBottomSheet.value = true
-                    } else{
+                    } else {
                         onFavoriteClicked(it)
                     }
                 },
@@ -301,7 +302,7 @@ fun ProductImageSection(
         )
         IconButton(
             onClick = {
-                if(!isGuest){
+                if (!isGuest) {
                     isFavorite.value = !isFavorite.value
                     val newProduct = product.copy(isFavorite = !product.isFavorite)
                     onFavoriteClick(newProduct)

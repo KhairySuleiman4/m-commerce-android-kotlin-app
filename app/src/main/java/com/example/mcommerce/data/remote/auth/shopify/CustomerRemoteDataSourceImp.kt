@@ -6,7 +6,8 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.CustomerEntity
 import kotlinx.coroutines.flow.Flow
 
-class CustomerRemoteDataSourceImp(private val graphQLService: GraphQLService) : CustomerRemoteDataSource {
+class CustomerRemoteDataSourceImp(private val graphQLService: GraphQLService) :
+    CustomerRemoteDataSource {
     override suspend fun createCustomer(customer: CustomerEntity): Flow<ApiResult<String>> =
         executeAPI {
             val editedCustomer = customer.copy(
@@ -31,7 +32,8 @@ class CustomerRemoteDataSourceImp(private val graphQLService: GraphQLService) : 
 
     override suspend fun getAccessToken(customer: CustomerEntity): Flow<ApiResult<String>> =
         executeAPI {
-            graphQLService.createCustomerAccessToken(customer).data?.customerAccessTokenCreate?.customerAccessToken?.accessToken ?: ""
+            graphQLService.createCustomerAccessToken(customer).data?.customerAccessTokenCreate?.customerAccessToken?.accessToken
+                ?: ""
         }
 
 }

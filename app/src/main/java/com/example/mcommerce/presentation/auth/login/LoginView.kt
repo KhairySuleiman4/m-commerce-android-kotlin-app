@@ -47,31 +47,35 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToSignup: (Screens) -> Unit,
-    navigateToHome: (Screens, Boolean)->Unit,
+    navigateToHome: (Screens, Boolean) -> Unit,
 ) {
     val event = viewModel.events.value
     val snackbarHostState = remember { SnackbarHostState() }
     val isLoading = remember { mutableStateOf(false) }
 
     LaunchedEffect(event) {
-        when(event){
+        when (event) {
             is AuthContract.Events.Idle -> {}
             is AuthContract.Events.NavigateToHomeGuest -> {
                 navigateToHome(Screens.Home, false)
                 viewModel.resetEvent()
             }
+
             AuthContract.Events.NavigateToHomeUser -> {
                 navigateToHome(Screens.Home, true)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.NavigateToLogin -> {}
             is AuthContract.Events.NavigateToSignup -> {
                 navigateToSignup(Screens.Signup)
                 viewModel.resetEvent()
             }
+
             is AuthContract.Events.ShowLoading -> {
                 isLoading.value = true
             }
+
             is AuthContract.Events.ShowSnackbar -> {
                 snackbarHostState.showSnackbar(message = event.message)
                 isLoading.value = false
@@ -93,10 +97,15 @@ fun LoginScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else{
+        } else {
             LoginComposable(
                 onLoginClicked = { email, password ->
-                    viewModel.invokeActions(AuthContract.LoginAction.ClickOnLoginButton(email, password))
+                    viewModel.invokeActions(
+                        AuthContract.LoginAction.ClickOnLoginButton(
+                            email,
+                            password
+                        )
+                    )
                 },
                 onSignupClicked = {
                     viewModel.invokeActions(AuthContract.LoginAction.ClickOnNavigateToSignup)
@@ -131,13 +140,13 @@ fun LoginComposable(
         }
 
         item {
-            EmailSection(email = email.value){
+            EmailSection(email = email.value) {
                 email.value = it
             }
         }
 
         item {
-            PasswordSection(password = password.value){
+            PasswordSection(password = password.value) {
                 password.value = it
             }
         }
@@ -215,7 +224,11 @@ fun EmailSection(modifier: Modifier = Modifier, email: String, onMailChanged: (S
 }
 
 @Composable
-fun PasswordSection(modifier: Modifier = Modifier, password: String, onPasswordChanged: (String) -> Unit) {
+fun PasswordSection(
+    modifier: Modifier = Modifier,
+    password: String,
+    onPasswordChanged: (String) -> Unit
+) {
     val isPasswordVisible by remember { mutableStateOf(false) }
 
     Column {
@@ -290,7 +303,7 @@ fun DontHaveAnAccountSection(
 ) {
     Row(
         modifier = modifier.padding(top = 32.dp)
-    ){
+    ) {
         Text(
             text = stringResource(R.string.dont_have_an_accout)
         )
@@ -313,9 +326,9 @@ fun ContinueAsGuestSection(
     onGuestClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row (
+    Row(
         modifier = modifier.padding(top = 8.dp)
-    ){
+    ) {
         Text(
             text = stringResource(R.string.continue_str)
         )
@@ -325,8 +338,7 @@ fun ContinueAsGuestSection(
                 .padding(start = 4.dp)
                 .clickable {
                     onGuestClicked()
-                }
-            ,
+                },
             text = stringResource(R.string.as_guest),
             textDecoration = TextDecoration.Underline,
             color = Primary

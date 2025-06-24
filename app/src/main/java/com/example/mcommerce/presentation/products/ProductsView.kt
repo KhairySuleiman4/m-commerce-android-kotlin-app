@@ -52,6 +52,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductsEntity
+import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
 import com.example.mcommerce.presentation.navigation.Screens
@@ -137,7 +138,7 @@ fun Products(
 ) {
     when (state) {
         is ProductsContract.States.Failure -> {
-            //show alert
+            FailureScreen(state.errorMessage)
         }
 
         ProductsContract.States.Idle -> {}

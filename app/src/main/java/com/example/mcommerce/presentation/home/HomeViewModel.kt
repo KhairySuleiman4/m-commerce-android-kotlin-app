@@ -8,6 +8,8 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetBrandsUseCase
 import com.example.mcommerce.domain.usecases.GetBestSellersUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
+import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
 import com.example.mcommerce.domain.usecases.GetDiscountCodesUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetLatestArrivalsUseCase
@@ -30,7 +32,9 @@ class HomeViewModel @Inject constructor(
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
     private val getDiscountCodesUseCase: GetDiscountCodesUseCase,
-    private val isGuestModeUseCase: IsGuestModeUseCase
+    private val isGuestModeUseCase: IsGuestModeUseCase,
+    private val getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
 ): ViewModel(), HomeContract.HomeViewModel {
 
     private val _states = mutableStateOf(HomeContract.HomeState())
@@ -67,6 +71,7 @@ class HomeViewModel @Inject constructor(
         getBrands()
         getBestSellers()
         getLatestArrivals()
+        getCurrency()
     }
 
     private fun getBrands() {
@@ -118,6 +123,14 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun getCurrency() {
+        viewModelScope.launch {
+            val currency = getCurrentCurrencyUseCase()
+            val rate = getCurrentExchangeRateUseCase()
+            _events.value = HomeContract.Events.UpdateCurrency(currency, rate)
         }
     }
 

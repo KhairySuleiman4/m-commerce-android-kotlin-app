@@ -9,9 +9,8 @@ class ApiKeyInterceptor : Interceptor {
         val original = chain.request()
         val originalUrl = original.url
 
-
         val newUrl = originalUrl.newBuilder()
-            .addPathSegment( BuildConfig.EXCHANGE_RATE_API_KEY)
+            .addPathSegment(BuildConfig.EXCHANGE_RATE_API_KEY)
             .build()
 
         val newRequest = original.newBuilder()

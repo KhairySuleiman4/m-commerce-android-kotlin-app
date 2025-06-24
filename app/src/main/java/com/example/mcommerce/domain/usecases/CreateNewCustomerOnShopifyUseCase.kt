@@ -9,5 +9,6 @@ import javax.inject.Inject
 class CreateNewCustomerOnShopifyUseCase @Inject constructor(
     private val authRepo: AuthenticationRepo
 ) {
-    suspend operator fun invoke(credentials: UserCredentialsEntity): Flow<ApiResult<String>> = authRepo.createAccountOnShopify(credentials)
+    suspend operator fun invoke(credentials: UserCredentialsEntity): Flow<ApiResult<String>> =
+        authRepo.createAccountOnShopify(credentials)
 }

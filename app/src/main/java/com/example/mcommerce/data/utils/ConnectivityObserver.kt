@@ -26,11 +26,6 @@ class ConnectivityObserver(context: Context) {
             _isConnected.value = connected
         }
 
-//            override fun onAvailable(network: Network) {
-//                super.onAvailable(network)
-//                trySend(true)
-//            }
-
         override fun onUnavailable() {
             super.onUnavailable()
             _isConnected.value = false
@@ -42,12 +37,11 @@ class ConnectivityObserver(context: Context) {
         }
     }
 
-    fun unregisterCallBack(){
+    fun unregisterCallBack() {
         connectivityManager.unregisterNetworkCallback(callback)
     }
 
     init {
         connectivityManager.registerDefaultNetworkCallback(callback)
     }
-
 }
