@@ -8,6 +8,7 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.DeleteFavoriteProductUseCase
 import com.example.mcommerce.domain.usecases.GetBrandsUseCase
 import com.example.mcommerce.domain.usecases.GetBestSellersUseCase
+import com.example.mcommerce.domain.usecases.GetDiscountCodesUseCase
 import com.example.mcommerce.domain.usecases.GetFavoriteProductsUseCase
 import com.example.mcommerce.domain.usecases.GetLatestArrivalsUseCase
 import com.example.mcommerce.domain.usecases.InsertProductToFavoritesUseCase
@@ -28,6 +29,7 @@ class HomeViewModel @Inject constructor(
     private val getFavoriteProductsUseCase: GetFavoriteProductsUseCase,
     private val insertProductToFavoritesUseCase: InsertProductToFavoritesUseCase,
     private val deleteFavoriteProductUseCase: DeleteFavoriteProductUseCase,
+    private val getDiscountCodesUseCase: GetDiscountCodesUseCase,
     private val isGuestModeUseCase: IsGuestModeUseCase
 ): ViewModel(), HomeContract.HomeViewModel {
 
@@ -61,6 +63,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadHomeData() {
+        getCodes()
         getBrands()
         getBestSellers()
         getLatestArrivals()
@@ -84,6 +87,32 @@ class HomeViewModel @Inject constructor(
                         _states.value = _states.value.copy(
                             errorMessage = result.error.message,
                             brandsLoading = false
+                        )
+                        _events.value = HomeContract.Events.ShowError(result.error.message ?: "An error occurred")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getCodes() {
+        _states.value = _states.value.copy(codesLoading = true)
+        viewModelScope.launch {
+            getDiscountCodesUseCase().collect { result ->
+                when (result) {
+                    is ApiResult.Loading -> {
+                        _states.value = _states.value.copy(codesLoading = true)
+                    }
+                    is ApiResult.Success -> {
+                        _states.value = _states.value.copy(
+                            codes = result.data?.map { it ?: "" } ?: listOf(),
+                            codesLoading = false
+                        )
+                    }
+                    is ApiResult.Failure -> {
+                        _states.value = _states.value.copy(
+                            errorMessage = result.error.message,
+                            codesLoading = false
                         )
                         _events.value = HomeContract.Events.ShowError(result.error.message ?: "An error occurred")
                     }

@@ -9,6 +9,7 @@ import com.example.mcommerce.domain.entities.AddressEntity
 import com.example.mcommerce.domain.usecases.AddAddressUseCase
 import com.example.mcommerce.domain.usecases.GetAddressesUseCase
 import com.example.mcommerce.domain.usecases.GetUserAccessTokenUseCase
+import com.example.mcommerce.domain.usecases.GetUserNameUseCase
 import com.example.mcommerce.presentation.map.MapContract
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val useCase: GetAddressesUseCase,
     private val addAddressUseCase: AddAddressUseCase,
-    private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase
+    private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase,
+    private val getUserNameUseCase: GetUserNameUseCase
 ): ViewModel(),MapContract.MapViewModel {
     private val _states = mutableStateOf<MapContract.States>(MapContract.States.Idle)
     private val _events = mutableStateOf<MapContract.Events>(MapContract.Events.Idle)
@@ -95,7 +97,7 @@ class MapViewModel @Inject constructor(
             val accessToken = getUserAccessTokenUseCase()
             val json = Gson().fromJson(accessToken, JsonObject::class.java)
             val access = json.get("token")?.asString
-            addAddressUseCase(access?: "", address).collect{
+            addAddressUseCase(access?: "", address, getUserNameUseCase()).collect{
                 when(it){
                     is ApiResult.Failure -> {
                         _events.value = MapContract.Events.ShowError(it.error.message.toString())

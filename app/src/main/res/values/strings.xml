@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MCommerce</string>
+    <string name="app_name">Pick’n Pay</string>
     <string name="login">Login</string>
     <string name="welcome_back">Hi Welcome back, you\'ve been missed</string>
     <string name="email">Email</string>

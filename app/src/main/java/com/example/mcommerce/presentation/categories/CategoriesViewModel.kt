@@ -41,11 +41,8 @@ class CategoriesViewModel @Inject constructor(
 
     override fun invokeActions(action: CategoriesContract.Action) {
         when(action){
-            CategoriesContract.Action.ClickOnCart -> {
-                //navigate to cart
-            }
             is CategoriesContract.Action.ClickOnCategory -> {
-                _events.value = CategoriesContract.Events.NavigateToCategoryProducts(action.categoryId)
+                _events.value = CategoriesContract.Events.NavigateToCategoryProducts(action.collectionId, action.collectionName)
             }
         }
     }

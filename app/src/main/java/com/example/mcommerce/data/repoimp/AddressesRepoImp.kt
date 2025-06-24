@@ -9,11 +9,13 @@ import kotlinx.coroutines.flow.Flow
 class AddressesRepoImp(
     private val addressesRemoteDataSource: AddressesRemoteDataSource
 ) : AddressesRepo {
-    override fun addAddress(accessToken: String, address: AddressEntity): Flow<ApiResult<Boolean>> = addressesRemoteDataSource.addAddress(accessToken, address)
+    override fun addAddress(accessToken: String, address: AddressEntity, name: String): Flow<ApiResult<Boolean>> = addressesRemoteDataSource.addAddress(accessToken, address, name)
 
     override fun removeAddress(accessToken: String, addressId: String): Flow<ApiResult<Boolean>> = addressesRemoteDataSource.removeAddress(accessToken, addressId)
 
     override fun getAddresses(accessToken: String): Flow<ApiResult<List<AddressEntity>?>> = addressesRemoteDataSource.getAddresses(accessToken)
 
     override fun updateDefault(accessToken: String, addressId: String): Flow<ApiResult<Boolean>> = addressesRemoteDataSource.updateDefault(accessToken, addressId)
+
+    override fun checkForDefault(accessToken: String): Flow<ApiResult<Boolean>> = addressesRemoteDataSource.checkForDefault(accessToken)
 }

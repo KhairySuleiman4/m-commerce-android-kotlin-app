@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class Screens {
     @Serializable
+    data object Splash: Screens()
+    @Serializable
     data object Signup: Screens()
     @Serializable
     data object Login: Screens()
@@ -27,7 +29,7 @@ sealed class Screens {
     @Serializable
     data object Addresses : Screens()
     @Serializable
-    data class Products(val brandId: String, val brandName: String = "") : Screens()
+    data class Products(val collectionId: String, val collectionName: String) : Screens()
     @Serializable
     data class ProductDetails(val productId: String): Screens()
     @Serializable

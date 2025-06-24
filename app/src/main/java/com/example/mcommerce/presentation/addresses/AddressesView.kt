@@ -242,6 +242,13 @@ fun AddressItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        if (address.isDefault){
+            Text(
+                "Any Upcoming Order will be delivered to This Location",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
         Icon(
             imageVector = if (address.isDefault) Icons.Default.Home else Icons.Default.LocationOn,
             contentDescription = "Home",

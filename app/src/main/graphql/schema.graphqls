@@ -2,6 +2,59 @@
 A version of the API, as defined by [Shopify API versioning](https://shopify.dev/api/usage/versioning).
 Versions are commonly referred to by their handle (for example, `2021-10`).
 """
+type CodeDiscountNodeConnection {
+    nodes: [CodeDiscountNode!]!
+}
+
+type CodeDiscountNode {
+    codeDiscount: CodeDiscount!
+}
+
+union CodeDiscount = DiscountCodeBasic | DiscountCodeBxgy | DiscountCodeFreeShipping
+
+type DiscountCodeBasic {
+    title: String!
+    # Other fields can be added as needed
+}
+
+type DiscountCodeBxgy {
+    title: String!
+    customerGets: DiscountCustomerGets!
+    customerBuys: DiscountCustomerBuys!
+    # Add more fields as needed
+}
+
+type DiscountCodeFreeShipping {
+    title: String!
+    startsAt: DateTime
+    endsAt: DateTime
+    # Add more fields as needed
+}
+
+type DiscountCustomerGets {
+    value: DiscountValue!
+    items: DiscountItems!
+}
+
+type DiscountCustomerBuys {
+    value: DiscountPurchaseAmount!
+    items: DiscountItems!
+}
+
+type DiscountValue {
+    percentage: Float
+    fixedAmount: MoneyV2
+}
+
+type DiscountPurchaseAmount {
+    amount: MoneyV2!
+}
+
+type DiscountItems {
+    all: Boolean
+    # Add more rules as needed (e.g., productVariants, collections)
+}
+
 type ApiVersion {
     """
     The human-readable name of the version.
@@ -10695,6 +10748,8 @@ type ProductConnection {
     pageInfo: PageInfo!
 }
 
+
+
 """
 An auto-generated type which holds one Product and a cursor during pagination.
 """
@@ -11214,6 +11269,8 @@ type QueryRoot {
     Fetch a specific Article by its ID.
     """
     article("The ID of the `Article`." id: ID!): Article
+
+    codeDiscountNodes(first: Int!, after: String, before: String, last: Int, reverse: Boolean): CodeDiscountNodeConnection!
 
     """
     List of the shop's articles.

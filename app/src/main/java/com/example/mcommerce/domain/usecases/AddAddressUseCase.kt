@@ -9,5 +9,5 @@ import javax.inject.Inject
 class AddAddressUseCase @Inject constructor(
     private val addressesRepo: AddressesRepo
 ){
-    operator fun invoke(accessToken: String, address: AddressEntity): Flow<ApiResult<Boolean>> = addressesRepo.addAddress(accessToken, address)
+    operator fun invoke(accessToken: String, address: AddressEntity, name: String): Flow<ApiResult<Boolean>> = addressesRepo.addAddress(accessToken, address, name)
 }

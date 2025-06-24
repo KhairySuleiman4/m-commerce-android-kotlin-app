@@ -1,5 +1,6 @@
 package com.example.mcommerce.presentation.cart.viewmodel
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,13 +8,25 @@ import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.AddDiscountToCartUseCase
 import com.example.mcommerce.domain.usecases.ChangeCartItemInCartUseCase
+import com.example.mcommerce.domain.usecases.CheckForDefaultAddressUseCase
+import com.example.mcommerce.domain.usecases.ClearOnlineCartUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
+import com.example.mcommerce.domain.usecases.GetUserAccessTokenUseCase
 import com.example.mcommerce.domain.usecases.RemoveItemFromCartUseCase
 import com.example.mcommerce.presentation.cart.CartContract
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.shopify.checkoutsheetkit.CheckoutException
+import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +36,10 @@ class CartViewModel @Inject constructor(
     private val addDiscountToCartUseCase: AddDiscountToCartUseCase,
     private val removeItemFromCartUseCase: RemoveItemFromCartUseCase,
     private val getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
-    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase
+    private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
+    private val checkForDefaultAddressUseCase: CheckForDefaultAddressUseCase,
+    private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase,
+    private val clearOnlineCartUseCase: ClearOnlineCartUseCase
 ): ViewModel(), CartContract.CartViewModel{
 
     private val _states = mutableStateOf<CartContract.States>(CartContract.States.Idle)
@@ -32,6 +48,8 @@ class CartViewModel @Inject constructor(
     override val states: State<CartContract.States> get() = _states
     override val events: State<CartContract.Events> get() = _events
 
+    private var canCheckout: Boolean? = null
+    private var eventProcessor: DefaultCheckoutEventProcessor? = null
 
     override fun invokeActions(action: CartContract.Action) {
         when(action){
@@ -47,8 +65,64 @@ class CartViewModel @Inject constructor(
             is CartContract.Action.ClickOnRemoveItem -> {
                 removeItem(action.variantId)
             }
-            CartContract.Action.ClickOnSubmit -> {
+            is CartContract.Action.ClickOnSubmit -> {
+                checkDefault(action.activity)
+            }
+        }
+    }
 
+    fun setEventProcessor(activity: ComponentActivity, action: () -> Unit) {
+        eventProcessor = object : DefaultCheckoutEventProcessor(activity) {
+            override fun onCheckoutCanceled() {
+
+            }
+
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+                checkoutCompleted(action)
+            }
+
+            override fun onCheckoutFailed(error: CheckoutException) {
+                checkoutFailed(error)
+            }
+        }
+    }
+
+    private fun checkoutFailed(error: CheckoutException) {
+        _events.value = CartContract.Events.DisplayError(error.message ?: "There is something wrong")
+    }
+
+    private fun checkoutCompleted(action: () -> Unit) {
+        viewModelScope.launch {
+            clearOnlineCartUseCase().collect{
+                when(it){
+                    is ApiResult.Failure -> {
+                        _events.value = CartContract.Events.DisplayError(it.error.message ?: "There is something wrong")
+                    }
+                    is ApiResult.Loading -> {
+
+                    }
+                    is ApiResult.Success -> {
+                        _events.value = CartContract.Events.DisplayError( "Success Transaction")
+                        delay(1000)
+                        action()
+                    }
+                }
+            }
+        }
+    }
+
+    fun checkout(activity: ComponentActivity) {
+        viewModelScope.launch {
+            val processor = eventProcessor
+            if (_states.value is CartContract.States.Success && processor != null) {
+                val cart = (_states.value as CartContract.States.Success).cart
+                withContext(Dispatchers.Main) {
+                    ShopifyCheckoutSheetKit.present(
+                        cart.checkout,
+                        activity,
+                        processor
+                    )
+                }
             }
         }
     }
@@ -76,10 +150,46 @@ class CartViewModel @Inject constructor(
                             _states.value = CartContract.States.Success(result.data)
                             if (result.data.discountAmount>0)
                                 _events.value = CartContract.Events.DisableApplyEvent
-
                         }
                         else
                             _states.value = CartContract.States.Failure("Not able to get the cart")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkDefault(activity: ComponentActivity){
+        if (canCheckout != null){
+            if (canCheckout as Boolean){
+                checkout(activity)
+            }
+            else{
+                _events.value = CartContract.Events.DisplayError("Sorry you don't have an address to deliver to")
+            }
+        }
+        else {
+            viewModelScope.launch {
+                val accessToken = getUserAccessTokenUseCase()
+                val json = Gson().fromJson(accessToken, JsonObject::class.java)
+                val token = json.get("token")?.asString ?: ""
+                checkForDefaultAddressUseCase(token).collect{
+                    when(it){
+                        is ApiResult.Failure -> {
+                            _events.value = CartContract.Events.DisplayError(it.error.message ?: "Sorry there is something wrong")
+                        }
+                        is ApiResult.Loading -> {
+
+                        }
+                        is ApiResult.Success -> {
+                            canCheckout = it.data
+                            if (canCheckout as Boolean){
+                                checkout(activity)
+                            }
+                            else{
+                                _events.value = CartContract.Events.DisplayError("Sorry you don't have an address to deliver to")
+                            }
+                        }
                     }
                 }
             }

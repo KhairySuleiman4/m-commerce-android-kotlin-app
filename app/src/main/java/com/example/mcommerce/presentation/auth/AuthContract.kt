@@ -28,10 +28,11 @@ interface AuthContract {
 
     sealed interface Events{
         data object Idle: Events
-        data object NavigateToHome: Events
+        data object NavigateToHomeGuest: Events
         data object ShowLoading: Events
         data class ShowSnackbar(val message: String): Events
         data object NavigateToLogin: Events
         data object NavigateToSignup: Events
+        data object NavigateToHomeUser:Events
     }
 }

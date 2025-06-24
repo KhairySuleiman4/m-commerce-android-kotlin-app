@@ -63,7 +63,6 @@ import java.util.Locale
 @Composable
 fun ProductInfoScreen(
     productId: String,
-    modifier: Modifier = Modifier,
     viewModel: ProductInfoViewModel = hiltViewModel()
 ) {
     val currency = remember { mutableStateOf("EGP") }

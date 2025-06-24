@@ -12,8 +12,7 @@ interface CategoriesContract {
     }
 
     sealed interface Action{
-        data object ClickOnCart: Action
-        data class ClickOnCategory(val categoryId: String): Action
+        data class ClickOnCategory(val collectionId: String, val collectionName: String): Action
     }
 
     sealed interface States{
@@ -24,7 +23,7 @@ interface CategoriesContract {
     }
 
     sealed interface Events{
-        data class NavigateToCategoryProducts(val categoryId: String): Events
+        data class NavigateToCategoryProducts(val collectionId: String, val collectionName: String): Events
         data object Idle: Events
     }
 }
