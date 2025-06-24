@@ -6,6 +6,7 @@ import com.example.mcommerce.data.models.CartModel
 import com.example.mcommerce.data.models.CategoriesModel
 import com.example.mcommerce.data.models.CollectionsModel
 import com.example.mcommerce.data.models.ExchangeResponse
+import com.example.mcommerce.data.models.LineItemModel
 import com.example.mcommerce.data.models.LineModel
 import com.example.mcommerce.data.models.OrderModel
 import com.example.mcommerce.data.models.ProductsForSearchModel
@@ -17,6 +18,7 @@ import com.example.mcommerce.domain.entities.CollectionsEntity
 import com.example.mcommerce.domain.entities.CustomerEntity
 import com.example.mcommerce.domain.entities.ExchangeRateEntity
 import com.example.mcommerce.domain.entities.LineEntity
+import com.example.mcommerce.domain.entities.LineItemEntity
 import com.example.mcommerce.domain.entities.OrderEntity
 import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductSearchEntity
@@ -31,19 +33,10 @@ fun CollectionsModel.toEntity(): CollectionsEntity {
     )
 }
 
-fun CollectionsEntity.toModel(): CollectionsModel {
-    return CollectionsModel(
-        id = this.id,
-        title = this.title,
-        imageUrl = this.imageUrl
-    )
-}
 
 fun ExchangeResponse.toEntity(): ExchangeRateEntity = ExchangeRateEntity(rates)
 
-fun ExchangeRateEntity.toModel(): ExchangeResponse = ExchangeResponse(rates)
-
-fun ProductsModel.toEntity(): ProductsEntity {
+fun ProductsModel.toEntity(): ProductsEntity{
     return ProductsEntity(
         id = this.id,
         title = this.title,
@@ -55,6 +48,7 @@ fun ProductsModel.toEntity(): ProductsEntity {
     )
 }
 
+fun CategoriesModel.toEntity(): CategoriesEntity{
 fun ProductsEntity.toModel(): ProductsModel {
     return ProductsModel(
         id = this.id,
@@ -68,15 +62,6 @@ fun ProductsEntity.toModel(): ProductsModel {
 
 fun CategoriesModel.toEntity(): CategoriesEntity {
     return CategoriesEntity(
-        id = this.id,
-        title = this.title,
-        description = this.description,
-        imageUrl = this.imageUrl,
-    )
-}
-
-fun CategoriesEntity.toModel(): CategoriesModel {
-    return CategoriesModel(
         id = this.id,
         title = this.title,
         description = this.description,
@@ -167,45 +152,26 @@ fun LineModel.toEntity(): LineEntity = LineEntity(
 
 fun OrderModel.toEntity(): OrderEntity {
     return OrderEntity(
-        orderId = this.orderId,
-        orderName = this.orderName,
-        orderDate = this.orderDate,
-        orderTime = this.orderTime,
-        orderPrice = this.orderPrice,
-        currencyCode = this.currencyCode,
-        productTitle = this.productTitle,
-        productQuantity = this.productQuantity,
-        productPrice = this.productPrice,
-        productImage = this.productImage,
-        variantTitle = this.variantTitle,
-        variantImage = this.variantImage,
-        customerUrl = this.customerUrl,
-        customerName = this.customerName,
-        customerPhone = this.customerPhone,
+        name = this.name,
+        processedAt = this.processedAt,
+        subtotalPrice = this.subtotalPrice,
+        totalPrice = this.totalPrice,
         shippingAddress = this.shippingAddress,
-        shippingCity = this.shippingCity
+        city = this.city,
+        customerName = this.customerName,
+        phone = this.phone,
+        lineItems = this.lineItems.map { it.toEntity() }
     )
 }
 
-fun OrderEntity.toModel(): OrderModel {
-    return OrderModel(
-        orderId = this.orderId,
-        orderName = this.orderName,
-        orderDate = this.orderDate,
-        orderTime = this.orderTime,
-        orderPrice = this.orderPrice,
-        currencyCode = this.currencyCode,
-        productTitle = this.productTitle,
-        productQuantity = this.productQuantity,
-        productPrice = this.productPrice,
-        productImage = this.productImage,
+fun LineItemModel.toEntity(): LineItemEntity{
+    return LineItemEntity(
+        quantity = this.quantity,
         variantTitle = this.variantTitle,
-        variantImage = this.variantImage,
-        customerUrl = this.customerUrl,
-        customerName = this.customerName,
-        customerPhone = this.customerPhone,
-        shippingAddress = this.shippingAddress,
-        shippingCity = this.shippingCity
+        productId = this.productId,
+        productTitle = this.productTitle,
+        price = this.price,
+        imageUrl = this.imageUrl
     )
 }
 

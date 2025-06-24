@@ -53,5 +53,5 @@ sealed class Screens {
     data object OrdersScreen : Screens()
 
     @Serializable
-    data class OrderDetailsScreen(val orderId: String) : Screens()
+    data class OrderDetailsScreen(val order: String) : Screens()
 }
