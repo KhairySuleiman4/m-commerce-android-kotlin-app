@@ -385,7 +385,7 @@ fun BottomNavigationBar(
                 },
                 alwaysShowLabel = true,
                 icon = {
-                    Icon(imageVector = navItem.icon, contentDescription = "Navigation Icon")
+                    Icon(painter = painterResource(navItem.icon), contentDescription = "Navigation Icon", modifier = Modifier.size(25.dp))
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,
