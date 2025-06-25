@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mcommerce.R
 import com.example.mcommerce.presentation.auth.AuthContract
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
@@ -87,6 +89,7 @@ fun LoginScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Background,
         modifier = modifier
     ) { paddingValues ->
         if (isLoading.value) {
@@ -133,7 +136,7 @@ fun LoginComposable(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 64.dp),
+            .padding(top = 100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {

@@ -5,8 +5,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
@@ -21,12 +25,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -101,6 +108,7 @@ class MainActivity : ComponentActivity() {
             val showLoginAlert = remember { mutableStateOf(false) }
 
             Scaffold(
+                containerColor = Background,
                 topBar = {
                     if (showTopBar) {
                         MyAppBar(
@@ -371,7 +379,9 @@ fun BottomNavigationBar(
     isGuest: Boolean,
     onShowLoginAlert: () -> Unit
 ) {
-    NavigationBar {
+    NavigationBar(
+        containerColor = Background
+    ) {
         Constants.BottomNavItems.forEachIndexed { index, navItem ->
             NavigationBarItem(
                 selected = index == currentRoute,
@@ -389,7 +399,11 @@ fun BottomNavigationBar(
                 },
                 alwaysShowLabel = true,
                 icon = {
-                    Icon(painter = painterResource(navItem.icon), contentDescription = "Navigation Icon", modifier = Modifier.size(25.dp))
+                    Icon(
+                        painter = painterResource(navItem.icon),
+                        contentDescription = "Navigation Icon",
+                        modifier = Modifier.size(25.dp)
+                    )
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,
@@ -410,13 +424,25 @@ fun MyAppBar(
     onCartClick: () -> Unit
 ) {
     TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(Background),
         title = {
-            Text(
-                fontFamily = PoppinsFontFamily,
-                text = title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.app_icon),
+                    contentDescription = "",
+                    modifier = Modifier.size(48.dp)
+                )
+                Text(
+                    fontFamily = PoppinsFontFamily,
+                    text = title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
         },
         actions = {
             IconButton(onClick = onSearchClick) {

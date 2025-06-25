@@ -82,6 +82,7 @@ fun Address.toModel(): AddressModel {
 fun AddressModel.toEntity(): AddressEntity {
     return AddressEntity(
         id = this.id,
+        customerName = this.customerName,
         name = this.name,
         subName = this.subName,
         country = this.country,
@@ -96,6 +97,7 @@ fun AddressModel.toEntity(): AddressEntity {
 fun AddressEntity.toModel(): AddressModel {
     return AddressModel(
         id = this.id,
+        customerName = this.customerName,
         name = this.name,
         subName = this.subName,
         country = this.country,

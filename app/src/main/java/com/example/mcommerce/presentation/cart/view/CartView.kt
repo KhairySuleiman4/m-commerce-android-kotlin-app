@@ -169,6 +169,7 @@ fun CartPage(
     )
     Scaffold(
         modifier = modifier,
+        containerColor = Background,
         snackbarHost = {
             SnackbarHost(hostState)
         },
@@ -278,23 +279,12 @@ fun CartPage(
                                             .width(100.dp)
                                             .clip(RoundedCornerShape(12.dp))
                                     )
-                                    CartInfo(
+                                    CartInfoInBottomSheet(
                                         name = item.title,
                                         brand = item.brand,
                                         category = item.category,
                                         currency = currency,
-                                        price = item.price * rate,
-                                        value = item.quantity,
-                                        plusAction = {
-                                            plusAction(item.lineId, item.quantity)
-                                        },
-                                        minusAction = {
-                                            minusAction(item.lineId, item.quantity)
-                                        },
-                                        deleteAction = {
-                                            showBottomSheet.value = true
-                                            selectedItem.value = item
-                                        }
+                                        price = item.price * rate
                                     )
                                 }
                                 Row(
@@ -343,10 +333,8 @@ fun CartPage(
                         }
                     }
                 }
-
             }
         }
-
     }
 }
 
@@ -389,7 +377,8 @@ fun BottomBar(
                     placeholder = {
                         Text(
                             fontFamily = PoppinsFontFamily,
-                            text = "Promo Code or Voucher"
+                            text = "Promo Code or Voucher",
+                            fontSize = 14.sp
                         )
                     },
                     colors = TextFieldDefaults.colors().copy(
@@ -414,7 +403,10 @@ fun BottomBar(
                         contentColor = Background,
                     ),
                     enabled = isApplied,
-                    modifier = Modifier.clip(RoundedCornerShape(20)).width(120.dp).height(40.dp)
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20))
+                        .width(120.dp)
+                        .height(40.dp)
                 ) {
                     Text(
                         fontFamily = PoppinsFontFamily,
@@ -545,8 +537,8 @@ fun CartItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(Color.White),
-        modifier = modifier.fillMaxWidth()
-            .height(180.dp)
+        modifier = modifier
+            .fillMaxWidth()
     ){
         Row(
             modifier = modifier
@@ -573,7 +565,6 @@ fun CartItem(
                 plusAction = plusAction,
                 minusAction = minusAction,
                 deleteAction = deleteAction
-
             )
         }
     }
@@ -594,14 +585,16 @@ fun CartInfo(
 ) {
     val split = category.split("/")
     Column(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
             fontFamily = PoppinsFontFamily,
             text = name,
             fontSize = 16.sp,
-            maxLines = 2,
+            maxLines = 2
         )
 
         Text(
@@ -706,6 +699,69 @@ fun CartInfo(
         }
     }
 }
+
+@Composable
+fun CartInfoInBottomSheet(
+    name: String,
+    brand: String,
+    category: String,
+    currency: String,
+    price: Double,
+    modifier: Modifier = Modifier
+) {
+    val split = category.split("/")
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            fontFamily = PoppinsFontFamily,
+            text = name,
+            fontSize = 16.sp,
+            maxLines = 2
+        )
+
+        Text(
+            fontFamily = PoppinsFontFamily,
+            text = brand,
+            fontSize = 14.sp,
+            color = Color.Black.copy(alpha = 0.7f)
+        )
+
+        Text(
+            fontFamily = PoppinsFontFamily,
+            text = "Size: ${split[0]}",
+            fontSize = 12.sp,
+            color = Color.Black.copy(alpha = 0.7f)
+        )
+        Text(
+            fontFamily = PoppinsFontFamily,
+            text = "Color: ${split[1]}",
+            fontSize = 12.sp,
+            color = Color.Black.copy(alpha = 0.7f)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                fontFamily = PoppinsFontFamily,
+                text = currency,
+                color = Color.Black.copy(alpha = 0.7f),
+                fontSize = 16.sp
+            )
+            Text(
+                fontFamily = PoppinsFontFamily,
+                text = String.format(locale = Locale.US, "%.2f", price),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun PreviewCartScreen() {

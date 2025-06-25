@@ -58,6 +58,7 @@ import com.example.mcommerce.domain.entities.ProductInfoEntity
 import com.example.mcommerce.domain.entities.ProductVariantEntity
 import com.example.mcommerce.presentation.errors.FailureScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
+import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 import java.util.Locale
@@ -195,6 +196,7 @@ fun ShowProductInfo(
 
             TabRow(
                 contentColor = Primary,
+                containerColor = Background,
                 selectedTabIndex = selectedTab.intValue,
                 modifier = modifier
                     .fillMaxWidth(),

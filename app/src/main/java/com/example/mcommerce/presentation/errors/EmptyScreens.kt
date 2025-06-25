@@ -25,7 +25,7 @@ import com.example.mcommerce.presentation.theme.Primary
 @Composable
 fun AddressEmptyScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -58,7 +58,7 @@ fun AddressEmptyScreen(modifier: Modifier = Modifier) {
 @Composable
 fun OrderEmptyScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -91,7 +91,7 @@ fun OrderEmptyScreen(modifier: Modifier = Modifier) {
 @Composable
 fun CartEmptyScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -123,7 +123,7 @@ fun CartEmptyScreen(modifier: Modifier = Modifier) {
 @Composable
 fun FavoriteEmptyScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -148,6 +148,28 @@ fun FavoriteEmptyScreen(modifier: Modifier = Modifier) {
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
+            color = Primary
+        )
+    }
+}
+@Composable
+fun SearchEmptyScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(R.drawable.empty_search),
+            contentDescription = "empty search",
+            modifier = Modifier.size(250.dp),
+            contentScale = ContentScale.FillBounds
+        )
+        Text(
+            fontFamily = PoppinsFontFamily,
+            text = "No results found",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
             color = Primary
         )
     }

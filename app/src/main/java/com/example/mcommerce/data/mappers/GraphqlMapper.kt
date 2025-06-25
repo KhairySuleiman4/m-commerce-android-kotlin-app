@@ -313,6 +313,7 @@ fun GetAddressesQuery.Data.toModel(): List<AddressModel>? {
     return this.customer?.addresses?.edges?.map {
         AddressModel(
             id = it.node.id,
+            customerName = it.node.lastName ?: "",
             name = it.node.address1 ?: "",
             subName = it.node.address2 ?: "",
             country = it.node.country ?: "",

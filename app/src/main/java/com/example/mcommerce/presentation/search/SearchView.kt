@@ -60,6 +60,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductSearchEntity
+import com.example.mcommerce.presentation.errors.SearchEmptyScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.navigation.Screens
 import com.example.mcommerce.presentation.theme.PoppinsFontFamily
@@ -374,34 +375,39 @@ fun ProductsList(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     Box {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = modifier.fillMaxSize()
-        ) {
-            items(filteredProducts.size) { index ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                ) {
-                    ProductCard(
-                        product = filteredProducts[index],
-                        currency = currency,
-                        rate = rate,
-                        onProductClick = onProductClick,
-                        onFavoriteClick = {
-                            if (!it.isFavorite) {
-                                selectedProduct.value = it
-                                showBottomSheet.value = true
-                            } else {
-                                onFavoriteClick(it)
-                            }
-                        },
-                        isGuest = isGuest
-                    )
+        if(filteredProducts.isNotEmpty()){
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = modifier.fillMaxSize()
+            ) {
+                items(filteredProducts.size) { index ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                    ) {
+                        ProductCard(
+                            product = filteredProducts[index],
+                            currency = currency,
+                            rate = rate,
+                            onProductClick = onProductClick,
+                            onFavoriteClick = {
+                                if (!it.isFavorite) {
+                                    selectedProduct.value = it
+                                    showBottomSheet.value = true
+                                } else {
+                                    onFavoriteClick(it)
+                                }
+                            },
+                            isGuest = isGuest
+                        )
+                    }
                 }
             }
+        }else{
+            SearchEmptyScreen()
         }
+
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)

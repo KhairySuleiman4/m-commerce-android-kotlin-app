@@ -9,6 +9,7 @@ import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.usecases.AddDiscountToCartUseCase
 import com.example.mcommerce.domain.usecases.ChangeCartItemInCartUseCase
 import com.example.mcommerce.domain.usecases.CheckForDefaultAddressUseCase
+import com.example.mcommerce.domain.usecases.ClearLocalCartUseCase
 import com.example.mcommerce.domain.usecases.ClearOnlineCartUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
@@ -39,7 +40,8 @@ class CartViewModel @Inject constructor(
     private val getCurrentExchangeRateUseCase: GetCurrentExchangeRateUseCase,
     private val checkForDefaultAddressUseCase: CheckForDefaultAddressUseCase,
     private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase,
-    private val clearOnlineCartUseCase: ClearOnlineCartUseCase
+    private val clearOnlineCartUseCase: ClearOnlineCartUseCase,
+    private val clearLocalCartUseCase: ClearLocalCartUseCase
 ) : ViewModel(), CartContract.CartViewModel {
 
     private val _states = mutableStateOf<CartContract.States>(CartContract.States.Idle)
@@ -112,11 +114,13 @@ class CartViewModel @Inject constructor(
 
                     is ApiResult.Success -> {
                         _events.value = CartContract.Events.DisplayError("Success Transaction")
+                        clearLocalCartUseCase()
                         delay(1000)
                         action()
                     }
                 }
             }
+
         }
     }
 
