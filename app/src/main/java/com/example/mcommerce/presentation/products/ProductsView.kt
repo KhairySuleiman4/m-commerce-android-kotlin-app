@@ -272,7 +272,7 @@ fun ProductCard(
             .clickable { onProductClick(product.id) },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Column {
+        Column{
             Box {
                 GlideImage(
                     model = product.imageUrl,
@@ -303,7 +303,6 @@ fun ProductCard(
                     )
                 }
             }
-            Spacer(modifier.height(4.dp))
             Text(
                 fontFamily = PoppinsFontFamily,
                 text = product.title.split('|')[1].trim(),
@@ -315,16 +314,16 @@ fun ProductCard(
             Text(
                 fontFamily = PoppinsFontFamily,
                 text = product.title.split('|')[0],
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 fontSize = 12.sp,
                 color = Color.Gray,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1
             )
-            Spacer(modifier.weight(0.5f))
+            Spacer(Modifier.weight(1f))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = modifier.padding(end = 8.dp, start = 8.dp, bottom = 4.dp),
             ) {
                 Text(
                     fontFamily = PoppinsFontFamily,
@@ -339,7 +338,6 @@ fun ProductCard(
                     fontSize = 16.sp
                 )
             }
-            Spacer(modifier.height(8.dp))
         }
     }
 }

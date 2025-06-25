@@ -9,5 +9,7 @@ data class AddressEntity(
     var zip: String,
     val latitude: Double,
     val longitude: Double,
-    var isDefault: Boolean = false
-)
+    var isDefault: Boolean = false,
+    var customerName: String = ""
+
+    )

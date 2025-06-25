@@ -4,6 +4,7 @@ query GetAddresses($accessToken: String!){
             edges {
                 node {
                     id
+                    lastName
                     address1
                     address2
                     city

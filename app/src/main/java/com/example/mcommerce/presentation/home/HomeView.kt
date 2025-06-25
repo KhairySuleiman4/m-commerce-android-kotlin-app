@@ -54,6 +54,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -188,7 +189,7 @@ fun HomeItems(
                                 CouponEntity(
                                     it,
                                     description = "Click here to Copy",
-                                    title = "Get ${it.filter { x -> x.isDigit() }}% Off",
+                                    title = "Get ${it.filter { x -> x.isDigit() }}% OFF",
                                     imageRes = R.drawable.ad_placeholder
                                 )
                             },
@@ -411,7 +412,7 @@ fun LatestArrivalsList(
             text = title,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
         )
 
         when {
@@ -594,6 +595,7 @@ fun CouponsCard(
                     fontFamily = PoppinsFontFamily,
                     text = coupon.title,
                     fontSize = 24.sp,
+                    textAlign = TextAlign.Center,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
                     maxLines = 2,
@@ -604,9 +606,8 @@ fun CouponsCard(
                 Text(
                     fontFamily = PoppinsFontFamily,
                     text = coupon.description,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     color = Color.Black,
-                    maxLines = 2,
                 )
             }
 
@@ -616,7 +617,7 @@ fun CouponsCard(
                 painter = painterResource(id = coupon.imageRes),
                 contentDescription = coupon.title,
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(110.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
@@ -642,8 +643,8 @@ fun CustomLazyVerticalGrid(modifier: Modifier = Modifier, content: LazyGridScope
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.fillMaxSize(),
         content = content
     )

@@ -205,6 +205,7 @@ fun ProductCard(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
             .padding(4.dp)
+            .height(250.dp)
             .width(150.dp)
             .clickable { onProductClick(product.id) },
         elevation = CardDefaults.cardElevation(2.dp)
@@ -234,7 +235,6 @@ fun ProductCard(
                     )
                 }
             }
-            Spacer(modifier.height(4.dp))
             Text(
                 fontFamily = PoppinsFontFamily,
                 text = product.title,
@@ -251,10 +251,10 @@ fun ProductCard(
                 color = Color.Gray,
                 fontWeight = FontWeight.SemiBold
             )
-            Spacer(modifier.weight(0.5f))
+            Spacer(modifier.weight(1f))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = modifier.padding(end = 8.dp, start = 8.dp, bottom = 4.dp),
             ) {
                 Text(
                     fontFamily = PoppinsFontFamily,
@@ -263,7 +263,6 @@ fun ProductCard(
                     fontSize = 16.sp
                 )
             }
-            Spacer(modifier.height(8.dp))
         }
     }
 }

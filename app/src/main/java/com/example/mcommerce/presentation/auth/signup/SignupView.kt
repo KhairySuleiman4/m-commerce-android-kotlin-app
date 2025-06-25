@@ -46,6 +46,7 @@ import com.example.mcommerce.presentation.auth.login.ContinueAsGuestSection
 import com.example.mcommerce.presentation.auth.login.EmailSection
 import com.example.mcommerce.presentation.auth.login.PasswordSection
 import com.example.mcommerce.presentation.navigation.Screens
+import com.example.mcommerce.presentation.theme.Background
 import com.example.mcommerce.presentation.theme.PoppinsFontFamily
 import com.example.mcommerce.presentation.theme.Primary
 
@@ -94,6 +95,7 @@ fun SignupScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Background,
         modifier = modifier
     ) { paddingValues ->
         if (isLoading.value) {

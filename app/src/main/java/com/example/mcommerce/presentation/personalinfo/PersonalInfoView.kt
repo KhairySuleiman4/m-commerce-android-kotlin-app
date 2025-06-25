@@ -90,6 +90,7 @@ fun PersonalInfoPage(
     val textFieldValue = remember { mutableStateOf(name) }
     Scaffold(
         modifier = modifier,
+        containerColor = Background,
         snackbarHost = {
             SnackbarHost(snackbarHostState)
         },
