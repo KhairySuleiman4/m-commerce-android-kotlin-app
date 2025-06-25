@@ -316,6 +316,7 @@ fun ProductCard(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 fontSize = 12.sp,
                 color = Color.Gray,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1
             )
             Spacer(Modifier.weight(1f))

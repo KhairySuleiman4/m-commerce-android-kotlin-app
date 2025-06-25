@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -188,7 +190,8 @@ fun TypesFilter(
                 },
                 label = {
                     Text(
-                        fontFamily = PoppinsFontFamily, text = type
+                        fontFamily = PoppinsFontFamily,
+                        text = type
                     )
                 },
                 colors = SelectableChipColors(
@@ -287,7 +290,8 @@ fun BrandDropdownMenu(
             }
         ) {
             Text(
-                fontFamily = PoppinsFontFamily, text = selectedBrand ?: "Select Brand"
+                fontFamily = PoppinsFontFamily,
+                text = selectedBrand ?: "Select Brand"
             )
         }
 
@@ -304,7 +308,8 @@ fun BrandDropdownMenu(
                 },
                 text = {
                     Text(
-                        fontFamily = PoppinsFontFamily, text = "All Brands"
+                        fontFamily = PoppinsFontFamily,
+                        text = "All Brands"
                     )
                 }
             )
@@ -324,7 +329,10 @@ fun BrandDropdownMenu(
                         expanded = false
                     },
                     text = {
-                        Text(it)
+                        Text(
+                            it,
+                            fontFamily = PoppinsFontFamily
+                        )
                     }
                 )
             }
@@ -349,6 +357,7 @@ fun SearchBar(
         placeholder = {
             Text(
                 "Search Products",
+                fontFamily = PoppinsFontFamily,
                 color = Color.Gray
             )
         },
@@ -375,36 +384,34 @@ fun ProductsList(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     Box {
-        if(filteredProducts.isNotEmpty()){
+        if (filteredProducts.isNotEmpty()) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = modifier.fillMaxSize()
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(filteredProducts.size) { index ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    ) {
-                        ProductCard(
-                            product = filteredProducts[index],
-                            currency = currency,
-                            rate = rate,
-                            onProductClick = onProductClick,
-                            onFavoriteClick = {
-                                if (!it.isFavorite) {
-                                    selectedProduct.value = it
-                                    showBottomSheet.value = true
-                                } else {
-                                    onFavoriteClick(it)
-                                }
-                            },
-                            isGuest = isGuest
-                        )
-                    }
+
+                    ProductCard(
+                        product = filteredProducts[index],
+                        currency = currency,
+                        rate = rate,
+                        onProductClick = onProductClick,
+                        onFavoriteClick = {
+                            if (!it.isFavorite) {
+                                selectedProduct.value = it
+                                showBottomSheet.value = true
+                            } else {
+                                onFavoriteClick(it)
+                            }
+                        },
+                        isGuest = isGuest
+                    )
                 }
             }
-        }else{
+        } else {
             SearchEmptyScreen()
         }
 
@@ -454,7 +461,7 @@ fun ProductCard(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
             .padding(4.dp)
-            .height(350.dp)
+            .width(150.dp)
             .clickable { onProductClick(product.id) },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -465,7 +472,7 @@ fun ProductCard(
                     contentDescription = product.title,
                     modifier = modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(150.dp)
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
@@ -489,30 +496,33 @@ fun ProductCard(
                     )
                 }
             }
-            Spacer(modifier.height(8.dp))
+            Spacer(modifier.height(4.dp))
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = product.title,
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp,
                 maxLines = 2
             )
-
             Text(
+                fontFamily = PoppinsFontFamily,
                 text = "${product.brand} | ${product.productType}",
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                fontSize = 16.sp,
-                color = Color.Gray
+                fontSize = 12.sp,
+                color = Color.Gray,
+                fontWeight = FontWeight.SemiBold
             )
-            Spacer(modifier.weight(1f))
+            Spacer(modifier.weight(0.5f))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
+                    fontFamily = PoppinsFontFamily,
                     text = "$currency ${String.format(Locale.US, "%.2f", (product.price * rate))}",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp
                 )
             }
             Spacer(modifier.height(8.dp))
