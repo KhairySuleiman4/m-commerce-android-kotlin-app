@@ -211,7 +211,8 @@ fun ShowProductInfo(
                         onClick = { selectedTab.intValue = index },
                         text = {
                             Text(
-                                fontFamily = PoppinsFontFamily, text = title
+                                fontFamily = PoppinsFontFamily,
+                                text = title
                             )
                         }
                     )
@@ -371,7 +372,7 @@ fun ProductDetailsSection(
                 Text(
                     fontFamily = PoppinsFontFamily,
                     text = productTitle,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
                     maxLines = 2,
                     modifier = Modifier
@@ -386,7 +387,7 @@ fun ProductDetailsSection(
                         .padding(horizontal = 4.dp),
                     text = "$productPrice $priceUnit",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -399,7 +400,7 @@ fun ProductDetailsSection(
                         top = 8.dp
                     ),
                 text = productType,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp
             )
         }
@@ -424,7 +425,7 @@ fun ProductDetailsSection(
                         top = 8.dp
                     ),
                 text = "Description",
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp
             )
             Text(
