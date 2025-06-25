@@ -53,6 +53,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.ProductsEntity
 import com.example.mcommerce.presentation.errors.FailureScreen
+import com.example.mcommerce.presentation.errors.SearchEmptyScreen
 import com.example.mcommerce.presentation.favorites.FavoriteDeleteBottomSheet
 import com.example.mcommerce.presentation.home.CustomLazyVerticalGrid
 import com.example.mcommerce.presentation.navigation.Screens
@@ -190,27 +191,32 @@ fun ProductsList(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     Box {
-        CustomLazyVerticalGrid(
-            content = {
-                items(productsList) { product ->
-                    ProductCard(
-                        product = product,
-                        onFavoriteClick = {
-                            if (!it.isFavorite) {
-                                selectedProduct.value = it.toProductsEntity()
-                                showBottomSheet.value = true
-                            } else {
-                                onFavoriteClick(it)
-                            }
-                        },
-                        onProductClick = onProductClick,
-                        currency = currency,
-                        rate = rate,
-                        isGuest = isGuest
-                    )
+        if(productsList.isNotEmpty()){
+            CustomLazyVerticalGrid(
+                content = {
+                    items(productsList) { product ->
+                        ProductCard(
+                            product = product,
+                            onFavoriteClick = {
+                                if (!it.isFavorite) {
+                                    selectedProduct.value = it.toProductsEntity()
+                                    showBottomSheet.value = true
+                                } else {
+                                    onFavoriteClick(it)
+                                }
+                            },
+                            onProductClick = onProductClick,
+                            currency = currency,
+                            rate = rate,
+                            isGuest = isGuest
+                        )
+                    }
                 }
-            }
-        )
+            )
+        }else{
+            SearchEmptyScreen()
+        }
+
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
