@@ -266,6 +266,7 @@ fun ProductCard(
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
+            .padding(4.dp)
             .height(250.dp)
             .width(150.dp)
             .clickable { onProductClick(product.id) },

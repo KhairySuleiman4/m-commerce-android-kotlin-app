@@ -168,7 +168,7 @@ fun SearchEmptyScreen(modifier: Modifier = Modifier) {
         Text(
             fontFamily = PoppinsFontFamily,
             text = "No results found",
-            fontSize = 24.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Primary
         )
