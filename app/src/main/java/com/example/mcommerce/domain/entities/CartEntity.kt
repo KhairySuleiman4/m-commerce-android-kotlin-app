@@ -7,5 +7,6 @@ data class CartEntity(
     val subtotalAmount: Double,
     val totalAmount: Double,
     val discountAmount: Double,
-    val items: List<LineEntity>
+    val items: List<LineEntity>,
+    var code: String = ""
 )

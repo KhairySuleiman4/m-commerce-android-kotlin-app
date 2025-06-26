@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -140,7 +141,7 @@ fun CartScreen(
             viewModel.invokeActions(CartContract.Action.ClickOnRemoveItem(it))
         },
         submitAction = {
-            viewModel.invokeActions(CartContract.Action.ClickOnSubmit(activity))
+            viewModel.invokeActions(CartContract.Action.ClickOnSubmit(activity, it))
         }
     )
 }
@@ -158,10 +159,14 @@ fun CartPage(
     plusAction: (String, Int) -> Unit,
     minusAction: (String, Int) -> Unit,
     deleteAction: (String) -> Unit,
-    submitAction: () -> Unit
+    submitAction: (Boolean) -> Unit
 ) {
     val showBottomSheet = remember { mutableStateOf(false) }
+    val showCheckoutSheet = remember { mutableStateOf(false) }
     val selectedItem = remember { mutableStateOf<LineEntity?>(null) }
+    val checkoutSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false,
+    )
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
     )
@@ -183,7 +188,7 @@ fun CartPage(
                         onApply(it)
                     },
                     onCheckout = {
-                        submitAction()
+                        showCheckoutSheet.value = true
                     }
                 )
             }
@@ -331,6 +336,30 @@ fun CartPage(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    if (showCheckoutSheet.value){
+        ModalBottomSheet(
+            onDismissRequest = {
+                showCheckoutSheet.value = false
+            },
+            sheetState = checkoutSheetState,
+        ) {
+            Column {
+                Row(
+                    Modifier.clickable {
+                        submitAction(true)
+                        showCheckoutSheet.value = false
+                    }.fillMaxWidth()
+                ) {  }
+                Row(
+                    Modifier.clickable {
+                        submitAction(false)
+                        showCheckoutSheet.value = false
+                    }.fillMaxWidth()
+                ) {  }
             }
         }
     }
