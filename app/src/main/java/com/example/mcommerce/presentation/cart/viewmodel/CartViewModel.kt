@@ -72,7 +72,7 @@ class CartViewModel @Inject constructor(
             }
 
             is CartContract.Action.ClickOnSubmit -> {
-                checkDefault(action.activity)
+                checkDefault(action.activity, action.isCredit)
             }
         }
     }
@@ -175,10 +175,13 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    private fun checkDefault(activity: ComponentActivity) {
+    private fun checkDefault(activity: ComponentActivity, isCredit: Boolean) {
         if (canCheckout != null) {
             if (canCheckout as Boolean) {
-                checkout(activity)
+                if (isCredit)
+                    checkout(activity)
+                else
+                    makeOrder()
             } else {
                 _events.value =
                     CartContract.Events.DisplayError("Sorry you don't have an address to deliver to")
@@ -203,7 +206,10 @@ class CartViewModel @Inject constructor(
                         is ApiResult.Success -> {
                             canCheckout = it.data
                             if (canCheckout as Boolean) {
-                                checkout(activity)
+                                if (isCredit)
+                                    checkout(activity)
+                                else
+                                    makeOrder()
                             } else {
                                 _events.value =
                                     CartContract.Events.DisplayError("Sorry you don't have an address to deliver to")
@@ -213,6 +219,10 @@ class CartViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun makeOrder() {
+        TODO("Not yet implemented")
     }
 
     private fun changeQuantity(variantId: String, quantity: Int) {

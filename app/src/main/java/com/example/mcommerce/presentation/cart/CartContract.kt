@@ -17,7 +17,7 @@ interface CartContract {
         data class ClickOnMinusItem(val variantId: String, val quantity: Int) : Action
         data class ClickOnRemoveItem(val variantId: String) : Action
         data class ClickOnApplyDiscount(val code: String) : Action
-        data class ClickOnSubmit(val activity: ComponentActivity) : Action
+        data class ClickOnSubmit(val activity: ComponentActivity, val isCredit: Boolean) : Action
     }
 
     sealed interface Events {
