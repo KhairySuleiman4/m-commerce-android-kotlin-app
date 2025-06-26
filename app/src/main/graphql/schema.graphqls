@@ -8,6 +8,7 @@ input OrderCreateOrderInput {
     phone: String
     tags: [String]
     note: String
+    test: Boolean
     customerId: ID
     billingAddress: MailingAddressInput
     shippingAddress: MailingAddressInput

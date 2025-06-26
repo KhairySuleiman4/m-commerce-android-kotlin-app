@@ -27,6 +27,9 @@ mutation AddCartDiscount($cartId: ID!, $discountCodes: [String!]!){
                     }
                 }
             }
+            discountCodes {
+                code
+            }
             discountAllocations {
                 discountedAmount {
                     amount

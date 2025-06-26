@@ -30,6 +30,9 @@ mutation RemoveItemFromCart($cartid : ID!,$varients : [ID!]!) {
                     }
                 }
             }
+            discountCodes {
+                code
+            }
             discountAllocations {
                 discountedAmount {
                     amount
