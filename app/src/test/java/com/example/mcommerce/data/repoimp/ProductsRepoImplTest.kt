@@ -17,8 +17,22 @@ import org.junit.Before
 import org.junit.Test
 
 class ProductsRepoImplTest {
+
     private lateinit var repo: ProductsRepoImpl
     private val productsRemoteDataSource: ProductsRemoteDataSource = mockk()
+    private val productId = "product123"
+    private val dummyProduct = ProductInfoEntity(
+        id = productId,
+        images = listOf(),
+        title = "Sample Product",
+        price = 100.0,
+        priceUnit = "EGP",
+        productType = "SHOES",
+        vendor = "VENDOR",
+        description = "Product Description",
+        variants = listOf(),
+        isFavorite = false
+    )
 
     @Before
     fun setUp() {
@@ -95,5 +109,15 @@ class ProductsRepoImplTest {
         //then
         assertTrue(result is ApiResult.Success)
         assertThat(result, `is`(ApiResult.Success(product)))
+    }
+
+    @Test
+    fun fetchProductById_dummyProductId_successWithProductInfo() = runTest {
+        // Given
+        coEvery { productsRemoteDataSource.getProductById(productId) } returns flowOf(ApiResult.Success(dummyProduct))
+        // When
+        val result = repo.fetchProductById(productId).first()
+        // Then
+        assertThat(result, `is`(ApiResult.Success(dummyProduct)))
     }
 }
