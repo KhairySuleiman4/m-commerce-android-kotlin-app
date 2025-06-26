@@ -40,6 +40,9 @@ mutation AddItemToCart($cartid : ID!,$quantity : Int!,$varientid : ID!) {
                     amount
                 }
             }
+            discountCodes {
+                code
+            }
             cost {
                 subtotalAmount {
                     amount

@@ -126,7 +126,8 @@ fun CartModel.toEntity(): CartEntity = CartEntity(
     this.subtotalAmount,
     this.totalAmount,
     this.discountAmount,
-    this.items.map { it.toEntity() }
+    this.items.map { it.toEntity() },
+    this.code
 )
 
 fun LineModel.toEntity(): LineEntity = LineEntity(
