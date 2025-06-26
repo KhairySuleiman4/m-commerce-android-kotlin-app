@@ -85,6 +85,19 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    // mockK
+    testImplementation(libs.mockk.android)
+    testImplementation(libs.mockk.agent)
+    // coroutines testing
+    implementation(libs.kotlinx.coroutines.android)
+    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    // hamcrest
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.hamcrest.library)
+    androidTestImplementation(libs.hamcrest)
+    androidTestImplementation(libs.hamcrest.library)
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     // Apollo GraphQL
@@ -120,8 +133,6 @@ dependencies {
     implementation(libs.lottie.compose)
     //serialization
     implementation(libs.kotlinx.serialization.json.v173)
-
-
 }
 
 kapt {
