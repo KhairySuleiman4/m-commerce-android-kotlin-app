@@ -7,5 +7,6 @@ data class CartModel(
     val subtotalAmount: Double,
     val totalAmount: Double,
     val discountAmount: Double,
-    val items: List<LineModel>
+    val items: List<LineModel>,
+    var code: String = ""
 )

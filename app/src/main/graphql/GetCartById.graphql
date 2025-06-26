@@ -26,6 +26,9 @@ query GetCartById($id: ID!){
                 }
             }
         }
+        discountCodes {
+            code
+        }
         discountAllocations {
             discountedAmount {
                 amount
