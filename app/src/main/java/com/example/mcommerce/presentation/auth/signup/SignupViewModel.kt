@@ -164,8 +164,18 @@ class SignupViewModel @Inject constructor(
         }
     }
 
-    private fun isNotValidEmail(mail: String): Boolean =
-        !android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()
+    private fun isNotValidEmail(mail: String): Boolean {
+        val emailRegex = Regex(
+            "[a-zA-Z0-9+._%\\-]{1,256}" +
+                    "@" +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+                    "(" +
+                    "\\." +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+                    ")+"
+        )
+        return !emailRegex.matches(mail)
+    }
 
     private fun isNotValidPhoneNumber(phone: String): Boolean =
         !Regex("^(010|011|012|015)\\d{8}$").matches(phone)
