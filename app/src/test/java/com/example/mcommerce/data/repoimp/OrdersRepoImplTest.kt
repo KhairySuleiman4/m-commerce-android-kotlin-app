@@ -6,6 +6,7 @@ import com.example.mcommerce.domain.entities.LineItemEntity
 import com.example.mcommerce.domain.entities.OrderEntity
 import io.mockk.coEvery
 import io.mockk.mockk
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -16,7 +17,6 @@ import org.junit.Test
 
 class OrdersRepoImplTest {
     private lateinit var repo: OrdersRepoImpl
-
     private val ordersRemoteDataSource: OrdersRemoteDataSource = mockk()
 
     //given
@@ -80,6 +80,7 @@ class OrdersRepoImplTest {
         val result = repo.getOrders("1").first()
 
         //then
+        assertTrue(result is ApiResult.Success)
         assertThat(result, `is`(ApiResult.Success(ordersList)))
     }
 }
