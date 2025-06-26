@@ -13,7 +13,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 
-class BrandsRepoImpTest {
+class BrandsRepoImplTest {
     private lateinit var repo: BrandsRepoImpl
 
     private val brandsRemoteDataSource: BrandsRemoteDataSource = mockk()
@@ -43,8 +43,7 @@ class BrandsRepoImpTest {
     }
 
     @Test
-    fun getBrands_collectionsList_listOfBrands() = runTest {
-
+    fun getBrands_collectionsList_updateStateWithSuccess() = runTest {
         //when
         val result = repo.fetchBrands().first()
 
