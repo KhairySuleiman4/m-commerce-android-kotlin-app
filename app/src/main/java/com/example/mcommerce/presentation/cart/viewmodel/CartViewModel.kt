@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
 import com.example.mcommerce.domain.entities.AddressEntity
-import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.domain.usecases.AddDiscountToCartUseCase
 import com.example.mcommerce.domain.usecases.ChangeCartItemInCartUseCase
 import com.example.mcommerce.domain.usecases.CheckForDefaultAddressUseCase
