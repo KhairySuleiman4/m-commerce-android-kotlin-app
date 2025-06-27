@@ -13,12 +13,25 @@ input OrderCreateOrderInput {
     billingAddress: MailingAddressInput
     shippingAddress: MailingAddressInput
     lineItems: [OrderLineItemInput!]!
-    discountCode: String
+    discountCode: OrderCreateDiscountCodeInput
     currencyCode: CurrencyCode
     customAttributes: [AttributeInput!]
     presentmentCurrencyCode: CurrencyCode
 }
 
+input OrderCreateFreeShippingDiscountCodeAttributesInput {
+    code: String!   # The discount code (e.g., "FREESHIP")
+}
+
+input OrderCreatePercentageDiscountCodeAttributesInput {
+    code: String!       # The discount code (e.g., "SAVE20")
+    percentage: Float  # The percentage value (e.g., 20.0 for 20%)
+}
+
+input OrderCreateDiscountCodeInput {
+    freeShippingDiscountCode: OrderCreateFreeShippingDiscountCodeAttributesInput
+    itemPercentageDiscountCode: OrderCreatePercentageDiscountCodeAttributesInput
+}
 
 type CodeDiscountNodeConnection {
     nodes: [CodeDiscountNode!]!

@@ -8,5 +8,6 @@ data class LineEntity(
     val title: String,
     val category: String,
     val brand: String,
-    val lineId: String
+    val lineId: String,
+    val productId: String = ""
 )

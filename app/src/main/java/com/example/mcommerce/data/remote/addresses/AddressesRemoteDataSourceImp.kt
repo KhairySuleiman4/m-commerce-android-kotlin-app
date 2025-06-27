@@ -38,8 +38,8 @@ class AddressesRemoteDataSourceImp(
             result?.customerDefaultAddressUpdate?.customer?.id != null
         }
 
-    override fun checkForDefault(accessToken: String): Flow<ApiResult<Boolean>> = executeAPI {
+    override fun checkForDefault(accessToken: String): Flow<ApiResult<AddressEntity?>> = executeAPI {
         val result = graphQLService.checkForDefaultAddress(accessToken).data
-        result?.customer?.defaultAddress?.id != null
+        result?.toModel()?.toEntity()
     }
 }

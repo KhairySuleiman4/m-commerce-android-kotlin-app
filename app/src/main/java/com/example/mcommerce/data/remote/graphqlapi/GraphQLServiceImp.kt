@@ -70,6 +70,7 @@ class GraphQLServiceImp(private val client: ApolloClient) : GraphQLService {
     override suspend fun getAllProducts(): ApolloResponse<GetAllProductsQuery.Data> =
         client.query(GetAllProductsQuery()).execute()
 
+
     override suspend fun getOrders(userAccessToken: String): ApolloResponse<GetOrdersQuery.Data> =
         client.query(GetOrdersQuery(userAccessToken)).execute()
 
