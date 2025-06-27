@@ -1,0 +1,7 @@
+mutation customerDefaultAddressUpdate($addressId: ID!, $customerAccessToken: String!) {
+    customerDefaultAddressUpdate(addressId: $addressId, customerAccessToken: $customerAccessToken) {
+        customer {
+            id
+        }
+    }
+}

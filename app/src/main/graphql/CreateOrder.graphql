@@ -1,0 +1,9 @@
+mutation orderCreate($order: OrderCreateOrderInput!) {
+    orderCreate(order: $order, options: {
+        sendFulfillmentReceipt: true
+    }) {
+        order {
+            name
+        }
+    }
+}

@@ -1,0 +1,57 @@
+mutation AddItemToCart($cartid : ID!,$quantity : Int!,$varientid : ID!) {
+    cartLinesAdd(
+        cartId: $cartid
+        lines: [
+            {
+                quantity: $quantity,
+                merchandiseId:$varientid
+            },
+        ]
+    ){
+        cart {
+            id
+            checkoutUrl
+            lines(first: 20) {
+                edges {
+                    node {
+                        id
+                        quantity
+                        merchandise {
+                            ... on ProductVariant {
+                                id
+                                title
+                                price {
+                                    amount
+                                }
+                                product {
+                                    id
+                                    title
+                                    featuredImage {
+                                        url
+                                    }
+                                    vendor
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            discountAllocations {
+                discountedAmount {
+                    amount
+                }
+            }
+            discountCodes {
+                code
+            }
+            cost {
+                subtotalAmount {
+                    amount
+                }
+                totalAmount {
+                    amount
+                }
+            }
+        }
+    }
+}

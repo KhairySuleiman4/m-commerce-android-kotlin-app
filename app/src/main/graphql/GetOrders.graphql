@@ -1,0 +1,46 @@
+query GetOrders($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+        orders(first: 10, sortKey: PROCESSED_AT, reverse: true) {
+            edges {
+                node {
+                    name
+                    processedAt
+                    shippingAddress{
+                        address1,
+                        city,
+                        name,
+                        phone
+                    }
+                    subtotalPrice{
+                        amount
+                    }
+                    totalPrice {
+                        amount
+                    }
+                    lineItems(first: 5) {
+                        edges {
+                            node {
+                                quantity
+                                variant {
+                                    title
+                                    product {
+                                        id
+                                        title
+                                        priceRange{
+                                            maxVariantPrice{
+                                                amount
+                                            }
+                                        }
+                                        featuredImage {
+                                            url
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

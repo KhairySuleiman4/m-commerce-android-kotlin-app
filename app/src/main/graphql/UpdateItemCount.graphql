@@ -1,0 +1,52 @@
+mutation UpdateItemCount($cartId: ID!, $lines: [CartLineUpdateInput!]!){
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+        cart {
+            id
+            checkoutUrl
+            lines(first: 20) {
+                edges {
+                    node {
+                        id
+                        quantity
+                        merchandise {
+                            ... on ProductVariant {
+                                id
+                                title
+                                price {
+                                    amount
+                                }
+                                product {
+                                    id
+                                    title
+                                    featuredImage {
+                                        url
+                                        altText
+                                    }
+                                    vendor
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            discountCodes {
+                code
+            }
+            discountAllocations {
+                discountedAmount {
+                    amount
+                }
+            }
+            cost {
+                subtotalAmount {
+                    amount
+                    currencyCode
+                }
+                totalAmount {
+                    amount
+                    currencyCode
+                }
+            }
+        }
+    }
+}

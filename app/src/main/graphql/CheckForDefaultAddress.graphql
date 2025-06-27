@@ -1,0 +1,12 @@
+query CheckForDefaultAddress($accessToken: String!){
+    customer(customerAccessToken: $accessToken) {
+        defaultAddress{
+            address1
+            address2
+            city
+            country
+            zip
+            lastName
+        }
+    }
+}
