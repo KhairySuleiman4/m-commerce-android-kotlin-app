@@ -16,6 +16,7 @@ mutation UpdateItemCount($cartId: ID!, $lines: [CartLineUpdateInput!]!){
                                     amount
                                 }
                                 product {
+                                    id
                                     title
                                     featuredImage {
                                         url

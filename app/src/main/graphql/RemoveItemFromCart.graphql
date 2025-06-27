@@ -19,6 +19,7 @@ mutation RemoveItemFromCart($cartid : ID!,$varients : [ID!]!) {
                                     amount
                                 }
                                 product {
+                                    id
                                     title
                                     featuredImage {
                                         url

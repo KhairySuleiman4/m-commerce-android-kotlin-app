@@ -2,6 +2,7 @@ package com.example.mcommerce.data.mappers
 
 import com.example.mcommerce.AddCartDiscountMutation
 import com.example.mcommerce.AddItemToCartMutation
+import com.example.mcommerce.CheckForDefaultAddressQuery
 import com.example.mcommerce.CreateCartMutation
 import com.example.mcommerce.GetAddressesQuery
 import com.example.mcommerce.GetAllProductsQuery
@@ -275,7 +276,8 @@ fun GetCartByIdQuery.Edge.toModel(): LineModel = LineModel(
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
     brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
-    lineId = this.node.id
+    lineId = this.node.id,
+    productId = this.node.merchandise.onProductVariant?.product?.id ?: ""
 
 )
 
@@ -287,8 +289,8 @@ fun CreateCartMutation.Edge.toModel(): LineModel = LineModel(
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
     brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
-    lineId = this.node.id
-
+    lineId = this.node.id,
+    productId = this.node.merchandise.onProductVariant?.product?.id ?: ""
 )
 
 fun AddItemToCartMutation.Edge.toModel(): LineModel = LineModel(
@@ -299,8 +301,8 @@ fun AddItemToCartMutation.Edge.toModel(): LineModel = LineModel(
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
     brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
-    lineId = this.node.id
-
+    lineId = this.node.id,
+    productId = this.node.merchandise.onProductVariant?.product?.id ?: ""
 )
 
 fun RemoveItemFromCartMutation.Edge.toModel(): LineModel = LineModel(
@@ -311,8 +313,8 @@ fun RemoveItemFromCartMutation.Edge.toModel(): LineModel = LineModel(
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
     brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
-    lineId = this.node.id
-
+    lineId = this.node.id,
+    productId = this.node.merchandise.onProductVariant?.product?.id ?: ""
 )
 
 fun AddCartDiscountMutation.Edge.toModel(): LineModel = LineModel(
@@ -323,8 +325,8 @@ fun AddCartDiscountMutation.Edge.toModel(): LineModel = LineModel(
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
     brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
-    lineId = this.node.id
-
+    lineId = this.node.id,
+    productId = this.node.merchandise.onProductVariant?.product?.id ?: ""
 )
 
 fun UpdateItemCountMutation.Edge.toModel(): LineModel = LineModel(
@@ -335,7 +337,8 @@ fun UpdateItemCountMutation.Edge.toModel(): LineModel = LineModel(
     title = this.node.merchandise.onProductVariant?.product?.title ?: "",
     category = this.node.merchandise.onProductVariant?.title ?: "",
     brand = this.node.merchandise.onProductVariant?.product?.vendor ?: "",
-    lineId = this.node.id
+    lineId = this.node.id,
+    productId = this.node.merchandise.onProductVariant?.product?.id ?: ""
 )
 
 fun GetHomeProductsQuery.Data.toModel(): List<ProductsModel> {
@@ -366,6 +369,20 @@ fun GetAddressesQuery.Data.toModel(): List<AddressModel>? {
             isDefault = customer.defaultAddress?.id == it.node.id
         )
     }
+}
+
+fun CheckForDefaultAddressQuery.Data.toModel(): AddressModel{
+    return AddressModel(
+        id = "",
+        name = this.customer?.defaultAddress?.address1 ?: "",
+        subName = this.customer?.defaultAddress?.address2 ?: "",
+        country = this.customer?.defaultAddress?.country ?: "",
+        city = this.customer?.defaultAddress?.city ?: "",
+        zip = this.customer?.defaultAddress?.zip ?: "",
+        customerName = this.customer?.defaultAddress?.lastName ?: "",
+        latitude = 0.0,
+        longitude = 0.0
+    )
 }
 
 fun GetOrdersQuery.Data.toModel(): List<OrderModel>?{

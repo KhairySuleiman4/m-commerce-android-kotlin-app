@@ -24,6 +24,6 @@ class AddressesRepoImp(
     override fun updateDefault(accessToken: String, addressId: String): Flow<ApiResult<Boolean>> =
         addressesRemoteDataSource.updateDefault(accessToken, addressId)
 
-    override fun checkForDefault(accessToken: String): Flow<ApiResult<Boolean>> =
+    override fun checkForDefault(accessToken: String): Flow<ApiResult<AddressEntity?>> =
         addressesRemoteDataSource.checkForDefault(accessToken)
 }

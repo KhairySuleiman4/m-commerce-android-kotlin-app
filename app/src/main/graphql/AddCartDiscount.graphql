@@ -16,6 +16,7 @@ mutation AddCartDiscount($cartId: ID!, $discountCodes: [String!]!){
                                     amount
                                 }
                                 product {
+                                    id
                                     title
                                     featuredImage {
                                         url

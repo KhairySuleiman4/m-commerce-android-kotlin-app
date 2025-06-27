@@ -17,7 +17,7 @@ interface CartContract {
         data class ClickOnMinusItem(val variantId: String, val quantity: Int) : Action
         data class ClickOnRemoveItem(val variantId: String) : Action
         data class ClickOnApplyDiscount(val code: String) : Action
-        data class ClickOnSubmit(val activity: ComponentActivity, val isCredit: Boolean) : Action
+        data class ClickOnSubmit(val activity: ComponentActivity, val isCredit: Boolean, val action: () -> Unit) : Action
     }
 
     sealed interface Events {
@@ -33,4 +33,9 @@ interface CartContract {
         data class Failure(val errorMsg: String) : States
         data object Idle : States
     }
+}
+
+enum class PaymentMethod {
+    CREDIT_CARD,
+    CASH_ON_DELIVERY
 }

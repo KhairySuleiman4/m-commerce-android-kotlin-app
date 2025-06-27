@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,6 +61,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mcommerce.R
 import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.presentation.cart.CartContract
+import com.example.mcommerce.presentation.cart.PaymentMethod
 import com.example.mcommerce.presentation.cart.viewmodel.CartViewModel
 import com.example.mcommerce.presentation.errors.CartEmptyScreen
 import com.example.mcommerce.presentation.errors.FailureScreen
@@ -141,7 +143,7 @@ fun CartScreen(
             viewModel.invokeActions(CartContract.Action.ClickOnRemoveItem(it))
         },
         submitAction = {
-            viewModel.invokeActions(CartContract.Action.ClickOnSubmit(activity, it))
+            viewModel.invokeActions(CartContract.Action.ClickOnSubmit(activity, it, navigate))
         }
     )
 }
@@ -170,6 +172,7 @@ fun CartPage(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
     )
+    val selectedPaymentMethod = remember { mutableStateOf<PaymentMethod?>(null) }
     Scaffold(
         modifier = modifier,
         containerColor = Background,
@@ -340,26 +343,118 @@ fun CartPage(
         }
     }
 
-    if (showCheckoutSheet.value){
+    if (showCheckoutSheet.value) {
         ModalBottomSheet(
             onDismissRequest = {
                 showCheckoutSheet.value = false
+                selectedPaymentMethod.value = null
             },
             sheetState = checkoutSheetState,
         ) {
-            Column {
-                Row(
-                    Modifier.clickable {
-                        submitAction(true)
-                        showCheckoutSheet.value = false
-                    }.fillMaxWidth()
-                ) {  }
-                Row(
-                    Modifier.clickable {
-                        submitAction(false)
-                        showCheckoutSheet.value = false
-                    }.fillMaxWidth()
-                ) {  }
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    fontFamily = PoppinsFontFamily,
+                    text = "Choose your payment method",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        selectedPaymentMethod.value = PaymentMethod.CREDIT_CARD
+                    },
+                    colors = if (selectedPaymentMethod.value == PaymentMethod.CREDIT_CARD)
+                        ButtonDefaults.buttonColors(
+                            containerColor = Primary,
+                            contentColor = Background
+                        )
+                    else
+                        ButtonDefaults.outlinedButtonColors(contentColor = Primary),
+                    border = BorderStroke(2.dp, Primary),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20))
+                        .height(50.dp)
+                        .fillMaxWidth(0.9f)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(R.drawable.credit_icon),
+                            contentDescription = "credit",
+                            tint = if (selectedPaymentMethod.value == PaymentMethod.CREDIT_CARD) Background
+                            else    Primary,
+                            modifier = modifier.size(32.dp).padding(end = 8.dp)
+                        )
+                        Text(
+                            fontFamily = PoppinsFontFamily,
+                            text = "Credit card"
+                        )
+                    }
+                }
+                OutlinedButton(
+                    onClick = {
+                        selectedPaymentMethod.value = PaymentMethod.CASH_ON_DELIVERY
+                    },
+                    colors = if (selectedPaymentMethod.value == PaymentMethod.CASH_ON_DELIVERY)
+                        ButtonDefaults.buttonColors(
+                            containerColor = Primary,
+                            contentColor = Background
+                        )
+                    else
+                        ButtonDefaults.outlinedButtonColors(contentColor = Primary),
+                    border = BorderStroke(2.dp, Primary),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20))
+                        .height(50.dp)
+                        .fillMaxWidth(0.9f)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(R.drawable.cash),
+                            contentDescription = "cash",
+                            tint = if (selectedPaymentMethod.value == PaymentMethod.CASH_ON_DELIVERY) Background
+                            else    Primary,
+                            modifier = modifier.size(32.dp).padding(end = 8.dp)
+                        )
+                        Text(
+                            fontFamily = PoppinsFontFamily, text = "Cash on Delivery (COD)"
+                        )
+                    }
+
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        selectedPaymentMethod.value?.let {
+                            submitAction(it == PaymentMethod.CREDIT_CARD)
+                            showCheckoutSheet.value = false
+                        }
+                    },
+                    enabled = selectedPaymentMethod.value != null,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Primary,
+                        contentColor = Background,
+                        disabledContainerColor = Color.LightGray,
+                        disabledContentColor = Color.DarkGray
+                    ),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20))
+                        .height(50.dp)
+                        .fillMaxWidth(0.9f)
+                ) {
+                    Text(
+                        fontFamily = PoppinsFontFamily,
+                        text = "Checkout"
+                    )
+                }
             }
         }
     }
@@ -560,13 +655,13 @@ fun CartItem(
     minusAction: () -> Unit,
     deleteAction: () -> Unit
 ) {
-    Card (
+    Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(Color.White),
         modifier = modifier
             .fillMaxWidth()
-    ){
+    ) {
         Row(
             modifier = modifier
                 .fillMaxSize(),
@@ -681,11 +776,10 @@ fun CartInfo(
                     ) {
                         Text(
                             fontFamily = PoppinsFontFamily,
-                            text ="-"
+                            text = "-"
                         )
                     }
-                }
-                else{
+                } else {
                     Spacer(
                         Modifier
                             .width(16.dp)
@@ -694,12 +788,12 @@ fun CartInfo(
                 }
                 Text(
                     fontFamily = PoppinsFontFamily,
-                    text ="$value",
+                    text = "$value",
                     fontSize = 14.sp
                 )
                 OutlinedIconButton(
                     border = BorderStroke(1.dp, color = Primary),
-                    colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+                    colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
                     onClick = plusAction,
                     modifier = Modifier
                         .width(20.dp)
@@ -712,7 +806,7 @@ fun CartInfo(
                 }
             }
             IconButton(
-                colors = IconButtonDefaults.iconButtonColors().copy( contentColor = Primary),
+                colors = IconButtonDefaults.iconButtonColors().copy(contentColor = Primary),
                 onClick = deleteAction,
                 modifier = Modifier
                     .width(20.dp)
@@ -793,7 +887,7 @@ fun CartInfoInBottomSheet(
 @Composable
 private fun PreviewCartScreen() {
     CartItem(
-        item = LineEntity("", 2, 2.0, "", "", "1/x", "", "s"),
+        item = LineEntity("", 2, 2.0, "", "", "1/x", "", "s", ""),
         currency = "",
         rate = 1.0,
         plusAction = { },

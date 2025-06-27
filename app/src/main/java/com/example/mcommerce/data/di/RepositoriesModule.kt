@@ -212,7 +212,7 @@ object RepositoriesModule {
 
     @Provides
     @Singleton
-    fun provideOrdersRemoteDataSource(graphQLService: GraphQLService): OrdersRemoteDataSource = OrdersRemoteDataSourceImpl(graphQLService)
+    fun provideOrdersRemoteDataSource(graphQLService: GraphQLService, adminGraphQLService: AdminGraphQLService): OrdersRemoteDataSource = OrdersRemoteDataSourceImpl(graphQLService, adminGraphQLService)
 
     @Provides
     @Singleton

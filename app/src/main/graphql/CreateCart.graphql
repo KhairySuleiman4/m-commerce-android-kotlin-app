@@ -24,6 +24,7 @@ mutation CreateCart($lines : [CartLineInput!],$customerToken : String!,$email :S
                                     amount
                                 }
                                 product {
+                                    id
                                     title
                                     featuredImage {
                                         url

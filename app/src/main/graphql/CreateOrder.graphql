@@ -4,46 +4,6 @@ mutation orderCreate($order: OrderCreateOrderInput!) {
     }) {
         order {
             name
-            processedAt
-            shippingAddress{
-                address1,
-                city,
-                name,
-                phone
-            }
-            taxesIncluded
-            subtotalPriceSet{
-                shopMoney{
-                    amount
-                }
-            }
-            totalPriceSet{
-                shopMoney{
-                    amount
-                }
-            }
-            lineItems(first: 5) {
-                edges {
-                    node {
-                        quantity
-                        variant {
-                            title
-                            product {
-                                id
-                                title
-                                priceRange{
-                                    maxVariantPrice{
-                                        amount
-                                    }
-                                }
-                                featuredImage {
-                                    url
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

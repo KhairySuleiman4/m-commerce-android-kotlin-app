@@ -6,14 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mcommerce.domain.ApiResult
+import com.example.mcommerce.domain.entities.AddressEntity
+import com.example.mcommerce.domain.entities.LineEntity
 import com.example.mcommerce.domain.usecases.AddDiscountToCartUseCase
 import com.example.mcommerce.domain.usecases.ChangeCartItemInCartUseCase
 import com.example.mcommerce.domain.usecases.CheckForDefaultAddressUseCase
 import com.example.mcommerce.domain.usecases.ClearLocalCartUseCase
 import com.example.mcommerce.domain.usecases.ClearOnlineCartUseCase
+import com.example.mcommerce.domain.usecases.CreateOrderUseCase
 import com.example.mcommerce.domain.usecases.GetCartUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentCurrencyUseCase
 import com.example.mcommerce.domain.usecases.GetCurrentExchangeRateUseCase
+import com.example.mcommerce.domain.usecases.GetEmailUseCase
 import com.example.mcommerce.domain.usecases.GetUserAccessTokenUseCase
 import com.example.mcommerce.domain.usecases.RemoveItemFromCartUseCase
 import com.example.mcommerce.presentation.cart.CartContract
@@ -41,7 +45,9 @@ class CartViewModel @Inject constructor(
     private val checkForDefaultAddressUseCase: CheckForDefaultAddressUseCase,
     private val getUserAccessTokenUseCase: GetUserAccessTokenUseCase,
     private val clearOnlineCartUseCase: ClearOnlineCartUseCase,
-    private val clearLocalCartUseCase: ClearLocalCartUseCase
+    private val clearLocalCartUseCase: ClearLocalCartUseCase,
+    private val createOrderUseCase: CreateOrderUseCase,
+    private val getEmailUseCase: GetEmailUseCase
 ) : ViewModel(), CartContract.CartViewModel {
 
     private val _states = mutableStateOf<CartContract.States>(CartContract.States.Idle)
@@ -52,6 +58,7 @@ class CartViewModel @Inject constructor(
 
     private var canCheckout: Boolean? = null
     private var eventProcessor: DefaultCheckoutEventProcessor? = null
+    private var currentAddress: AddressEntity? = null
 
     override fun invokeActions(action: CartContract.Action) {
         when (action) {
@@ -72,7 +79,7 @@ class CartViewModel @Inject constructor(
             }
 
             is CartContract.Action.ClickOnSubmit -> {
-                checkDefault(action.activity, action.isCredit)
+                checkDefault(action.activity, action.isCredit, action.action)
             }
         }
     }
@@ -175,13 +182,14 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    private fun checkDefault(activity: ComponentActivity, isCredit: Boolean) {
+    private fun checkDefault(activity: ComponentActivity, isCredit: Boolean, action: () -> Unit) {
         if (canCheckout != null) {
             if (canCheckout as Boolean) {
                 if (isCredit)
                     checkout(activity)
-                else
-                    makeOrder()
+                else{
+                    makeOrder(action)
+                }
             } else {
                 _events.value =
                     CartContract.Events.DisplayError("Sorry you don't have an address to deliver to")
@@ -204,12 +212,13 @@ class CartViewModel @Inject constructor(
                         }
 
                         is ApiResult.Success -> {
-                            canCheckout = it.data
+                            currentAddress = it.data
+                            canCheckout = currentAddress != null
                             if (canCheckout as Boolean) {
                                 if (isCredit)
                                     checkout(activity)
                                 else
-                                    makeOrder()
+                                    makeOrder(action)
                             } else {
                                 _events.value =
                                     CartContract.Events.DisplayError("Sorry you don't have an address to deliver to")
@@ -221,8 +230,33 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    private fun makeOrder() {
-        TODO("Not yet implemented")
+    private fun makeOrder(action: () -> Unit) {
+        val email = getEmailUseCase()
+        if(_states.value is CartContract.States.Success){
+            val cart = (_states.value as CartContract.States.Success).cart
+            viewModelScope.launch {
+                createOrderUseCase(email, cart.items, currentAddress!!, cart.code ).collect{ result ->
+                    when(result){
+                        is ApiResult.Failure -> {
+                            _events.value = CartContract.Events.DisplayError(
+                                result.error.message ?: "Couldn't add your order"
+                            )
+                        }
+                        is ApiResult.Loading -> {
+
+                        }
+                        is ApiResult.Success -> {
+                            if(result.data){
+                                checkoutCompleted(action)
+                            }else{
+                                _events.value = CartContract.Events.DisplayError("couldn't complete your checkout")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private fun changeQuantity(variantId: String, quantity: Int) {

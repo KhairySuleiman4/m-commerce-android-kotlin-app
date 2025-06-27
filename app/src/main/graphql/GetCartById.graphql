@@ -15,6 +15,7 @@ query GetCartById($id: ID!){
                                 amount
                             }
                             product {
+                                id
                                 title
                                 featuredImage {
                                     url
