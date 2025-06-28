@@ -152,7 +152,9 @@ fun OrderDetailsUI(
         item {
             ItemsList(
                 itemsList = order.lineItems,
-                onItemClick = onItemClick
+                onItemClick = onItemClick,
+                currency = currency,
+                rate = rate
             )
         }
 
@@ -249,6 +251,8 @@ fun DeliveryStatusCard(modifier: Modifier = Modifier, order: OrderEntity) {
 fun ItemsList(
     itemsList: List<LineItemEntity>,
     onItemClick: (String) -> Unit,
+    currency: String,
+    rate: Double,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -261,7 +265,7 @@ fun ItemsList(
             modifier = Modifier.padding(8.dp)
         ) {
             itemsList.forEach { item ->
-                ItemCard(item = item, onItemClick = onItemClick)
+                ItemCard(item = item, onItemClick = onItemClick, currency = currency, rate = rate)
             }
         }
     }
@@ -341,6 +345,8 @@ fun PriceDetailsCard(
 fun ItemCard(
     modifier: Modifier = Modifier,
     item: LineItemEntity,
+    currency: String,
+    rate: Double,
     onItemClick: (String) -> Unit
 ) {
     Column {
@@ -365,8 +371,11 @@ fun ItemCard(
                 name = item.productTitle,
                 brand = item.productTitle,
                 size = item.variantTitle,
-                currency = "EGP",
-                price = item.price
+                currency = currency,
+                price = String.format(
+                    Locale.US,
+                    "%.2f", item.price.toDouble() * rate
+                )
             )
         }
         HorizontalDivider()
