@@ -489,7 +489,7 @@ fun VariantRow(
             },
             text = variant.title,
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.SemiBold
         )
         Text(
             fontFamily = PoppinsFontFamily,
@@ -506,7 +506,7 @@ fun VariantRow(
                 )
             } $priceUnit",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.SemiBold
         )
         GlideImage(
             modifier = modifier

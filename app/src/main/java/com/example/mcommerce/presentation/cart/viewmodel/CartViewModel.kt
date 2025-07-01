@@ -212,7 +212,7 @@ class CartViewModel @Inject constructor(
 
                         is ApiResult.Success -> {
                             currentAddress = it.data
-                            canCheckout = currentAddress != null
+                            canCheckout = (currentAddress != null && currentAddress?.subName?.isNotBlank()!!)
                             if (canCheckout as Boolean) {
                                 if (isCredit)
                                     checkout(activity)
